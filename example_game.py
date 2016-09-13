@@ -2,9 +2,10 @@ from __future__ import print_function
 import sys
 from CYLGameServer import serve
 from CYLGameServer import CYLGameLanguage
+from CYLGameServer import CYLGame
 
 
-class TickTackToe(object):
+class TickTackToe(CYLGame):
     SCREEN_WIDTH = 80
     SCREEN_HEIGHT = 25
     LIMIT_FPS = 20
@@ -86,35 +87,41 @@ class TickTackToe(object):
         if language == CYLGameLanguage.LITTLEPY:
             return open("example_bot.lp", "r").read()
 
-    def draw_screen(self, libtcod, console):
-        libtcod.console_set_default_foreground(console, libtcod.white)
+    def draw_screen(self, console):
+        # libtcod.console_set_default_foreground(console, libtcod.white)
+        console.set_colors((255,255,255), (0,0,0))
         for i in range(self.width * self.d - 1):
             for j in range(self.d - 1):
                 x = self.offsetx + i - (self.width / 2) + 1
                 y = (j * self.width) + self.offsety + (self.width / 2)
                 ch = '-'
-                libtcod.console_put_char(console, x, y, ch, libtcod.BKGND_NONE)
+                console.draw_char(x, y, ch)
+                # libtcod.console_put_char(console, x, y, ch, libtcod.BKGND_NONE)
 
         for i in range(self.d - 1):
             for j in range(self.width * self.d - 1):
                 x = (i * self.width) + self.offsetx + (self.width / 2)
                 y = self.offsety + j - (self.width / 2) + 1
                 ch = '|'
-                libtcod.console_put_char(console, x, y, ch, libtcod.BKGND_NONE)
+                console.draw_char(x, y, ch)
+                # libtcod.console_put_char(console, x, y, ch, libtcod.BKGND_NONE)
 
         for i in range(self.d - 1):
             for j in range(self.d - 1):
                 x = (i * self.width) + self.offsetx + (self.width / 2)
                 y = (j * self.width) + self.offsety + (self.width / 2)
                 ch = '+'
-                libtcod.console_put_char(console, x, y, ch, libtcod.BKGND_NONE)
+                console.draw_char(x, y, ch)
+                # libtcod.console_put_char(console, x, y, ch, libtcod.BKGND_NONE)
 
         for i in range(len(self.tacks)):
             t = self.tacks[i]
             if self.grid[i]:
-                libtcod.console_put_char(console, t[0], t[1], self.grid_to_char[self.grid[i]], libtcod.BKGND_NONE)
+                console.draw_char(t[0], t[1], self.grid_to_char[self.grid[i]])
+                # libtcod.console_put_char(console, t[0], t[1], self.grid_to_char[self.grid[i]], libtcod.BKGND_NONE)
             else:
-                libtcod.console_put_char(console, t[0], t[1], str(i + 1), libtcod.BKGND_NONE)
+                console.draw_char(t[0], t[1], str(i + 1))
+                # libtcod.console_put_char(console, t[0], t[1], str(i + 1), libtcod.BKGND_NONE)
 
         if self.draw_win:
             message = ""
@@ -127,7 +134,8 @@ class TickTackToe(object):
                 ch = message[i]
                 y = self.centery + ((self.width * self.d)/2)
                 x = self.centerx - (len(message)/2) + i - 1
-                libtcod.console_put_char(console, x, y, ch, libtcod.BKGND_NONE)
+                console.draw_char(x, y, ch)
+                # libtcod.console_put_char(console, x, y, ch, libtcod.BKGND_NONE)
             self.running = False
 
 
