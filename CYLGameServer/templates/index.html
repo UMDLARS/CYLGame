@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ game_title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery.min.js') }}">\x3C/script>')</script>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        window.is_playing = false;
+        $(function() {
+            $('a#submitCode').bind('click', function() {
+                $.ajax({
+                    type: "POST",
+                    url: $SCRIPT_ROOT + '/sim',
+                    data: JSON.stringify({code: editor.getValue()}),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(data) {
+                        if (data["error"]) {
+                            alert(data["error"]);
+                        } else {
+                            drawFrames(data);
+                        }
+                    },
+                    failure: function(errMsg) {
+                        alert(errMsg);
+                    }
+                });
+                return false;
+            });
+            drawLoop();
+        });
+        function drawFrames(frames) {
+            window.is_playing = true;
+            window.replay_frames = frames;
+            window.cur_frame = 0;
+        }
+
+        function drawLoop() {
+            var timeout = 1000;
+            if (window.is_playing) {
+                window.cur_frame++;
+                if (window.cur_frame == replay_frames.length) {
+                    timeout = 3000;
+                    window.cur_frame = -1;
+                } else {
+                    $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
+                    $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
+                    draw(window.replay_frames[window.cur_frame]);
+                }
+            }
+            setTimeout(drawLoop, timeout);
+        }
+
+        function draw(frame) {
+            var c=document.getElementById("display");
+            var ctx=c.getContext("2d");
+            var img=document.getElementById("chars");
+            for (var i = 0; i < frame.length; i++) {
+                for (var j = 0; j < frame[i].length; j++) {
+                    draw_char(c,ctx,img,frame[i][j],j,i);
+                }
+            }
+        }
+        function draw_char(canvas, ctx, img, char, x, y){
+            var rows = 16;
+            var char_height = 8;
+            var char_width = 8;
+
+            var sourceX = Math.floor(char/rows)*char_width;
+            var sourceY = (char%rows)*char_width;
+            var sourceWidth = 8;
+            var sourceHeight = 8;
+            var destWidth = sourceWidth;
+            var destHeight = sourceHeight;
+            var destX = x*char_width;
+            var destY = y*char_height;
+
+            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+
+        }
+    </script>
+    <style type="text/css">
+        #editor {
+            margin: 0;
+            width: 100%;
+            height: 512px;
+        }
+        #wrap {
+           width:100%;
+           margin:0 auto;
+        }
+        #left_col {
+           float:left;
+           width:50%;
+            padding: 10px;
+        }
+        #right_col {
+           float:right;
+           width:50%;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<style type="text/css">
+</style>
+{#<div class="container" style="width: 100%">#}
+{#    <h3>{{ game_title }}</h3>#}
+{#    <ul class="nav nav-pills nav-justified">#}
+{#        <li class="active"><a href="#Intro">Intro</a></li>#}
+{#        <li><a href="#Game">Game</a></li>#}
+{#        <li><a href="#Bot">Bot</a></li>#}
+{#    </ul>#}
+{#</div>#}
+<div class="container" style="width: 100%;padding: 10px;">
+    <h3>{{ game_title }}</h3>
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#Intro">Intro</a></li>
+      <li><a data-toggle="tab" href="#Game">Game</a></li>
+      <li><a data-toggle="tab" href="#Bot">Bot</a></li>
+    </ul>
+</div>
+
+<div class="tab-content">
+  <div id="Intro" class="tab-pane fade in active">
+    <h3>INTRO</h3>
+    <p>Some content.</p>
+  </div>
+  <div id="Game" class="tab-pane fade">
+      <h3>Play the Game</h3>
+      <p>This is where the user can play the game to test out different ideas.</p>
+      <canvas id="displayPlayer" height="200px" width="640px"></canvas>
+  </div>
+  <div id="Bot" class="tab-pane fade">
+      <div id="wrap">
+        <div id="left_col">
+            <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">
+            <canvas id="display" height="200px" width="640px"></canvas>
+            <div>
+                <div class="progress" style="width: 640px;">
+                    <div id="playbackProgress" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                    </div>
+                </div>
+                <span id="playbackProgressText">Frame 0 of 0</span>
+            </div>
+            <br>
+        </div>
+        <div id="right_col">
+            <a href="#" id="submitCode">Submit</a>
+            <br>
+            <span>Result:</span>
+            <span id="result">?</span>
+            <pre id="editor">{{ example_bot }}</pre>
+            <script src="{{url_for('static', filename='ace/ace.js') }}" type="text/javascript" charset="utf-8"></script>
+            <script>
+                var editor = ace.edit("editor");
+                editor.setTheme("ace/theme/twilight");
+                editor.session.setMode("ace/mode/javascript");
+            </script>
+        </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
