@@ -12,28 +12,33 @@
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
         window.is_playing = false;
         $(function() {
-            $('a#submitCode').bind('click', function() {
-                $.ajax({
-                    type: "POST",
-                    url: $SCRIPT_ROOT + '/sim',
-                    data: JSON.stringify({code: editor.getValue()}),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function(data) {
-                        if (data["error"]) {
-                            alert(data["error"]);
-                        } else {
-                            drawFrames(data);
-                        }
-                    },
-                    failure: function(errMsg) {
-                        alert(errMsg);
-                    }
-                });
-                return false;
-            });
-            drawLoop();
+{#            $('a#submitCode').bind('click', function() {#}
+{#            });#}
+{#            drawLoop();#}
         });
+        window.onload = function() {
+            drawLoop();
+        }
+        function submitCode() {
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + '/sim',
+                data: JSON.stringify({code: editor.getValue()}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (data["error"]) {
+                        alert(data["error"]);
+                    } else {
+                        drawFrames(data);
+                    }
+                },
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
+            return false;
+        }
         function drawFrames(frames) {
             window.is_playing = true;
             window.replay_frames = frames;
@@ -151,7 +156,7 @@
             <br>
         </div>
         <div id="right_col">
-            <a href="#" id="submitCode">Submit</a>
+            <button id="submitCode" onclick="submitCode();">Submit</button>
             <br>
             <span>Result:</span>
             <span id="result">?</span>
