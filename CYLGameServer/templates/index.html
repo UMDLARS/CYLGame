@@ -109,6 +109,9 @@
            width:50%;
             padding: 10px;
         }
+        canvas {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -147,7 +150,7 @@
             <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">
             <canvas id="display" height="200px" width="640px"></canvas>
             <div>
-                <div class="progress" style="width: 640px;">
+                <div class="progress">
                     <div id="playbackProgress" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
                     </div>
                 </div>
