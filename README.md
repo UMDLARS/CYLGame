@@ -2,6 +2,8 @@
 
 ## Dependencies
 Linux: libsdl1.2, python-dev
+Ubuntu install command
+```sudo apt-get install python-dev python-pip libsdl1.2debian```
 
 Python:
 ```
