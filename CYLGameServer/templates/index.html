@@ -10,14 +10,21 @@
     <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery.min.js') }}">\x3C/script>')</script>
     <script type=text/javascript>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-        window.is_playing = false;
+        pause()
         $(function() {
 {#            $('a#submitCode').bind('click', function() {#}
 {#            });#}
 {#            drawLoop();#}
         });
         window.onload = function() {
+{#            document.getElementById("display").width = {{ screen_width }}*{{ char_width }};#}
+{#            document.getElementById("display").height = {{ screen_height }}*{{ char_height }};#}
+            window.playback_timeout = 1000;
+            window.canceled = false;
             drawLoop();
+        }
+        function setPlaybackTimeout(timeout) {
+            window.playback_timeout = timeout;
         }
         function submitCode() {
             $.ajax({
@@ -27,6 +34,10 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
                     if (data["error"]) {
                         alert(data["error"]);
                     } else {
@@ -34,19 +45,23 @@
                     }
                 },
                 failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
                     alert(errMsg);
                 }
             });
+            document.getElementById("loadingOverlay").style["display"] = "";
             return false;
         }
         function drawFrames(frames) {
-            window.is_playing = true;
+            play();
             window.replay_frames = frames;
             window.cur_frame = 0;
         }
 
         function drawLoop() {
-            var timeout = 1000;
             if (window.is_playing) {
                 window.cur_frame++;
                 if (window.cur_frame == replay_frames.length) {
@@ -58,7 +73,7 @@
                     draw(window.replay_frames[window.cur_frame]);
                 }
             }
-            setTimeout(drawLoop, timeout);
+            setTimeout(drawLoop, window.playback_timeout);
         }
 
         function draw(frame) {
@@ -73,13 +88,13 @@
         }
         function draw_char(canvas, ctx, img, char, x, y){
             var rows = 16;
-            var char_height = 8;
-            var char_width = 8;
+            var char_height = {{ char_height }};
+            var char_width = {{ char_width }};
 
             var sourceX = Math.floor(char/rows)*char_width;
             var sourceY = (char%rows)*char_width;
-            var sourceWidth = 8;
-            var sourceHeight = 8;
+            var sourceWidth = char_width;
+            var sourceHeight = char_height;
             var destWidth = sourceWidth;
             var destHeight = sourceHeight;
             var destX = x*char_width;
@@ -87,6 +102,17 @@
 
             ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
 
+        }
+        function pause() {
+            window.is_playing = false;
+        }
+        function play() {
+            window.is_playing = true;
+        }
+        function cancelSubmit() {
+            window.canceled = true;
+            document.getElementById("loadingOverlay").style["display"] = "none";
+            play();
         }
     </script>
     <style type="text/css">
@@ -116,6 +142,40 @@
 </head>
 <body>
 <style type="text/css">
+    #playbackProgress.instant {
+        transition: width 0s ease;
+    }
+    #playbackProgress.fast {
+        transition: width 0.05s ease;
+    }
+    #playbackProgress.normal {
+        transition: width 0.2s ease;
+    }
+    #playbackProgress.slow {
+        transition: width 0.4s ease;
+    }
+
+    #overlayCancel {
+        color: white;
+    }
+    #overlayCancel:hover {
+        color: #f0ad4e;
+    }
+
+    .glyphicon-refresh-animate {
+        -animation: spin .7s infinite linear;
+        -webkit-animation: spin2 .7s infinite linear;
+    }
+
+    @-webkit-keyframes spin2 {
+        from { -webkit-transform: rotate(0deg);}
+        to { -webkit-transform: rotate(360deg);}
+    }
+
+    @keyframes spin {
+        from { transform: scale(1) rotate(0deg);}
+        to { transform: scale(1) rotate(360deg);}
+    }
 </style>
 {#<div class="container" style="width: 100%">#}
 {#    <h3>{{ game_title }}</h3>#}
@@ -142,34 +202,48 @@
   <div id="Game" class="tab-pane fade">
       <h3>Play the Game</h3>
       <p>This is where the user can play the game to test out different ideas.</p>
-      <canvas id="displayPlayer" height="200px" width="640px"></canvas>
+      <canvas id="displayPlayer" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
   </div>
   <div id="Bot" class="tab-pane fade">
+      <div id="loadingOverlay" style="display: none;position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index:999; background-color: rgba(0,0,0,0.5);">
+          <div style="top: 50%; left: 50%; position: absolute;transform: translate3d(-50%,-50%, 0);text-align: center;">
+              <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
+              <br><br>
+              <span id="overlayCancel" onclick="cancelSubmit();">Cancel</span>
+          </div>
+      </div>
       <div id="wrap">
         <div id="left_col">
             <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">
-            <canvas id="display" height="200px" width="640px"></canvas>
+            <canvas id="display" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
             <div>
                 <div class="progress">
-                    <div id="playbackProgress" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                    <div id="playbackProgress" class="progress-bar fast" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
                     </div>
                 </div>
                 <span id="playbackProgressText">Frame 0 of 0</span>
             </div>
             <br>
+            <div>
+                <button onclick="pause();">Pause</button>
+                <button onclick="play();">Play</button>
+                <button onclick="setPlaybackTimeout(1000);">1x</button>
+                <button onclick="setPlaybackTimeout(500);">2x</button>
+                <button onclick="setPlaybackTimeout(200);">5x</button>
+                <button onclick="setPlaybackTimeout(100);">10x</button>
+                <button onclick="setPlaybackTimeout(10);">100x</button>
+            </div>
         </div>
         <div id="right_col">
-            <button id="submitCode" onclick="submitCode();">Submit</button>
-            <br>
-            <span>Result:</span>
-            <span id="result">?</span>
             <pre id="editor">{{ example_bot }}</pre>
             <script src="{{url_for('static', filename='ace/ace.js') }}" type="text/javascript" charset="utf-8"></script>
             <script>
                 var editor = ace.edit("editor");
                 editor.setTheme("ace/theme/twilight");
-                editor.session.setMode("ace/mode/javascript");
+                editor.session.setMode("ace/mode/lp");
             </script>
+            <br>
+            <button id="submitCode" onclick="submitCode();">Submit</button>
         </div>
     </div>
   </div>

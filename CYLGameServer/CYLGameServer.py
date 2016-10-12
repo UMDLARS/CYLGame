@@ -26,7 +26,8 @@ def sim():
 @app.route('/')
 def index():
     global game
-    return render_template('index.html', game_title=game.GAME_TITLE, example_bot=game.default_prog_for_bot(language))
+    return render_template('index.html', game_title=game.GAME_TITLE, example_bot=game.default_prog_for_bot(language), char_width=game.CHAR_WIDTH,
+                           char_height=game.CHAR_HEIGHT, screen_width=game.SCREEN_WIDTH, screen_height=game.SCREEN_HEIGHT)
 
 
 def serve(cylgame):

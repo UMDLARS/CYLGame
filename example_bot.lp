@@ -1,29 +1,29 @@
 # Tick Tack Toe Example Bot
 
 if spot1 is 0 {
- move = NUM1
+ move = key_1
 }
 if spot2 is 0 {
- move = NUM2
+ move = key_2
 }
 if spot3 is 0 {
- move = NUM3
+ move = key_3
 }
 if spot4 is 0 {
- move = NUM4
+ move = key_4
 }
 if spot5 is 0 {
- move = NUM5
+ move = key_5
 }
 if spot6 is 0{
- move = NUM6
+ move = key_6
 }
 if spot7 is 0 {
- move = NUM7
+ move = key_7
 }
 if spot8 is 0 {
- move = NUM8
+ move = key_8
 }
 if spot9 is 0 {
- move = NUM9
+ move = key_9
 }

@@ -103,6 +103,7 @@ var supportedModes = {
     Lisp:        ["lisp"],
     LiveScript:  ["ls"],
     LogiQL:      ["logic|lql"],
+    LP:          ["lp"],
     LSL:         ["lsl"],
     Lua:         ["lua"],
     LuaPage:     ["lp"],
@@ -180,7 +181,8 @@ var nameOverrides = {
     coffee: "CoffeeScript",
     HTML_Ruby: "HTML (Ruby)",
     HTML_Elixir: "HTML (Elixir)",
-    FTL: "FreeMarker"
+    FTL: "FreeMarker",
+    LP: "Little Python"
 };
 var modesByName = {};
 for (var name in supportedModes) {
