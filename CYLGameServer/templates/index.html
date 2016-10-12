@@ -23,9 +23,11 @@
             window.playback_timeout = 1000;
             window.canceled = false;
             drawLoop();
+            disable_btn_bar();
         }
         function setPlaybackTimeout(timeout) {
             window.playback_timeout = timeout;
+            play();
         }
         function submitCode() {
             $.ajax({
@@ -43,6 +45,7 @@
                         alert(data["error"]);
                     } else {
                         drawFrames(data);
+                        enable_btn_bar();
                     }
                 },
                 failure: function(errMsg) {
@@ -60,6 +63,26 @@
             play();
             window.replay_frames = frames;
             window.cur_frame = 0;
+        }
+
+        function prevFrame() {
+            pause();
+            if (window.cur_frame > 0) {
+                window.cur_frame--;
+            }
+            $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
+            $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
+            draw(window.replay_frames[window.cur_frame]);
+        }
+
+        function nextFrame() {
+            pause();
+            if (window.cur_frame < replay_frames.length-1) {
+                window.cur_frame++;
+            }
+            $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
+            $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
+            draw(window.replay_frames[window.cur_frame]);
         }
 
         function drawLoop() {
@@ -110,10 +133,26 @@
         function play() {
             window.is_playing = true;
         }
+        function toggle_play() {
+            window.is_playing = !window.is_playing;
+        }
+        function stop() {
+            pause();
+            window.cur_frame = 0;
+            $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
+            $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
+            draw(window.replay_frames[window.cur_frame]);
+        }
         function cancelSubmit() {
             window.canceled = true;
             document.getElementById("loadingOverlay").style["display"] = "none";
             play();
+        }
+        function disable_btn_bar() {
+            $("#btn-bar :button").attr("disabled", true);
+        }
+        function enable_btn_bar() {
+            $("#btn-bar :button").attr("disabled", false);
         }
     </script>
     <style type="text/css">
@@ -227,14 +266,17 @@
                 <span id="playbackProgressText">Frame 0 of 0</span>
             </div>
             <br>
-            <div>
-                <button onclick="pause();">Pause</button>
-                <button onclick="play();">Play</button>
+            <div id="btn-bar">
+                <button onclick="stop();">Stop</button>
+                <button onclick="prevFrame();">&lt;</button>
+                <button onclick="toggle_play();">Play/Pause</button>
+                <button onclick="nextFrame();">&gt;</button>
                 <button onclick="setPlaybackTimeout(1000);">1x</button>
                 <button onclick="setPlaybackTimeout(500);">2x</button>
                 <button onclick="setPlaybackTimeout(200);">5x</button>
                 <button onclick="setPlaybackTimeout(100);">10x</button>
                 <button onclick="setPlaybackTimeout(10);">100x</button>
+                <br>
             </div>
         </div>
         <div id="right_col">

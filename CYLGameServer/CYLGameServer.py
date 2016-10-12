@@ -1,9 +1,11 @@
 from __future__ import print_function
 from flask import Flask, render_template, request, jsonify
+from flask_compress import Compress
 from CYLGame import CYLGameRunner
 from CYLGame import CYLGameLanguage
 
 app = Flask(__name__)
+Compress(app)
 language = CYLGameLanguage.LITTLEPY
 
 if language == CYLGameLanguage.LITTLEPY:

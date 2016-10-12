@@ -23,3 +23,7 @@ canvas {
 .tab-pane {
     margin: 1em;
 }
+
+button:disabled {
+    color: grey;
+}
