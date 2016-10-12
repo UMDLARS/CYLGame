@@ -87,14 +87,14 @@
 
         function drawLoop() {
             if (window.is_playing) {
-                window.cur_frame++;
                 if (window.cur_frame == replay_frames.length) {
-                    timeout = 3000;
-                    window.cur_frame = -1;
+                    pause();
+                    window.cur_frame = 0;
                 } else {
                     $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
                     $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
                     draw(window.replay_frames[window.cur_frame]);
+                    window.cur_frame++;
                 }
             }
             setTimeout(drawLoop, window.playback_timeout);
