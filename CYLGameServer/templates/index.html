@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dark.css') }}">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery.min.js') }}">\x3C/script>')</script>
     <script type=text/javascript>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -202,7 +203,9 @@
   <div id="Game" class="tab-pane fade">
       <h3>Play the Game</h3>
       <p>This is where the user can play the game to test out different ideas.</p>
-      <canvas id="displayPlayer" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
+      <div style="margin-left: 1em;margin-right: 1em;">
+        <canvas id="displayPlayer" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
+      </div>
   </div>
   <div id="Bot" class="tab-pane fade">
       <div id="loadingOverlay" style="display: none;position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index:999; background-color: rgba(0,0,0,0.5);">
