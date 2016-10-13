@@ -27,13 +27,16 @@ def sim():
 
 @app.route('/')
 def index():
-    global game
+    global game, base_url
     return render_template('index.html', game_title=game.GAME_TITLE, example_bot=game.default_prog_for_bot(language), char_width=game.CHAR_WIDTH,
-                           char_height=game.CHAR_HEIGHT, screen_width=game.SCREEN_WIDTH, screen_height=game.SCREEN_HEIGHT)
+                           char_height=game.CHAR_HEIGHT, screen_width=game.SCREEN_WIDTH, screen_height=game.SCREEN_HEIGHT, base_url=base_url)
 
 
-def serve(cylgame):
-    global game
+def serve(cylgame, url="http://localhost:5000/"):
+    global game, base_url
+    if url[-1] != "/":
+        url = url + "/"
+    base_url = url
     game = cylgame
     assert hasattr(cylgame, "GAME_TITLE")
     app.run()
