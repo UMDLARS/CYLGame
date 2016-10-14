@@ -2,10 +2,12 @@ from __future__ import print_function
 import ujson
 from flask import Flask, render_template, request, jsonify
 from flask_compress import Compress
+from flaskext.markdown import Markdown
 from CYLGame import CYLGameRunner
 from CYLGame import CYLGameLanguage
 
 app = Flask(__name__)
+Markdown(app)
 Compress(app)
 language = CYLGameLanguage.LITTLEPY
 
@@ -35,13 +37,14 @@ def sim():
 def index():
     global game, base_url
     return render_template('index.html', game_title=game.GAME_TITLE, example_bot=game.default_prog_for_bot(language), char_width=game.CHAR_WIDTH,
-                           char_height=game.CHAR_HEIGHT, screen_width=game.SCREEN_WIDTH, screen_height=game.SCREEN_HEIGHT, base_url=base_url)
+                           char_height=game.CHAR_HEIGHT, screen_width=game.SCREEN_WIDTH, screen_height=game.SCREEN_HEIGHT, base_url=base_url,
+                           intro_text=CYLGameLanguage.get_language_description(language))
 
 
 def serve(cylgame, url="http://localhost:5000/", host=None):
     global game, base_url
     if url[-1] != "/":
-        url = url + "/"
+        url += "/"
     base_url = url
     game = cylgame
     assert hasattr(cylgame, "GAME_TITLE")

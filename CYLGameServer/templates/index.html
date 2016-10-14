@@ -244,8 +244,7 @@
 
 <div class="tab-content">
   <div id="Intro" class="tab-pane fade in active">
-    <h3>INTRO</h3>
-    <p>Some content.</p>
+    <p>{% filter markdown %}{{ intro_text }}{% endfilter %}</p>
   </div>
   <div id="Game" class="tab-pane fade">
       <h3>Play the Game</h3>

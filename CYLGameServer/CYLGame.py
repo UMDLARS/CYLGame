@@ -1,14 +1,24 @@
 import tcod as libtcod
 import tdl
 import tempfile
+import os.path
 # import tcod_to_tdl as libtcod
 
 TCOT_ROOT_CONSOLE = None
 TDL_ROOT_CONSOLE = None
 
+def data_file(filename):
+    resource_path = os.path.join(os.path.split(__file__)[0], os.path.pardir, "data", filename)
+    return resource_path
+
 
 class CYLGameLanguage(object):
     LITTLEPY = 0
+
+    @staticmethod
+    def get_language_description(language):
+        if language == CYLGameLanguage.LITTLEPY:
+            return open(data_file("little_python_intro.md")).read()
 
 
 class CYLGame(object):
