@@ -21,7 +21,10 @@ def sim():
         prog = compiler.compile(code.split("\n"))
     except:
         return jsonify(error="Code did not compile")
-    runner = CYLGameRunner(game, prog)
+    try:
+        runner = CYLGameRunner(game, prog)
+    except:
+        return jsonify(error="Your bot ran into an error at runtime")
     return jsonify(runner.run())
 
 

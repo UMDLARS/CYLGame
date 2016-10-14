@@ -1,5 +1,6 @@
 import tcod as libtcod
 import tdl
+import tempfile
 # import tcod_to_tdl as libtcod
 
 TCOT_ROOT_CONSOLE = None
@@ -63,6 +64,7 @@ class CYLGameRunner(object):
                 # TCOT_ROOT_CONSOLE = libtcod.console_init_root(self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT, self.game.GAME_TITLE)
                 TDL_ROOT_CONSOLE = tdl.init(self.game_class.SCREEN_WIDTH, self.game_class.SCREEN_HEIGHT, self.game_class.GAME_TITLE)
         else:
+            self.vars = {}
             if not TDL_ROOT_CONSOLE:
                 # TCOT_ROOT_CONSOLE = libtcod.console_init_root(0, 0, self.game.GAME_TITLE)
                 TDL_ROOT_CONSOLE = tdl.init(0, 0)
@@ -81,14 +83,26 @@ class CYLGameRunner(object):
             return self.screen_cap
 
     def get_screen_array(self):
+        tf = tempfile.NamedTemporaryFile(mode="rb")
+        libtcod.console_save_asc(self.console.tcod_console, tf.name)
+        # fp = open(tf.name, 'rb')
+        lines = tf.readlines()
+        y, x = map(int, lines[1].split())
+        chars = lines[2][1::9]
         arr = []
-        for j in range(self.game.SCREEN_HEIGHT):
-            arr += [[]]
-            for i in range(self.game.SCREEN_WIDTH):
-                # char = libtcod.console_get_char(self.console, i, j)
-                char = self.console.get_char(i, j)[0]
-                arr[j] += [char]
+        for i in range(y):
+            arr += [map(ord, chars[i::x])]
+        # fp.close()
+        # tf.delete
         return arr
+        # arr = []
+        # for j in range(self.game.SCREEN_HEIGHT):
+        #     arr += [[]]
+        #     for i in range(self.game.SCREEN_WIDTH):
+        #         # char = libtcod.console_get_char(self.console, i, j)
+        #         char = self.console.get_char(i, j)[0]
+        #         arr[j] += [char]
+        # return arr
 
     def __run_user(self):
         self.game.draw_screen(libtcod, self.console.tcod_console)
@@ -109,12 +123,12 @@ class CYLGameRunner(object):
         # libtcod.console_flush()
         self.screen_cap += [self.get_screen_array()]
 
-        vars = self.game.get_vars_for_bot()
-        vars.update(self.key_consts)
-        vars.update(self.dir_consts)
-        ending_state = self.bot.run(vars)
+        self.vars.update(self.game.get_vars_for_bot())
+        self.vars.update(self.key_consts)
+        self.vars.update(self.dir_consts)
+        self.vars = self.bot.run(self.vars)
 
-        if "move" in ending_state:
-            self.game.handle_key(chr(ending_state["move"]))
+        if "move" in self.vars:
+            self.game.handle_key(chr(self.vars["move"]))
         else:
             self.kill = True
