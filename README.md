@@ -12,6 +12,7 @@ pip install libtcod-cffi
 pip install tdl
 pip install flask
 pip install flask-compress
+pip install ujson
 git clone git@github.com:DerPferd/little-python.git lp
 cd lp
 pip install .

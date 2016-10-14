@@ -1,4 +1,5 @@
 from __future__ import print_function
+import ujson
 from flask import Flask, render_template, request, jsonify
 from flask_compress import Compress
 from CYLGame import CYLGameRunner
@@ -21,11 +22,13 @@ def sim():
         prog = compiler.compile(code.split("\n"))
     except:
         return jsonify(error="Code did not compile")
+    runner = CYLGameRunner(game, prog)
     try:
-        runner = CYLGameRunner(game, prog)
-    except:
+        result = ujson.dumps(runner.run())
+    except Exception as e:
+        print(e)
         return jsonify(error="Your bot ran into an error at runtime")
-    return jsonify(runner.run())
+    return result
 
 
 @app.route('/')
@@ -35,11 +38,14 @@ def index():
                            char_height=game.CHAR_HEIGHT, screen_width=game.SCREEN_WIDTH, screen_height=game.SCREEN_HEIGHT, base_url=base_url)
 
 
-def serve(cylgame, url="http://localhost:5000/"):
+def serve(cylgame, url="http://localhost:5000/", host=None):
     global game, base_url
     if url[-1] != "/":
         url = url + "/"
     base_url = url
     game = cylgame
     assert hasattr(cylgame, "GAME_TITLE")
-    app.run()
+    if host:
+        app.run(host=host)
+    else:
+        app.run()
