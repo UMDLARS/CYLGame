@@ -8,9 +8,10 @@ from CYLGameServer import CYLGame
 class TickTackToe(CYLGame):
     SCREEN_WIDTH = 80
     SCREEN_HEIGHT = 25
-    CHAR_WIDTH = 8
-    CHAR_HEIGHT = 8
+    CHAR_WIDTH = 16
+    CHAR_HEIGHT = 16
     GAME_TITLE = "Tick Tack Toe"
+    CHAR_SET = "terminal16x16_gs_ro.png"
 
     def __init__(self):
         self.grid = [0] * 9
@@ -138,8 +139,8 @@ class TickTackToe(CYLGame):
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("Run: python game.py serve\nTo start web server.\nRun: python game.py play\n To play on this computer.")
-    if sys.argv[1] == "serve":
-        serve(TickTackToe)
+    elif sys.argv[1] == "serve":
+        serve(TickTackToe, "http://127.0.0.1:5000", host="127.0.0.1")
     elif sys.argv[1] == "play":
         from CYLGameServer import CYLGameRunner
         CYLGameRunner(TickTackToe).run()

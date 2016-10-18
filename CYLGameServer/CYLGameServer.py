@@ -12,7 +12,7 @@ Compress(app)
 language = CYLGameLanguage.LITTLEPY
 
 if language == CYLGameLanguage.LITTLEPY:
-    from littlepy import Compiler
+    from littlepython import Compiler
     compiler = Compiler()
 
 
@@ -38,7 +38,7 @@ def index():
     global game, base_url
     return render_template('index.html', game_title=game.GAME_TITLE, example_bot=game.default_prog_for_bot(language), char_width=game.CHAR_WIDTH,
                            char_height=game.CHAR_HEIGHT, screen_width=game.SCREEN_WIDTH, screen_height=game.SCREEN_HEIGHT, base_url=base_url,
-                           intro_text=CYLGameLanguage.get_language_description(language))
+                           intro_text=CYLGameLanguage.get_language_description(language), char_set=game.CHAR_SET)
 
 
 def serve(cylgame, url="http://localhost:5000/", host=None):

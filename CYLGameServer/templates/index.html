@@ -26,6 +26,13 @@
             window.canceled = false;
             drawLoop();
             disable_btn_bar();
+            window.charSetLayout = "col";
+            var charSetName = document.getElementById("chars").src
+            if (charSetName.indexOf("_ro.") != -1) {
+                window.charSetLayout = "row";
+            } else if (charSetName.indexOf("_tc.") != -1) {
+                window.charSetLayout = "tc"
+            }
         }
         function setPlaybackTimeout(timeout) {
             window.playback_timeout = timeout;
@@ -120,13 +127,22 @@
         }
         function draw_char(canvas, ctx, img, char, x, y){
             var rows = 16;
+            var cols = 16;
             var char_height = {{ char_height }};
             var char_width = {{ char_width }};
 
-            var sourceX = Math.floor(char/rows)*char_width;
-            var sourceY = (char%rows)*char_width;
-            var sourceWidth = char_width;
-            var sourceHeight = char_height;
+            if (window.charSetLayout == "col") {
+                var sourceY = (char%rows)*char_width;
+                var sourceX = Math.floor(char/rows)*char_width;
+                var sourceWidth = char_width;
+                var sourceHeight = char_height;
+            } else if (window.charSetLayout == "row") {
+                var sourceX = (char%cols)*char_width;
+                var sourceY = Math.floor(char/cols)*char_width;
+                var sourceWidth = char_width;
+                var sourceHeight = char_height;
+            }
+
             var destWidth = sourceWidth;
             var destHeight = sourceHeight;
             var destX = x*char_width;
@@ -264,7 +280,7 @@
       <div id="wrap">
         <div id="left_col">
 {#            <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">#}
-            <img id="chars" src="{{ base_url }}static/terminal.png" style="display: none;">
+            <img id="chars" src="{{ base_url }}static/fonts/{{ char_set }}" style="display: none;">
             <canvas id="display" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
             <div>
                 <div class="progress">

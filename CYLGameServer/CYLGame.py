@@ -27,6 +27,7 @@ class CYLGame(object):
     CHAR_WIDTH = 8
     CHAR_HEIGHT = 8
     GAME_TITLE = ""
+    CHAR_SET = "terminal8x8_gs_ro.png"
 
     def is_running(self):
         raise Exception("Not implemented!")
@@ -72,7 +73,9 @@ class CYLGameRunner(object):
         if not self.bot:
             if not TDL_ROOT_CONSOLE:
                 # TCOT_ROOT_CONSOLE = libtcod.console_init_root(self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT, self.game.GAME_TITLE)
+                tdl.setFont(data_file("fonts/" + self.game_class.CHAR_SET))
                 TDL_ROOT_CONSOLE = tdl.init(self.game_class.SCREEN_WIDTH, self.game_class.SCREEN_HEIGHT, self.game_class.GAME_TITLE)
+                #libtcod.console_set_custom_font(data_file("fonts/terminal16x16_gs_ro.png"), libtcod.FONT_LAYOUT_ASCII_INROW)
         else:
             self.vars = {}
             if not TDL_ROOT_CONSOLE:
