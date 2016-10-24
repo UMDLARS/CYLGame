@@ -1,4 +1,5 @@
 from collections import defaultdict
+from functools import reduce
 
 DEFAULT_CHAR = ' '
 
@@ -63,33 +64,82 @@ class PanelBorder(object):
 
     def __init__(self, sides=0, char=None):
         self.sides = sides
-        self.char = char
-        self.style = {self.sides: self.char}
+        self.style = {self.sides: char}
+
+    @staticmethod
+    def create(top=False, bottom=False, right=False, left=False, top_right=False, top_left=False, bottom_right=False,
+               bottom_left=False):
+        """
+        Use this method for an easy way to create nice borders. Set any side to true to create a border with the default
+        characters. You can also set any side to a character which will create a border with that character instead.
+        In order for the corners (top_right, top_left, ...) to be rendered both of their respective sides must be set
+        to True or a char.
+
+        Ex.
+        >>> PanelBorder.create(top=True)  # This will create a top border with the default char
+
+        >>> PanelBorder.create(top='$')  # This will create a top border of '$'s.
+
+        >>> PanelBorder.create(top='=', left='!', top_left='?')  # This will create a border looking like some thing below.
+            ?====
+            !
+            !
+        """
+        borders = []
+        if type(top) == bool and top:
+            borders += [PanelBorder(PanelBorder.TOP)]
+        elif type(top) == str:
+            borders += [PanelBorder(PanelBorder.TOP, char=top)]
+        if type(bottom) == bool and bottom:
+            borders += [PanelBorder(PanelBorder.BOTTOM)]
+        elif type(bottom) == str:
+            borders += [PanelBorder(PanelBorder.BOTTOM, char=bottom)]
+        if type(right) == bool and right:
+            borders += [PanelBorder(PanelBorder.RIGHT)]
+        elif type(right) == str:
+            borders += [PanelBorder(PanelBorder.RIGHT, char=right)]
+        if type(left) == bool and left:
+            borders += [PanelBorder(PanelBorder.LEFT)]
+        elif type(left) == str:
+            borders += [PanelBorder(PanelBorder.LEFT, char=left)]
+        if type(top_right) == bool and top_right:
+            borders += [PanelBorder(PanelBorder.TOP | PanelBorder.RIGHT)]
+        elif type(top_right) == str:
+            borders += [PanelBorder(PanelBorder.TOP | PanelBorder.RIGHT, char=top_right)]
+        if type(top_left) == bool and top_left:
+            borders += [PanelBorder(PanelBorder.TOP | PanelBorder.LEFT)]
+        elif type(top_left) == str:
+            borders += [PanelBorder(PanelBorder.TOP | PanelBorder.LEFT, char=top_left)]
+        if type(bottom_right) == bool and bottom_right:
+            borders += [PanelBorder(PanelBorder.BOTTOM | PanelBorder.RIGHT)]
+        elif type(bottom_right) == str:
+            borders += [PanelBorder(PanelBorder.BOTTOM | PanelBorder.RIGHT, char=bottom_right)]
+        if type(bottom_left) == bool and bottom_left:
+            borders += [PanelBorder(PanelBorder.BOTTOM | PanelBorder.LEFT)]
+        elif type(bottom_left) == str:
+            borders += [PanelBorder(PanelBorder.BOTTOM | PanelBorder.LEFT, char=bottom_left)]
+
+        return reduce(lambda x, y: x | y, borders)
 
     def __or__(self, other):
         assert isinstance(other, PanelBorder)
-        # make sure the sides aren't over lapping
-        assert other.sides & self.sides == 0
         new_border = PanelBorder()
+        new_border.sides = other.sides | self.sides
         new_border.style = self.style
         new_border.style.update(other.style)
+        return new_border
 
     def __getitem__(self, item):
-        if self.char:
-            return self.char
-        else:
-            return self.DEFAULT_CHARS[item]
+        if item in self.style:
+            if self.style[item]:
+                return self.style[item]
+        return self.DEFAULT_CHARS[item]
 
     def __contains__(self, item):
         return self.has_side(item)
 
     def has_side(self, side):
-        result = False
-        for sides in self.style:
-            if sides & side:
-                result = True
-                break
-        return result
+        return side in self.style
 
 
 class Panel(Map):
@@ -132,7 +182,7 @@ class Panel(Map):
             for i in range(self.real_w):
                 libtcod.console_put_char(console, self.real_x + i, self.y + self.h, self.border[PanelBorder.BOTTOM],
                                          libtcod.BKGND_NONE)
-        if PanelBorder.BOTTOM in self.border:
+        if PanelBorder.RIGHT in self.border:
             for i in range(self.real_h):
                 libtcod.console_put_char(console, self.x + self.w, self.real_y + i, self.border[PanelBorder.RIGHT],
                                          libtcod.BKGND_NONE)
@@ -140,13 +190,13 @@ class Panel(Map):
             libtcod.console_put_char(console, self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
-            libtcod.console_put_char(console, self.real_x, self.real_y + self.real_h, self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
+            libtcod.console_put_char(console, self.real_x, self.y + self.h, self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
-            libtcod.console_put_char(console, self.real_x + self.real_w, self.real_y, self.border[PanelBorder.TOP | PanelBorder.RIGHT],
+            libtcod.console_put_char(console, self.x + self.w, self.real_y, self.border[PanelBorder.TOP | PanelBorder.RIGHT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
-            libtcod.console_put_char(console, self.real_x + self.real_w, self.real_y + self.real_h, self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
+            libtcod.console_put_char(console, self.x + self.w, self.y + self.h, self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
                                      libtcod.BKGND_NONE)
 
 
