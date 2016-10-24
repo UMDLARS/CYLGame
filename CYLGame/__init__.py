@@ -8,3 +8,4 @@ from Panels import Panel
 from Panels import MapPanel
 from Panels import MessagePanel
 from Panels import StatusPanel
+from Panels import PanelBorder

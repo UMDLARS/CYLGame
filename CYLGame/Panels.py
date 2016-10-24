@@ -53,25 +53,112 @@ class Map(object):
         return self.p_to_char[pos]
 
 
+class PanelBorder(object):
+    TOP = 1
+    RIGHT = 2
+    LEFT = 4
+    BOTTOM = 8
+    DEFAULT_CHARS = {TOP: chr(196), BOTTOM: chr(196), RIGHT: chr(179), LEFT: chr(179),
+                     TOP | RIGHT: chr(191), TOP | LEFT: chr(218), BOTTOM | RIGHT: chr(217), BOTTOM | LEFT: chr(192)}
+
+    def __init__(self, sides=0, char=None):
+        self.sides = sides
+        self.char = char
+        self.style = {self.sides: self.char}
+
+    def __or__(self, other):
+        assert isinstance(other, PanelBorder)
+        # make sure the sides aren't over lapping
+        assert other.sides & self.sides == 0
+        new_border = PanelBorder()
+        new_border.style = self.style
+        new_border.style.update(other.style)
+
+    def __getitem__(self, item):
+        if self.char:
+            return self.char
+        else:
+            return self.DEFAULT_CHARS[item]
+
+    def __contains__(self, item):
+        return self.has_side(item)
+
+    def has_side(self, side):
+        result = False
+        for sides in self.style:
+            if sides & side:
+                result = True
+                break
+        return result
+
+
 class Panel(Map):
-    def __init__(self, x, y, w, h, background_char=DEFAULT_CHAR):
+    def __init__(self, x, y, w, h, background_char=DEFAULT_CHAR, border=PanelBorder()):
         super(Panel, self).__init__(background_char)
         self.x = x
         self.y = y
         self.w = w
         self.h = h
+        self.border = border
+        self.real_y = y
+        self.real_x = x
+        self.real_w = w
+        self.real_h = h
+        if PanelBorder.TOP in self.border:
+            self.real_y = self.y
+            self.y += 1
+            self.h -= 1
+        if PanelBorder.LEFT in self.border:
+            self.real_x = self.x
+            self.x += 1
+            self.w -= 1
+        if PanelBorder.BOTTOM in self.border:
+            self.real_h = self.h
+            self.h -= 1
+        if PanelBorder.RIGHT in self.border:
+            self.real_w = self.w
+            self.w -= 1
 
     def redraw(self, libtcod, console):
-        raise Exception("Not implemented!")
+        if PanelBorder.TOP in self.border:
+            for i in range(self.real_w):
+                libtcod.console_put_char(console, self.real_x + i, self.real_y, self.border[PanelBorder.TOP],
+                                         libtcod.BKGND_NONE)
+        if PanelBorder.LEFT in self.border:
+            for i in range(self.real_h):
+                libtcod.console_put_char(console, self.real_x, self.real_y + i, self.border[PanelBorder.LEFT],
+                                         libtcod.BKGND_NONE)
+        if PanelBorder.BOTTOM in self.border:
+            for i in range(self.real_w):
+                libtcod.console_put_char(console, self.real_x + i, self.y + self.h, self.border[PanelBorder.BOTTOM],
+                                         libtcod.BKGND_NONE)
+        if PanelBorder.BOTTOM in self.border:
+            for i in range(self.real_h):
+                libtcod.console_put_char(console, self.x + self.w, self.real_y + i, self.border[PanelBorder.RIGHT],
+                                         libtcod.BKGND_NONE)
+        if PanelBorder.TOP in self.border and PanelBorder.LEFT in self.border:
+            libtcod.console_put_char(console, self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT],
+                                     libtcod.BKGND_NONE)
+        if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
+            libtcod.console_put_char(console, self.real_x, self.real_y + self.real_h, self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
+                                     libtcod.BKGND_NONE)
+        if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
+            libtcod.console_put_char(console, self.real_x + self.real_w, self.real_y, self.border[PanelBorder.TOP | PanelBorder.RIGHT],
+                                     libtcod.BKGND_NONE)
+        if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
+            libtcod.console_put_char(console, self.real_x + self.real_w, self.real_y + self.real_h, self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
+                                     libtcod.BKGND_NONE)
 
 
 class MapPanel(Panel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR):
-        super(MapPanel, self).__init__(x, y, w, h, default_char)
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder()):
+        super(MapPanel, self).__init__(x, y, w, h, default_char, border)
 
     def redraw(self, libtcod, console):
-        # TODO: Make this work in python 3 as well
-        for pos, char in self.get_diff().iteritems():
+        super(MapPanel, self).redraw(libtcod, console)
+        diff = self.get_diff()
+        for pos in diff:
+            char = diff[pos]
             # Check that the position is in bounds
             if 0 <= pos[0] < self.w and 0 <= pos[1] < self.h:
                 libtcod.console_put_char(console, self.x + pos[0], self.y + pos[1], char, libtcod.BKGND_NONE)
@@ -80,8 +167,8 @@ class MapPanel(Panel):
 
 
 class MessagePanel(Panel):
-    def __init__(self, x, y, w, h):
-        super(MessagePanel, self).__init__(x, y, w, h)
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder()):
+        super(MessagePanel, self).__init__(x, y, w, h, default_char, border)
         self.msgs = []
         self.rows = self.h - 2
         self.max_len = self.w - 2
@@ -123,6 +210,7 @@ class MessagePanel(Panel):
         return self.msgs[-self.rows:]
 
     def redraw(self, libtcod, console):
+        super(MessagePanel, self).redraw(libtcod, console)
         msgs_to_display = self.get_current_messages()
         for j in range(len(msgs_to_display)):
             msg = msgs_to_display[j]
@@ -136,8 +224,8 @@ class MessagePanel(Panel):
 
 
 class StatusPanel(MessagePanel):
-    def __init__(self, x, y, w, h):
-        super(StatusPanel, self).__init__(x, y, w, h)
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder()):
+        super(StatusPanel, self).__init__(x, y, w, h, default_char, border)
         self.info = {}
 
     def __getitem__(self, item):
