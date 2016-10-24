@@ -9,3 +9,4 @@ from Panels import MapPanel
 from Panels import MessagePanel
 from Panels import StatusPanel
 from Panels import PanelBorder
+from Panels import PanelPadding

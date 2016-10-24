@@ -54,6 +54,61 @@ class Map(object):
         return self.p_to_char[pos]
 
 
+class PanelPadding(object):
+    TOP = 1
+    RIGHT = 2
+    LEFT = 4
+    BOTTOM = 8
+    DEFAULT_SIZE = 0
+
+    def __init__(self, sides=0, size=0):
+        self.sides = sides
+        self.style = {self.sides: size}
+
+    @staticmethod
+    def create(top=False, bottom=False, right=False, left=False):
+        paddings = [PanelPadding()]
+        if type(top) == bool and top:
+            paddings += [PanelPadding(PanelPadding.TOP)]
+        elif type(top) == int:
+            paddings += [PanelPadding(PanelPadding.TOP, top)]
+        if type(bottom) == bool and bottom:
+            paddings += [PanelPadding(PanelPadding.BOTTOM)]
+        elif type(bottom) == int:
+            paddings += [PanelPadding(PanelPadding.BOTTOM, bottom)]
+        if type(right) == bool and right:
+            paddings += [PanelPadding(PanelPadding.RIGHT)]
+        elif type(right) == int:
+            paddings += [PanelPadding(PanelPadding.RIGHT, right)]
+        if type(left) == bool and left:
+            paddings += [PanelPadding(PanelPadding.LEFT)]
+        elif type(left) == int:
+            paddings += [PanelPadding(PanelPadding.LEFT, left)]
+
+        return reduce(lambda x, y: x | y, paddings)
+
+    def __or__(self, other):
+        assert isinstance(other, PanelPadding)
+        new_padding = PanelPadding()
+        new_padding.sides = other.sides | self.sides
+        new_padding.style = self.style
+        new_padding.style.update(other.style)
+        return new_padding
+
+    def __getitem__(self, item):
+        if item in self.style:
+            if self.style[item]:
+                return self.style[item]
+        return self.DEFAULT_SIZE
+
+    def __contains__(self, item):
+        return self.has_side(item)
+
+    def has_side(self, side):
+        return True
+        # return side in self.style
+
+
 class PanelBorder(object):
     TOP = 1
     RIGHT = 2
@@ -143,31 +198,38 @@ class PanelBorder(object):
 
 
 class Panel(Map):
-    def __init__(self, x, y, w, h, background_char=DEFAULT_CHAR, border=PanelBorder()):
+    def __init__(self, x, y, w, h, background_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding()):
         super(Panel, self).__init__(background_char)
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.border = border
+        self.padding = padding
         self.real_y = y
         self.real_x = x
         self.real_w = w
         self.real_h = h
         if PanelBorder.TOP in self.border:
-            self.real_y = self.y
             self.y += 1
             self.h -= 1
         if PanelBorder.LEFT in self.border:
-            self.real_x = self.x
             self.x += 1
             self.w -= 1
         if PanelBorder.BOTTOM in self.border:
-            self.real_h = self.h
             self.h -= 1
         if PanelBorder.RIGHT in self.border:
-            self.real_w = self.w
             self.w -= 1
+        if PanelPadding.TOP in self.padding:
+            self.y += self.padding[PanelPadding.TOP]
+            self.h -= self.padding[PanelPadding.TOP]
+        if PanelPadding.LEFT in self.padding:
+            self.x += self.padding[PanelPadding.LEFT]
+            self.w -= self.padding[PanelPadding.LEFT]
+        if PanelPadding.BOTTOM in self.padding:
+            self.h -= self.padding[PanelPadding.BOTTOM]
+        if PanelPadding.RIGHT in self.padding:
+            self.w -= self.padding[PanelPadding.RIGHT]
 
     def redraw(self, libtcod, console):
         if PanelBorder.TOP in self.border:
@@ -180,29 +242,29 @@ class Panel(Map):
                                          libtcod.BKGND_NONE)
         if PanelBorder.BOTTOM in self.border:
             for i in range(self.real_w):
-                libtcod.console_put_char(console, self.real_x + i, self.y + self.h, self.border[PanelBorder.BOTTOM],
+                libtcod.console_put_char(console, self.real_x + i, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM],
                                          libtcod.BKGND_NONE)
         if PanelBorder.RIGHT in self.border:
             for i in range(self.real_h):
-                libtcod.console_put_char(console, self.x + self.w, self.real_y + i, self.border[PanelBorder.RIGHT],
+                libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y + i, self.border[PanelBorder.RIGHT],
                                          libtcod.BKGND_NONE)
         if PanelBorder.TOP in self.border and PanelBorder.LEFT in self.border:
             libtcod.console_put_char(console, self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
-            libtcod.console_put_char(console, self.real_x, self.y + self.h, self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
+            libtcod.console_put_char(console, self.real_x, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
-            libtcod.console_put_char(console, self.x + self.w, self.real_y, self.border[PanelBorder.TOP | PanelBorder.RIGHT],
+            libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y, self.border[PanelBorder.TOP | PanelBorder.RIGHT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
-            libtcod.console_put_char(console, self.x + self.w, self.y + self.h, self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
+            libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
                                      libtcod.BKGND_NONE)
 
 
 class MapPanel(Panel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder()):
-        super(MapPanel, self).__init__(x, y, w, h, default_char, border)
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding()):
+        super(MapPanel, self).__init__(x, y, w, h, default_char, border, padding)
 
     def redraw(self, libtcod, console):
         super(MapPanel, self).redraw(libtcod, console)
@@ -217,11 +279,11 @@ class MapPanel(Panel):
 
 
 class MessagePanel(Panel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder()):
-        super(MessagePanel, self).__init__(x, y, w, h, default_char, border)
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding.create(*[1]*4)):
+        super(MessagePanel, self).__init__(x, y, w, h, default_char, border, padding)
         self.msgs = []
-        self.rows = self.h - 2
-        self.max_len = self.w - 2
+        self.rows = self.h
+        self.max_len = self.w
 
     def __add__(self, other):
         self.add(other)
@@ -267,15 +329,15 @@ class MessagePanel(Panel):
             # TODO: optimize this
             # Clear msg board
             for i in range(self.max_len):
-                libtcod.console_put_char(console, self.x + 1 + i, self.y + 1 + j, self.default_char)
+                libtcod.console_put_char(console, self.x + i, self.y + j, self.default_char)
             # Print msg
             for i in range(min(len(msg), self.max_len)):
-                libtcod.console_put_char(console, self.x + 1 + i, self.y + 1 + j, msg[i])
+                libtcod.console_put_char(console, self.x + i, self.y + j, msg[i])
 
 
 class StatusPanel(MessagePanel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder()):
-        super(StatusPanel, self).__init__(x, y, w, h, default_char, border)
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding().create(*[1]*4)):
+        super(StatusPanel, self).__init__(x, y, w, h, default_char, border, padding)
         self.info = {}
 
     def __getitem__(self, item):
