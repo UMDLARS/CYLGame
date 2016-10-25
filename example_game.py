@@ -1,8 +1,8 @@
 from __future__ import print_function
 import sys
-from CYLGameServer import serve
-from CYLGameServer import CYLGameLanguage
-from CYLGameServer import CYLGame
+from CYLGame import serve
+from CYLGame import CYLGameLanguage
+from CYLGame import CYLGame
 
 
 class TickTackToe(CYLGame):
@@ -142,5 +142,5 @@ if __name__ == '__main__':
     elif sys.argv[1] == "serve":
         serve(TickTackToe, "http://127.0.0.1:5000", host="127.0.0.1")
     elif sys.argv[1] == "play":
-        from CYLGameServer import CYLGameRunner
+        from CYLGame import CYLGameRunner
         CYLGameRunner(TickTackToe).run()
