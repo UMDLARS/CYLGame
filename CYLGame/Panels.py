@@ -1,16 +1,31 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple, Mapping
 from functools import reduce
 
 DEFAULT_CHAR = ' '
 
 
+def namedtuple_with_defaults(typename, field_names, default_values=()):
+    T = namedtuple(typename, field_names)
+    T.__new__.__defaults__ = (None,) * len(T._fields)
+    if isinstance(default_values, Mapping):
+        prototype = T(**default_values)
+    else:
+        prototype = T(*default_values)
+    T.__new__.__defaults__ = tuple(prototype)
+    return T
+
+ColoredChar = namedtuple_with_defaults("ColoredChar", ["char", "foreground", "background"], (None, None, None))
+
+
 # WARNING: this does not do bounds checking
 # TODO: Should the map do bounds checking?
 class Map(object):
-    def __init__(self, default_char=DEFAULT_CHAR):
+    def __init__(self, default_char=DEFAULT_CHAR, default_foreground=(255, 255, 255), default_background=(0, 0, 0)):
         self.char_to_ps = defaultdict(set)
         self.p_to_char = defaultdict(lambda: default_char)
         self.default_char = default_char
+        self.default_foreground = default_foreground
+        self.default_background = default_background
         self.changes = {}
 
     def __setitem__(self, key, value):
@@ -29,7 +44,12 @@ class Map(object):
 
     # pos must be tuple
     def add(self, char, pos):
+        if type(char) == str:
+            char = ColoredChar(char)
+        else:
+            assert type(char) == ColoredChar
         assert type(pos) == tuple
+
         if pos in self.p_to_char.keys():
             self.rm_char(pos)
         self.char_to_ps[char].add(pos)
@@ -231,6 +251,18 @@ class Panel(Map):
         if PanelPadding.RIGHT in self.padding:
             self.w -= self.padding[PanelPadding.RIGHT]
 
+    @staticmethod
+    def draw_colored_char(colored_char, pos, libtcod, console):
+        # TODO: add asserts for these
+        char, foreground, background = colored_char
+        x, y = pos
+        if char != None:
+            libtcod.console_set_char(console, x, y, char)
+        if foreground != None:
+            libtcod.console_set_char_foreground(console, x, y, foreground)
+        if background != None:
+            libtcod.console_set_char_background(console, x, y, background)
+
     def redraw(self, libtcod, console):
         if PanelBorder.TOP in self.border:
             for i in range(self.real_w):
@@ -270,10 +302,16 @@ class MapPanel(Panel):
         super(MapPanel, self).redraw(libtcod, console)
         diff = self.get_diff()
         for pos in diff:
-            char = diff[pos]
+            colored_char = diff[pos]
+            if not colored_char.foreground:
+                colored_char = ColoredChar(colored_char.char, self.default_foreground, colored_char.background)
+            if not colored_char.background:
+                colored_char = ColoredChar(colored_char.char, colored_char.foreground, self.default_background)
+
             # Check that the position is in bounds
             if 0 <= pos[0] < self.w and 0 <= pos[1] < self.h:
-                libtcod.console_put_char(console, self.x + pos[0], self.y + pos[1], char, libtcod.BKGND_NONE)
+                self.draw_colored_char(colored_char, (self.x + pos[0], self.y + pos[1]), libtcod, console)
+                # libtcod.console_put_char(console, self.x + pos[0], self.y + pos[1], char, libtcod.BKGND_NONE)
             else:
                 raise Warning("Char out of bounds: Decided to skip drawing it!")
 
