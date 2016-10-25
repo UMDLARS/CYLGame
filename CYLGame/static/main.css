@@ -1,0 +1,38 @@
+
+
+#editor {
+    margin: 0;
+    width: 100%;
+    height: 512px;
+}
+canvas {
+    width: 100%;
+}
+#wrap {
+   width:100%;
+   margin:0 auto;
+}
+
+@media screen and (min-width: 1281px) {
+    #left_col {
+       float:left;
+       width:50%;
+        padding: 10px;
+    }
+    #right_col {
+       float:right;
+       width:50%;
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    #left_col {
+        width: 100%;
+        padding: 10px;
+    }
+    #right_col {
+        width:100%;
+        padding: 10px;
+    }
+}
