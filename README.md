@@ -14,9 +14,7 @@ pip install flask
 pip install flask-compress
 pip install Flask-Markdown
 pip install ujson
-git clone git@github.com:DerPferd/little-python.git lp
-cd lp
-pip install .
+pip install littlepython
 ```
 
 ## Setup
