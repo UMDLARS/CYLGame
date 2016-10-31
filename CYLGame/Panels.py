@@ -4,28 +4,41 @@ from functools import reduce
 DEFAULT_CHAR = ' '
 
 
-def namedtuple_with_defaults(typename, field_names, default_values=()):
-    T = namedtuple(typename, field_names)
-    T.__new__.__defaults__ = (None,) * len(T._fields)
-    if isinstance(default_values, Mapping):
-        prototype = T(**default_values)
-    else:
-        prototype = T(*default_values)
-    T.__new__.__defaults__ = tuple(prototype)
-    return T
+class ColoredChar(object):
+    def __init__(self, char=None, foreground=None, background=None):
+        self.char = char
+        self.foreground = foreground
+        self.background = background
 
-ColoredChar = namedtuple_with_defaults("ColoredChar", ["char", "foreground", "background"], (None, None, None))
+    def __iter__(self):
+        return [self.char, self.foreground, self.background].__iter__()
+
+    def __repr__(self):
+        return "<ColoredChar '" + str(self.char) + "', " + str(self.foreground) + ", " + str(self.background) + ">"
+
+    # NOTE: == will only test both chars not the colors.
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.char == other
+        else:
+            assert isinstance(other, ColoredChar)
+            return self.char == other.char
 
 
 # WARNING: this does not do bounds checking
 # TODO: Should the map do bounds checking?
 class Map(object):
-    def __init__(self, default_char=DEFAULT_CHAR, default_foreground=(255, 255, 255), default_background=(0, 0, 0)):
+    def __init__(self, default_char=DEFAULT_CHAR, default_foreground=(255, 255, 255), default_background=(0, 0, 0), default_colored_char=None):
+        if default_colored_char:
+            self.default_char = default_colored_char.char
+            self.default_foreground = default_colored_char.foreground
+            self.default_background = default_colored_char.background
+        else:
+            self.default_char = default_char
+            self.default_foreground = default_foreground
+            self.default_background = default_background
         self.char_to_ps = defaultdict(set)
-        self.p_to_char = defaultdict(lambda: default_char)
-        self.default_char = default_char
-        self.default_foreground = default_foreground
-        self.default_background = default_background
+        self.p_to_char = defaultdict(lambda: ColoredChar(self.default_char, self.default_foreground, self.default_background))
         self.changes = {}
 
     def __setitem__(self, key, value):
@@ -218,8 +231,8 @@ class PanelBorder(object):
 
 
 class Panel(Map):
-    def __init__(self, x, y, w, h, background_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding()):
-        super(Panel, self).__init__(background_char)
+    def __init__(self, x, y, w, h, background_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding(), default_colored_char=None):
+        super(Panel, self).__init__(background_char, default_colored_char=default_colored_char)
         self.x = x
         self.y = y
         self.w = w
