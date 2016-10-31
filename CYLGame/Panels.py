@@ -15,6 +15,9 @@ class ColoredChar(object):
             self.foreground = foreground
             self.background = background
 
+    def __str__(self):
+        return self.char
+
     def __iter__(self):
         return [self.char, self.foreground, self.background].__iter__()
 
@@ -33,6 +36,12 @@ class ColoredChar(object):
 # WARNING: this does not do bounds checking
 # TODO: Should the map do bounds checking?
 class Map(object):
+    """
+    char_to_ps: This is a dictionary which has a character for the keys and the value for the key is a set of all the
+                positions where that char is located.
+    p_to_char:  The is a dictionary which has a position(tuple with two elements: x and y) as a key and the current
+                ColoredChar as the value.
+    """
     def __init__(self, default_char=DEFAULT_CHAR, default_foreground=(255, 255, 255), default_background=(0, 0, 0), default_colored_char=None):
         if default_colored_char:
             self.default_char = default_colored_char.char
@@ -63,31 +72,39 @@ class Map(object):
     # pos must be tuple
     def add(self, char, pos):
         if type(char) == str:
-            char = ColoredChar(char)
+            colored_char = ColoredChar(char)
         else:
-            assert type(char) == ColoredChar
+            colored_char = char
+            char = colored_char.char
+            assert type(colored_char) == ColoredChar
         assert type(pos) == tuple
 
         if pos in self.p_to_char.keys():
             self.rm_char(pos)
         self.char_to_ps[char].add(pos)
-        self.p_to_char[pos] = char
-        self.changes[pos] = char
+        self.p_to_char[pos] = colored_char
+        self.changes[pos] = colored_char
 
     # pos must be tuple
     def rm_char(self, pos):
         assert type(pos) == tuple
-        char = self.p_to_char[pos]
+        colored_char = self.p_to_char[pos]
         del self.p_to_char[pos]
+        char = colored_char.char
         if char in self.char_to_ps and pos in self.char_to_ps[char]:
             self.char_to_ps[char].remove(pos)
             self.changes[pos] = self.default_char
 
     # returns a set of pos
     def get_all_pos(self, char):
+        if isinstance(char, ColoredChar):
+            char = char.char
+        assert isinstance(char, str)
+        assert len(char) == 1
         return self.char_to_ps[char]
 
     # will return default_char if the position is not set
+    # Will return a ColoredChar
     def get_char_at(self, pos):
         return self.p_to_char[pos]
 
