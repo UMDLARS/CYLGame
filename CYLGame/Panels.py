@@ -6,9 +6,14 @@ DEFAULT_CHAR = ' '
 
 class ColoredChar(object):
     def __init__(self, char=None, foreground=None, background=None):
-        self.char = char
-        self.foreground = foreground
-        self.background = background
+        if isinstance(char, ColoredChar):
+            self.char = char.char
+            self.foreground = char.foreground
+            self.background = char.background
+        else:
+            self.char = char
+            self.foreground = foreground
+            self.background = background
 
     def __iter__(self):
         return [self.char, self.foreground, self.background].__iter__()
@@ -264,17 +269,20 @@ class Panel(Map):
         if PanelPadding.RIGHT in self.padding:
             self.w -= self.padding[PanelPadding.RIGHT]
 
-    @staticmethod
-    def draw_colored_char(colored_char, pos, libtcod, console):
+    def draw_colored_char(self, colored_char, pos, libtcod, console):
         # TODO: add asserts for these
         char, foreground, background = colored_char
         x, y = pos
-        if char != None:
+        if char is not None:
             libtcod.console_set_char(console, x, y, char)
-        if foreground != None:
+        if foreground is not None:
             libtcod.console_set_char_foreground(console, x, y, foreground)
-        if background != None:
+        else:
+            libtcod.console_set_char_foreground(console, x, y, self.default_foreground)
+        if background is not None:
             libtcod.console_set_char_background(console, x, y, background)
+        else:
+            libtcod.console_set_char_background(console, x, y, self.default_background)
 
     def redraw(self, libtcod, console):
         if PanelBorder.TOP in self.border:
@@ -308,18 +316,29 @@ class Panel(Map):
 
 
 class MapPanel(Panel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding()):
-        super(MapPanel, self).__init__(x, y, w, h, default_char, border, padding)
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding(), default_colored_char=None):
+        super(MapPanel, self).__init__(x, y, w, h, default_char, border, padding, default_colored_char=default_colored_char)
+        # self.first_draw()
+        self.is_first = True
+
+    def first_draw(self, libtcod, console):
+        # pass
+        for x in range(self.w):
+            for y in range(self.h):
+                self.draw_colored_char(self[(x, y)], (self.x + x, self.y + y), libtcod, console)
 
     def redraw(self, libtcod, console):
         super(MapPanel, self).redraw(libtcod, console)
+        if self.is_first:
+            self.first_draw(libtcod, console)
+            self.is_first = False
         diff = self.get_diff()
         for pos in diff:
             colored_char = diff[pos]
-            if not colored_char.foreground:
-                colored_char = ColoredChar(colored_char.char, self.default_foreground, colored_char.background)
-            if not colored_char.background:
-                colored_char = ColoredChar(colored_char.char, colored_char.foreground, self.default_background)
+            # if not colored_char.foreground:
+            #     colored_char = ColoredChar(colored_char.char, self.default_foreground, colored_char.background)
+            # if not colored_char.background:
+            #     colored_char = ColoredChar(colored_char.char, colored_char.foreground, self.default_background)
 
             # Check that the position is in bounds
             if 0 <= pos[0] < self.w and 0 <= pos[1] < self.h:
