@@ -1,20 +1,17 @@
 # Installing
 
 ## Dependencies
+
+### Standalone
 Linux: libsdl1.2, python-dev
 Ubuntu install command
-```sudo apt-get install python-dev python-pip libsdl1.2debian python-cffi libffi-dev libsdl1.2-dev```
+```sudo apt-get install python-dev python-pip libsdl1.2debian python-cffi libffi-dev libsdl1.2-dev && sudo -H pip install -U cffi tdl libtcod-cffi```
 
+### Server
+Add ```sudo -H``` to this command if needed.
 Python:
 ```
-pip install -U cffi
-pip install libtcod-cffi
-pip install tdl
-pip install flask
-pip install flask-compress
-pip install Flask-Markdown
-pip install ujson
-pip install littlepython
+pip install flask flask-compress Flask-Markdown ujson littlepython
 ```
 
 ## Setup
