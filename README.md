@@ -21,7 +21,7 @@ pip install flask flask-compress Flask-Markdown ujson littlepython
 ## Setup
 Clone this repo and add the path to the repo to your path variable.
 
-Ex. export PYTHONPATH=$PYTHONPATH:/path/to/add/CYLGameServer
+Ex. export PYTHONPATH=$PYTHONPATH:/path/to/add/CYLGame
 
 ## Play a game
 Go here and download the repo: [https://github.umn.edu/UMDCYL/applegame](https://github.umn.edu/UMDCYL/applegame)
