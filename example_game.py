@@ -1,6 +1,5 @@
 from __future__ import print_function
 import sys
-from CYLGame import serve
 from CYLGame import CYLGameLanguage
 from CYLGame import CYLGame
 
@@ -140,6 +139,7 @@ if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("Run: python game.py serve\nTo start web server.\nRun: python game.py play\n To play on this computer.")
     elif sys.argv[1] == "serve":
+        from CYLGame import serve
         serve(TickTackToe, "http://127.0.0.1:5000", host="127.0.0.1")
     elif sys.argv[1] == "play":
         from CYLGame import CYLGameRunner

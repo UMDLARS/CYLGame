@@ -1,4 +1,3 @@
-from CYLGameServer import serve
 from CYLGame import CYLGame
 from CYLGame import CYLGameLanguage
 from CYLGame import CYLGameRunner
