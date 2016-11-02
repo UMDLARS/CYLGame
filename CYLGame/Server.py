@@ -19,6 +19,7 @@ class GameServer(flask_classful.FlaskView):
     host = None
     compression = None
     language = None
+    avg_game_count = None
     route_base = '/'
 
     @classmethod
@@ -33,11 +34,24 @@ class GameServer(flask_classful.FlaskView):
     def __verify_game(cls):
         # TODO: add asserts for every attr used later.
         assert hasattr(cls.game, "GAME_TITLE")
+        score_op = getattr(cls.game, "get_score", None)
+        assert callable(score_op)
 
     @flask_classful.route('/sim_avg', methods=['POST'])
     def sim_avg(self):
         # TODO: create this to run the game 100 times returning the average score to the user.
-        pass
+        code = flask.request.get_json(silent=True).get('code', '')
+        try:
+            prog = self.compiler.compile(code.split("\n"))
+        except:
+            return flask.jsonify(error="Code did not compile")
+        runner = GameRunner(self.game, prog)
+        try:
+            result = ujson.dumps(runner.run_for_avg_score())
+        except Exception as e:
+            print(e)
+            return flask.jsonify(error="Your bot ran into an error at runtime")
+        return result
 
     @flask_classful.route('/sim', methods=['POST'])
     def sim(self):
@@ -48,7 +62,7 @@ class GameServer(flask_classful.FlaskView):
             return flask.jsonify(error="Code did not compile")
         runner = GameRunner(self.game, prog)
         try:
-            result = ujson.dumps(runner.run())
+            result = ujson.dumps(runner.run_for_playback())
         except Exception as e:
             print(e)
             return flask.jsonify(error="Your bot ran into an error at runtime")
@@ -64,12 +78,14 @@ class GameServer(flask_classful.FlaskView):
                                 char_set=self.game.CHAR_SET)
 
     @classmethod
-    def serve(cls, game, url="http://localhost:5000/", host=None, compression=False, language=GameLanguage.LITTLEPY):
+    def serve(cls, game, url="http://localhost:5000/", host=None, compression=False, language=GameLanguage.LITTLEPY,
+              avg_game_count=10):
         cls.game = game
         cls.url = url
         cls.host = host
         cls.compression = compression
         cls.language = language
+        cls.avg_game_count = avg_game_count
 
         # Make sure that the url ends with a slash
         if cls.url[-1] != "/":
