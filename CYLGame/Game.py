@@ -12,16 +12,16 @@ def data_file(filename):
     return resource_path
 
 
-class CYLGameLanguage(object):
+class GameLanguage(object):
     LITTLEPY = 0
 
     @staticmethod
     def get_language_description(language):
-        if language == CYLGameLanguage.LITTLEPY:
+        if language == GameLanguage.LITTLEPY:
             return open(data_file("little_python_intro.md")).read()
 
 
-class CYLGame(object):
+class Game(object):
     MAP_WIDTH = 80
     MAP_HEIGHT = 25
     CHAR_WIDTH = 8
@@ -56,7 +56,7 @@ class CYLGame(object):
         raise Exception("Not implemented!")
 
 
-class CYLGameRunner(object):
+class GameRunner(object):
     def __init__(self, game_class, bot=None):
         self.game = None
         self.game_class = game_class

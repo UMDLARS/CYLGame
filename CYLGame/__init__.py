@@ -1,6 +1,6 @@
-from CYLGame import CYLGame
-from CYLGame import CYLGameLanguage
-from CYLGame import CYLGameRunner
+from Game import Game
+from Game import GameLanguage
+from Game import GameRunner
 
 from Panels import Map
 from Panels import Panel
@@ -10,3 +10,5 @@ from Panels import StatusPanel
 from Panels import PanelBorder
 from Panels import PanelPadding
 from Panels import ColoredChar
+
+__version__ = '0.2.0'
