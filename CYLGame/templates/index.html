@@ -14,12 +14,7 @@
     <script>window.jQuery || document.write('<script src="{{ base_url }}static/jquery.min.js">\x3C/script>')</script>
     <script type=text/javascript>
         $SCRIPT_ROOT = {{ base_url|tojson|safe }};
-        pause()
-        $(function() {
-{#            $('a#submitCode').bind('click', function() {#}
-{#            });#}
-{#            drawLoop();#}
-        });
+        pause();
         window.onload = function() {
 {#            document.getElementById("display").width = {{ screen_width }}*{{ char_width }};#}
 {#            document.getElementById("display").height = {{ screen_height }}*{{ char_height }};#}
@@ -34,6 +29,9 @@
             } else if (charSetName.indexOf("_tc.") != -1) {
                 window.charSetLayout = "tc"
             }
+            document.getElementById("scoreSelector").onclick = function () {
+                updateScoreboard();
+            }
         }
         function setPlaybackTimeout(timeout) {
             window.playback_timeout = timeout;
@@ -42,7 +40,7 @@
             }
             play();
         }
-        function submitCode() {
+        function testCode() {
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim',
@@ -71,6 +69,63 @@
             });
             document.getElementById("loadingOverlay").style["display"] = "";
             return false;
+        }
+        function submitCode() {
+            if (!window.token) {
+                window.token = prompt("Enter your token:", "");
+            }
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'sim_avg',
+                data: JSON.stringify({code: editor.getValue(), token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (data.hasOwnProperty("error")) {
+                        if (data["error"] == "Invalid Token") {
+                            window.token = "";
+                            document.getElementById("scoreSelector").style.display = "None";
+                        }
+                    } else {
+                        document.getElementById("scoreSelector").style.display = "";
+                        alert("You average score was " + data["score"]);
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
+        }
+        function updateScoreboard() {
+            $("#scoreTable").html("");
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'scoreboard',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Average Score"));
+                    $("#scoreTable").html("");
+                    $("#scoreTable").append(row);
+                    data["scores"].forEach(function myFunction(item, index) {
+                        var row = $("<tr>").append($("<td>").html(item["name"])).append($("<td>").html(item["score"]));
+                        $("#scoreTable").append(row);
+                    })
+                    document.getElementById("scoreSchool").innerHTML = data["school"];
+                },
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
         }
         function drawFrames(frames) {
             play();
@@ -232,6 +287,7 @@
       <li class="active"><a data-toggle="tab" href="#Intro">Intro</a></li>
 {#      <li><a data-toggle="tab" href="#Game">Game</a></li>#}
       <li><a data-toggle="tab" href="#Bot">Bot</a></li>
+      <li><a id="scoreSelector" data-toggle="tab" href="#Score" style="display: none;">Scoreboard</a></li>
     </ul>
 </div>
 
@@ -290,9 +346,19 @@
                 editor.session.setMode("ace/mode/lp");
             </script>
             <br>
+            <button id="testCode" onclick="testCode();">Test</button>
             <button id="submitCode" onclick="submitCode();">Submit</button>
         </div>
     </div>
+  </div>
+  <div id="Score" class="tab-pane fade">
+      <h3>Scoreboard for <span id="scoreSchool"></span></h3>
+      <table id="scoreTable">
+          <tr>
+              <th>Name</th>
+              <th>Average Score</th>
+          </tr>
+      </table>
   </div>
 </div>
 </body>

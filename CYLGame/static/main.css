@@ -13,6 +13,10 @@ canvas {
    margin:0 auto;
 }
 
+#scoreTable th, td {
+    padding: 8px;
+}
+
 @media screen and (min-width: 1281px) {
     #left_col {
        float:left;

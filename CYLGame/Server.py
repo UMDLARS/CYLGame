@@ -5,6 +5,7 @@ import flask_classful
 import flaskext.markdown as flask_markdown
 from Game import GameRunner
 from Game import GameLanguage
+from Database import GameDB
 
 
 def get_public_ip():
@@ -20,6 +21,7 @@ class GameServer(flask_classful.FlaskView):
     compression = None
     language = None
     avg_game_count = None
+    gamedb = None
     route_base = '/'
 
     @classmethod
@@ -37,17 +39,36 @@ class GameServer(flask_classful.FlaskView):
         score_op = getattr(cls.game, "get_score", None)
         assert callable(score_op)
 
+    @flask_classful.route('/scoreboard', methods=["POST"])
+    def scoreboard(self):
+        token = flask.request.get_json(silent=True).get('token', '')
+        if not self.gamedb.is_user_token(token):
+            return flask.jsonify(error="Invalid Token")
+        school_tk = self.gamedb.get_school_for_token(token)
+        obj = {"school": self.gamedb.get_name(school_tk), "scores": []}
+        for user_tk in self.gamedb.get_tokens_for_school(school_tk):
+            score = self.gamedb.get_avg_score(user_tk)
+            if score is not None:
+                obj["scores"] += [{"name": self.gamedb.get_name(user_tk), "score": self.gamedb.get_avg_score(user_tk)}]
+        return ujson.dumps(obj)
+
     @flask_classful.route('/sim_avg', methods=['POST'])
     def sim_avg(self):
         # TODO: create this to run the game 100 times returning the average score to the user.
         code = flask.request.get_json(silent=True).get('code', '')
+        token = flask.request.get_json(silent=True).get('token', '')
+        if not self.gamedb.is_user_token(token):
+            return flask.jsonify(error="Invalid Token")
         try:
             prog = self.compiler.compile(code.split("\n"))
         except:
             return flask.jsonify(error="Code did not compile")
         runner = GameRunner(self.game, prog)
         try:
-            result = ujson.dumps(runner.run_for_avg_score())
+            score = runner.run_for_avg_score(times=self.avg_game_count)
+            self.gamedb.save_avg_score(token, score)
+            self.gamedb.save_code(token, code)
+            return flask.jsonify(score=score)
         except Exception as e:
             print(e)
             return flask.jsonify(error="Your bot ran into an error at runtime")
@@ -79,13 +100,14 @@ class GameServer(flask_classful.FlaskView):
 
     @classmethod
     def serve(cls, game, url="http://localhost:5000/", host=None, compression=False, language=GameLanguage.LITTLEPY,
-              avg_game_count=10):
+              avg_game_count=10, game_data_path="temp_game"):
         cls.game = game
         cls.url = url
         cls.host = host
         cls.compression = compression
         cls.language = language
         cls.avg_game_count = avg_game_count
+        cls.gamedb = GameDB(game_data_path)
 
         # Make sure that the url ends with a slash
         if cls.url[-1] != "/":
