@@ -29,6 +29,14 @@ def print_menu(options=[], title=""):
     return int(get_input("Select an item: ", lambda x: int(x) in range(1,len(options)+1), "Invalid Selection. Try Again."))-1
 
 
+def add_school():
+    global gamedb, cur_school
+    clear()
+    school_name = get_input("Enter New School Name: ")
+    cur_school = gamedb.add_new_school(school_name)
+    print("Current School Set to:", cur_school)
+
+
 def select_school():
     global gamedb, cur_school
     options = []
@@ -61,16 +69,18 @@ def get_main_menu_options():
 
 
 def get_main_menu_title():
-    global cur_school
+    global gamedb, cur_school
     title = "Main Menu"
     if cur_school is not None:
-        title += "\n\nSelected School: "+cur_school
+        title += "\n\nSelected School: "+gamedb.get_name(cur_school)+" ("+cur_school+")"
     return title
 
 
 def main():
     global gamedb
     print("Welcome to the GameDB Editor")
+    print("!!!!WARNING!!!!!!")
+    print("If you do NOT know what you are doing. Please exit now!!!")
     game_path = os.path.abspath(get_input("Your current dir is '"+os.path.abspath(os.curdir)+"'\nEnter path to game dir: ", lambda x: os.path.exists(x), error_msg="Invalid Game Directory. Try Again."))
     gamedb = GameDB(game_path)
     option = ""
@@ -80,6 +90,8 @@ def main():
         print("You selected:", option)
         if option == "Select School":
             select_school()
+        elif option == "Add New School":
+            add_school()
         elif option == "Get new Tokens":
             get_new_tokens()
 

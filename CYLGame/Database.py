@@ -104,10 +104,10 @@ class GameDB(object):
     def add_new_school(self, name=""):
         token = self.__get_new_token(self.__get_school_tokens(), prefix="S")
 
-        os.mkdir(self.__get_dir_for_token(token))
-        os.mkdir(self.__get_dir_for_token(token, "tokens"))
+        os.mkdir(os.path.join(self.schools_dir, token))
+        os.mkdir(os.path.join(self.schools_dir, token, "tokens"))
 
-        with open(self.__get_dir_for_token(token, "name")) as fp:
+        with open(os.path.join(self.schools_dir, token, "name"), "w") as fp:
             fp.write(name)
 
         return token
