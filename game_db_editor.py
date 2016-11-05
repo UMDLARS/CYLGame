@@ -60,11 +60,21 @@ def get_new_tokens():
     get_input("Copy tokens then enter any input: ")
 
 
+def list_tokens():
+    global gamedb, cur_school
+    clear()
+    print("Tokens")
+    for token in gamedb.get_tokens_for_school(cur_school):
+        print(token)
+
+    get_input("Enter any input: ")
+
+
 def get_main_menu_options():
     global cur_school
     options = ["Add New School", "Select School"]
     if cur_school is not None:
-        options += ["Get new Tokens"]
+        options += ["Get new Tokens", "List current Tokens"]
     return options + ["Quit"]
 
 
@@ -94,6 +104,8 @@ def main():
             add_school()
         elif option == "Get new Tokens":
             get_new_tokens()
+        elif option == "List current Tokens":
+            list_tokens()
 
 
 if __name__ == '__main__':
