@@ -27,4 +27,6 @@ then
 else
     echo $NewLine >> ~/.bashrc
     echo "Good to go."
+    echo "Remember to run to following command to make changes apply in the currect session:"
+    echo "source ~/.bashrc"
 fi
