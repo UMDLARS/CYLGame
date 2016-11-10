@@ -51,6 +51,8 @@ class GameServer(flask_classful.FlaskView):
 
     @classmethod
     def __copy_in_charset(cls, charset):
+        if not os.path.exists(static_file("fonts")):
+            os.mkdir(static_file("fonts"))
         file_ending = os.path.split(charset)[-1]
         prepostfix = "_col"
         if "_ro." in file_ending:
