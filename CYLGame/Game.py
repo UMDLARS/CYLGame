@@ -27,7 +27,7 @@ class Game(object):
     CHAR_WIDTH = 8
     CHAR_HEIGHT = 8
     GAME_TITLE = ""
-    CHAR_SET = "terminal8x8_gs_ro.png"
+    CHAR_SET = data_file("fonts/terminal8x8_gs_ro.png")
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -152,7 +152,7 @@ class GameRunner(object):
         """
         global TDL_ROOT_CONSOLE
         if not TDL_ROOT_CONSOLE:
-            tdl.setFont(data_file("fonts/" + self.game_class.CHAR_SET))
+            tdl.setFont(self.game_class.CHAR_SET)
             TDL_ROOT_CONSOLE = tdl.init(self.game_class.SCREEN_WIDTH, self.game_class.SCREEN_HEIGHT,
                                         self.game_class.GAME_TITLE)
         else:

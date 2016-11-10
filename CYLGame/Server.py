@@ -1,11 +1,19 @@
 from __future__ import print_function
+import os
 import ujson
 import flask
+import random
+import shutil
 import flask_classful
 import flaskext.markdown as flask_markdown
 from Game import GameRunner
 from Game import GameLanguage
 from Database import GameDB
+
+
+def static_file(filename):
+    resource_path = os.path.join(os.path.split(__file__)[0], "static", filename)
+    return resource_path
 
 
 def get_public_ip():
@@ -18,9 +26,11 @@ class GameServer(flask_classful.FlaskView):
     game = None
     url = None
     host = None
+    port = None
     compression = None
     language = None
     avg_game_count = None
+    charset = None
     gamedb = None
     route_base = '/'
 
@@ -38,6 +48,24 @@ class GameServer(flask_classful.FlaskView):
         assert hasattr(cls.game, "GAME_TITLE")
         score_op = getattr(cls.game, "get_score", None)
         assert callable(score_op)
+
+    @classmethod
+    def __copy_in_charset(cls, charset):
+        file_ending = os.path.split(charset)[-1]
+        prepostfix = "_col"
+        if "_ro." in file_ending:
+            prepostfix = "_ro"
+        elif "_tc." in file_ending:
+            prepostfix = "_tc"
+        postfix = file_ending.split(".")[-1]
+        def new_token():
+            return "".join([random.choice("0123456789ABCDEF") for _ in range(10)]) + prepostfix + "." + postfix
+        token = new_token()
+        while os.path.exists(static_file(os.path.join("fonts", token))):
+            token = new_token()
+        new_charset_path = static_file(os.path.join("fonts", token))
+        shutil.copyfile(charset, new_charset_path)
+        return os.path.split(new_charset_path)[-1]
 
     @flask_classful.route('/scoreboard', methods=["POST"])
     def scoreboard(self):
@@ -72,7 +100,7 @@ class GameServer(flask_classful.FlaskView):
         except Exception as e:
             print(e)
             return flask.jsonify(error="Your bot ran into an error at runtime")
-        return result
+        # return result
 
     @flask_classful.route('/sim', methods=['POST'])
     def sim(self):
@@ -96,18 +124,23 @@ class GameServer(flask_classful.FlaskView):
                                 char_height=self.game.CHAR_HEIGHT, screen_width=self.game.SCREEN_WIDTH,
                                 screen_height=self.game.SCREEN_HEIGHT, base_url=self.url,
                                 intro_text=GameLanguage.get_language_description(self.language),
-                                char_set=self.game.CHAR_SET)
+                                char_set=self.charset)
 
     @classmethod
-    def serve(cls, game, url="http://localhost:5000/", host=None, compression=False, language=GameLanguage.LITTLEPY,
+    def serve(cls, game, url="http://localhost:5000/", host=None, port=None, compression=False, language=GameLanguage.LITTLEPY,
               avg_game_count=10, game_data_path="temp_game"):
         cls.game = game
         cls.url = url
         cls.host = host
+        cls.port = port
         cls.compression = compression
         cls.language = language
         cls.avg_game_count = avg_game_count
         cls.gamedb = GameDB(game_data_path)
+        # if game.CHAR_SET:
+        cls.charset = cls.__copy_in_charset(game.CHAR_SET)
+        # else:
+        #     cls.charset = None
 
         # Make sure that the url ends with a slash
         if cls.url[-1] != "/":
@@ -120,10 +153,19 @@ class GameServer(flask_classful.FlaskView):
             flask_compress.Compress(cls.app)
         cls.register(cls.app)
         cls.__load_language()
-        if cls.host:
+        if cls.host and cls.port:
+            cls.app.run(cls.host, cls.port)
+        elif cls.port:
+            cls.app.run(port=cls.port)
+        elif cls.host:
             cls.app.run(cls.host)
         else:
             cls.app.run()
+        print("Dying...")
+        if os.path.exists(static_file(os.path.join("fonts", cls.charset))):
+            print("Removing charset...")
+            os.remove(static_file(os.path.join("fonts", cls.charset)))
+        print("All good :)")
 
 
 # This is for backwards compatibility
