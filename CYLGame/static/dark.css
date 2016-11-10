@@ -27,3 +27,8 @@ canvas {
 button:disabled {
     color: grey;
 }
+
+pre, code {
+    color: #9fff8f;
+    background-color: #115215;
+}
