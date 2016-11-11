@@ -203,3 +203,28 @@ class GameRunner(object):
         else:
             return False
         return nxt_vars, screen_cap
+
+
+def run(game_class):
+    def serve(args):
+        from .Server import serve
+        serve(game_class, host=args.host, port=args.port)
+        print("I am going to serve")
+
+    def play(args):
+        print("Playing...")
+        GameRunner(game_class).run()
+
+    import argparse
+
+    parser = argparse.ArgumentParser(prog="Apple Hunt", description='Play Apple Hunt.')
+    subparsers = parser.add_subparsers(help='What do you what to do?')
+    parser_play = subparsers.add_parser('play', help='Play Apple Hunt with a GUI')
+    parser_play.set_defaults(func=play)
+    parser_serve = subparsers.add_parser('serve', help='Serve Apple Hunt to the web.')
+    parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
+    parser_serve.add_argument('--host', nargs="?", type=str, help='The mask to host to', default='127.0.0.1')
+    parser_serve.set_defaults(func=serve)
+
+    args = parser.parse_args()
+    args.func(args)

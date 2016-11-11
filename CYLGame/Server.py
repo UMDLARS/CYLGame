@@ -24,7 +24,6 @@ def get_public_ip():
 
 class GameServer(flask_classful.FlaskView):
     game = None
-    url = None
     host = None
     port = None
     compression = None
@@ -124,29 +123,20 @@ class GameServer(flask_classful.FlaskView):
         return flask.render_template('index.html', game_title=self.game.GAME_TITLE,
                                 example_bot=self.game.default_prog_for_bot(self.language), char_width=self.game.CHAR_WIDTH,
                                 char_height=self.game.CHAR_HEIGHT, screen_width=self.game.SCREEN_WIDTH,
-                                screen_height=self.game.SCREEN_HEIGHT, base_url=self.url,
-                                intro_text=GameLanguage.get_language_description(self.language),
-                                char_set=self.charset)
+                                screen_height=self.game.SCREEN_HEIGHT, char_set=self.charset,
+                                intro_text=GameLanguage.get_language_description(self.language))
 
     @classmethod
-    def serve(cls, game, url="http://localhost:5000/", host=None, port=None, compression=False, language=GameLanguage.LITTLEPY,
+    def serve(cls, game, host=None, port=None, compression=False, language=GameLanguage.LITTLEPY,
               avg_game_count=10, game_data_path="temp_game"):
         cls.game = game
-        cls.url = url
         cls.host = host
         cls.port = port
         cls.compression = compression
         cls.language = language
         cls.avg_game_count = avg_game_count
         cls.gamedb = GameDB(game_data_path)
-        # if game.CHAR_SET:
         cls.charset = cls.__copy_in_charset(game.CHAR_SET)
-        # else:
-        #     cls.charset = None
-
-        # Make sure that the url ends with a slash
-        if cls.url[-1] != "/":
-            cls.url += "/"
 
         cls.app = flask.Flask(__name__.split('.')[0])
         flask_markdown.Markdown(cls.app)

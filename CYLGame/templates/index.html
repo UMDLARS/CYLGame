@@ -6,14 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-{#    <link rel="stylesheet" href="{{ url_for('static', filename='dark.css') }}">#}
-    <link rel="stylesheet" href="{{ base_url }}static/dark.css">
-    <link rel="stylesheet" href="{{ base_url }}static/main.css">
+    <link rel="stylesheet" href="static/dark.css">
+    <link rel="stylesheet" href="static/main.css">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-{#    <script>window.jQuery || document.write('<script src="{{url_for('static', filename='jquery.min.js') }}">\x3C/script>')</script>#}
-    <script>window.jQuery || document.write('<script src="{{ base_url }}static/jquery.min.js">\x3C/script>')</script>
+{#    <script>window.jQuery || document.write('<script src="static/jquery.min.js">\x3C/script>')</script>#}
+    <script>window.jQuery || document.write('<script src="static/jquery.min.js">\x3C/script>')</script>
     <script type=text/javascript>
-        $SCRIPT_ROOT = {{ base_url|tojson|safe }};
+        $SCRIPT_ROOT = "";
         pause();
         window.onload = function() {
 {#            document.getElementById("display").width = {{ screen_width }}*{{ char_width }};#}
@@ -313,7 +312,7 @@
       <div id="wrap">
         <div id="left_col">
 {#            <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">#}
-            <img id="chars" src="{{ base_url }}static/fonts/{{ char_set }}" style="display: none;">
+            <img id="chars" src="static/fonts/{{ char_set }}" style="display: none;">
             <canvas id="display" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
             <div>
                 <div class="progress">
@@ -338,8 +337,8 @@
         </div>
         <div id="right_col">
             <pre id="editor">{{ example_bot }}</pre>
-{#            <script src="{{url_for('static', filename='ace/ace.js') }}" type="text/javascript" charset="utf-8"></script>#}
-            <script src="{{ base_url }}static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+{#            <script src="static/ace/ace.js" type="text/javascript" charset="utf-8"></script>#}
+            <script src="static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
             <script>
                 var editor = ace.edit("editor");
                 editor.setTheme("ace/theme/twilight");
