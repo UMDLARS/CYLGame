@@ -1,6 +1,5 @@
 #!/usr/bin/python
 from __future__ import print_function
-from builtins import input
 import os
 from CYLGame.Database import GameDB
 
@@ -17,7 +16,7 @@ def get_input(prompt="", validator=lambda x: x, error_msg=""):
     err = ""
     while not inp or not validator(inp):
         print(err)
-        inp = input(prompt)
+        inp = raw_input(prompt)
     return inp
 
 
