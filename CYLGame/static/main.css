@@ -17,6 +17,55 @@ canvas {
     padding: 8px;
 }
 
+#playbackProgress.instant {
+    transition: width 0s ease;
+}
+#playbackProgress.fast {
+    transition: width 0.05s ease;
+}
+#playbackProgress.normal {
+    transition: width 0.2s ease;
+}
+#playbackProgress.slow {
+    transition: width 0.4s ease;
+}
+
+#overlayCancel {
+    color: white;
+}
+#overlayCancel:hover {
+    color: #f0ad4e;
+}
+
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index:999;
+    background-color: rgba(0,0,0,0.5);
+}
+
+#submitCode {
+    float: right;
+}
+
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+
 @media screen and (min-width: 1281px) {
     #left_col {
        float:left;

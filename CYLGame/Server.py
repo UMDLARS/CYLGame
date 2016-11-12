@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os
+import re
 import ujson
 import flask
 import random
@@ -20,6 +21,15 @@ def get_public_ip():
     # This is taken from: http://stackoverflow.com/a/1267524
     import socket
     return [l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
+
+
+def find_name_from_code(code):
+    import re
+    name = re.findall(r"#\s*name:\s*(.*)\s*", code, re.IGNORECASE)
+    if len(name):
+        return name[0]
+    else:
+        return ""
 
 
 class GameServer(flask_classful.FlaskView):
@@ -97,6 +107,9 @@ class GameServer(flask_classful.FlaskView):
             score = runner.run_for_avg_score(times=self.avg_game_count)
             self.gamedb.save_avg_score(token, score)
             self.gamedb.save_code(token, code)
+            name = find_name_from_code(code)
+            if name:
+                self.gamedb.save_name(token, name)
             return flask.jsonify(score=score)
         except Exception as e:
             print(e)
@@ -118,7 +131,14 @@ class GameServer(flask_classful.FlaskView):
             return flask.jsonify(error="Your bot ran into an error at runtime")
         return result
 
-    # @self.app.route('/')
+    @flask_classful.route('/check_token', methods=['POST'])
+    def check_token(self):
+        token = flask.request.get_json(silent=True).get('token', '')
+        if not self.gamedb.is_user_token(token):
+            return flask.jsonify(error="Invalid Token")
+        else:
+            return flask.jsonify(result=True)
+
     def index(self):
         return flask.render_template('index.html', game_title=self.game.GAME_TITLE,
                                 example_bot=self.game.default_prog_for_bot(self.language), char_width=self.game.CHAR_WIDTH,

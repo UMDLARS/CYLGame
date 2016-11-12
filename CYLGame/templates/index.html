@@ -30,7 +30,54 @@
             }
             document.getElementById("scoreSelector").onclick = function () {
                 updateScoreboard();
-            }
+            };
+            document.getElementById("logout").onclick = function() {
+                logout();
+            };
+            document.getElementById("login").onclick = function() {
+                login();
+            };
+        };
+        function logout() {
+            delete window.token;
+            document.getElementById("scoreSelector").style.display = "None";
+            document.getElementById("logout").style.display = "None";
+            document.getElementById("submitCode").style.display = "None";
+            document.getElementById("login").style.display = "";
+        }
+        function login() {
+            window.token = prompt("Enter your token:", "");
+            //check_token
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'check_token',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    if (data["error"]) {
+                        alert(data["error"]);
+                    } else {
+                        document.getElementById("scoreSelector").style.display = "";
+                        document.getElementById("logout").style.display = "";
+                        document.getElementById("submitCode").style.display = "";
+                        document.getElementById("login").style.display = "None";
+                    }
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
         }
         function setPlaybackTimeout(timeout) {
             window.playback_timeout = timeout;
@@ -71,7 +118,7 @@
         }
         function submitCode() {
             if (!window.token) {
-                window.token = prompt("Enter your token:", "");
+                login();
             }
             $.ajax({
                 type: "POST",
@@ -82,8 +129,9 @@
                 success: function(data) {
                     if (data.hasOwnProperty("error")) {
                         if (data["error"] == "Invalid Token") {
-                            window.token = "";
-                            document.getElementById("scoreSelector").style.display = "None";
+                            logout();
+//                            window.token = "";
+//                            document.getElementById("scoreSelector").style.display = "None";
                         }
                     } else {
                         document.getElementById("scoreSelector").style.display = "";
@@ -236,42 +284,6 @@
     </script>
 </head>
 <body>
-<style type="text/css">
-    #playbackProgress.instant {
-        transition: width 0s ease;
-    }
-    #playbackProgress.fast {
-        transition: width 0.05s ease;
-    }
-    #playbackProgress.normal {
-        transition: width 0.2s ease;
-    }
-    #playbackProgress.slow {
-        transition: width 0.4s ease;
-    }
-
-    #overlayCancel {
-        color: white;
-    }
-    #overlayCancel:hover {
-        color: #f0ad4e;
-    }
-
-    .glyphicon-refresh-animate {
-        -animation: spin .7s infinite linear;
-        -webkit-animation: spin2 .7s infinite linear;
-    }
-
-    @-webkit-keyframes spin2 {
-        from { -webkit-transform: rotate(0deg);}
-        to { -webkit-transform: rotate(360deg);}
-    }
-
-    @keyframes spin {
-        from { transform: scale(1) rotate(0deg);}
-        to { transform: scale(1) rotate(360deg);}
-    }
-</style>
 {#<div class="container" style="width: 100%">#}
 {#    <h3>{{ game_title }}</h3>#}
 {#    <ul class="nav nav-pills nav-justified">#}
@@ -287,6 +299,8 @@
 {#      <li><a data-toggle="tab" href="#Game">Game</a></li>#}
       <li><a data-toggle="tab" href="#Bot">Bot</a></li>
       <li><a id="scoreSelector" data-toggle="tab" href="#Score" style="display: none;">Scoreboard</a></li>
+      <li style="float: right;"><a id="logout" style="display: none;"><span id="token"></span>Log out</a></li>
+      <li style="float: right;"><a id="login" style="">Log in</a></li>
     </ul>
 </div>
 
@@ -302,7 +316,7 @@
       </div>
   </div>
   <div id="Bot" class="tab-pane fade">
-      <div id="loadingOverlay" style="display: none;position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index:999; background-color: rgba(0,0,0,0.5);">
+      <div id="loadingOverlay" style="display: none;">
           <div style="top: 50%; left: 50%; position: absolute;transform: translate3d(-50%,-50%, 0);text-align: center;">
               <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
               <br><br>
@@ -345,8 +359,8 @@
                 editor.session.setMode("ace/mode/lp");
             </script>
             <br>
-            <button id="testCode" onclick="testCode();">Test</button>
-            <button id="submitCode" onclick="submitCode();">Submit</button>
+            <button id="testCode" onclick="testCode();">Play</button>
+            <button id="submitCode" onclick="submitCode();" style="display: none;">Submit</button>
         </div>
     </div>
   </div>
