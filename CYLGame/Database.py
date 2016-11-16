@@ -11,6 +11,7 @@ class GameDB(object):
         self.game_dir = game_dir
         self.data_dir = os.path.join(self.game_dir, "data")
         self.schools_dir = os.path.join(self.game_dir, "schools")
+        self.competitions_dir = os.path.join(self.game_dir, "competitions")
         self.__load()
 
     def __load(self):
@@ -24,6 +25,8 @@ class GameDB(object):
         if not os.path.exists(self.schools_dir):
             # is_new = True
             os.mkdir(self.schools_dir)
+        if not os.path.exists(self.competitions_dir):
+            os.mkdir(self.competitions_dir)
 
         # if is_new:
         #
@@ -45,6 +48,9 @@ class GameDB(object):
 
     def __get_school_tokens(self):
         return os.listdir(self.schools_dir)
+
+    def __get_comp_tokens(self):
+        return os.listdir(self.competitions_dir)
 
     def __get_school_user_tokens(self, school_tk):
         if self.is_school_token(school_tk):
@@ -77,7 +83,15 @@ class GameDB(object):
             return os.path.join(self.data_dir, token, *fns)
         elif self.is_school_token(token):
             return os.path.join(self.schools_dir, token, *fns)
+        elif self.is_comp_token(token):
+            return os.path.join(self.competitions_dir, token, *fns)
         return None
+
+    def is_comp_token(self, token):
+        if len(token) > 0 and token[0] == "P":
+            # It is a competition token
+            return token in self.__get_comp_tokens()
+        return False
 
     def is_school_token(self, token):
         if len(token) > 0 and token[0] == "S":
@@ -111,6 +125,62 @@ class GameDB(object):
             fp.write(name)
 
         return token
+
+    def add_new_competition(self, name=""):
+        token = self.__get_new_token(self.__get_school_tokens(), prefix="P")
+
+        os.mkdir(os.path.join(self.competitions_dir, token))
+        os.mkdir(os.path.join(self.competitions_dir, token, "schools"))
+
+        with open(os.path.join(self.competitions_dir, token, "name"), "w") as fp:
+            fp.write(name)
+
+        return token
+
+    def set_token_for_comp(self, ctoken, utoken, stoken):
+        assert self.is_comp_token(ctoken)
+        assert self.is_user_token(utoken)
+        assert self.is_school_token(stoken)
+
+        school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
+        if not os.path.exists(school_dir):
+            os.mkdir(school_dir)
+        with open(os.path.join(school_dir, "code.lp"), "w") as fp:
+            code = self.get_code(utoken)
+            assert code is not None
+            fp.write(code)
+        # with open(os.path.join(school_dir, "name"), "w") as fp:
+        #     name = self.get_name(stoken)
+        #     assert name is not None
+        #     fp.write(name)
+
+    def get_comp_code(self, ctoken, stoken):
+        school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
+        if os.path.exists(os.path.join(school_dir, "code.lp")):
+            with open(os.path.join(school_dir, "code.lp"), "r") as fp:
+                return fp.read()
+        else:
+            return None
+
+    def get_comps_for_token(self, utoken):
+        return self.__get_comp_tokens()
+
+    def get_schools_in_comp(self, ctoken):
+        return os.listdir(self.__get_dir_for_token(ctoken, "schools"))
+
+    def set_comp_avg_score(self, ctoken, stoken, score):
+        school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
+        assert school_dir is not None
+        with open(os.path.join(school_dir, "avg_score"), "w") as fp:
+            fp.write(str(score))
+
+    def get_comp_avg_score(self, ctoken, stoken):
+        school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
+        if os.path.exists(os.path.join(school_dir, "avg_score")):
+            with open(os.path.join(school_dir, "avg_score"), "r") as fp:
+                return int(fp.read())
+        else:
+            return None
 
     def save_code(self, token, code):
         """Save a user's code under their token.
@@ -153,11 +223,7 @@ class GameDB(object):
             return None
 
     def get_name(self, token):
-        if self.is_user_token(token):
-            if os.path.exists(self.__get_dir_for_token(token, "name")):
-                with open(self.__get_dir_for_token(token, "name"), "r") as fp:
-                    return fp.read()
-        elif self.is_school_token(token):
+        if self.is_user_token(token) or self.is_school_token(token) or self.is_comp_token(token):
             if os.path.exists(self.__get_dir_for_token(token, "name")):
                 with open(self.__get_dir_for_token(token, "name"), "r") as fp:
                     return fp.read()

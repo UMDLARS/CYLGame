@@ -91,6 +91,22 @@ class GameServer(flask_classful.FlaskView):
                 obj["scores"] += [{"name": self.gamedb.get_name(user_tk), "score": self.gamedb.get_avg_score(user_tk)}]
         return ujson.dumps(obj)
 
+    @flask_classful.route('/comp_scoreboards', methods=["POST"])
+    def comp_scoreboards(self):
+        token = flask.request.get_json(silent=True).get('token', '')
+        if not self.gamedb.is_user_token(token):
+            return flask.jsonify(error="Invalid Token")
+        comps = self.gamedb.get_comps_for_token(token)
+        obj = {"comps": []}
+        for comp in comps:
+            comp_obj = {"scores": []}
+            for school in self.gamedb.get_schools_in_comp(comp):
+                score = self.gamedb.get_comp_avg_score(comp, school)
+                if score is not None:
+                    comp_obj["scores"] += [{"name": self.gamedb.get_name(school), "score": score}]
+            obj["comps"] += [comp_obj]
+        return ujson.dumps(obj)
+
     @flask_classful.route('/sim_avg', methods=['POST'])
     def sim_avg(self):
         # TODO: create this to run the game 100 times returning the average score to the user.

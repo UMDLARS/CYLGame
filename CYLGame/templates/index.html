@@ -31,6 +31,9 @@
             document.getElementById("scoreSelector").onclick = function () {
                 updateScoreboard();
             };
+            document.getElementById("compSelector").onclick = function () {
+                updateComp();
+            };
             document.getElementById("logout").onclick = function() {
                 logout();
             };
@@ -41,6 +44,7 @@
         function logout() {
             delete window.token;
             document.getElementById("scoreSelector").style.display = "None";
+            document.getElementById("compSelector").style.display = "None";
             document.getElementById("logout").style.display = "None";
             document.getElementById("submitCode").style.display = "None";
             document.getElementById("login").style.display = "";
@@ -66,6 +70,7 @@
                         document.getElementById("logout").style.display = "";
                         document.getElementById("submitCode").style.display = "";
                         document.getElementById("login").style.display = "None";
+                        checkComps();
                     }
                 },
                 failure: function(errMsg) {
@@ -85,6 +90,27 @@
                 window.cur_frame = 0;
             }
             play();
+        }
+        function checkComps() {
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'comp_scoreboards',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    data = data["comps"];
+                    // Sort the data
+                    if (data.length <= 0) {
+                        return;
+                    }
+                    document.getElementById("compSelector").style.display = "";
+                },
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
         }
         function testCode() {
             $.ajax({
@@ -178,6 +204,45 @@
                         $("#scoreTable").append(row);
                     });
                     document.getElementById("scoreSchool").innerHTML = data["school"];
+                },
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
+        }
+        function updateComp() {
+            $("#compTable").html("");
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'comp_scoreboards',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    data = data["comps"];
+                    // Sort the data
+                    if (data.length <= 0) {
+                        return;
+                    }
+                    comp = data[0];
+                    function compare(a,b) {
+                      if (a.score < b.score)
+                        return 1;
+                      if (a.score > b.score)
+                        return -1;
+                      return 0;
+                    }
+                    var scores = comp["scores"];
+                    scores.sort(compare);
+
+                    var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Average Score"));
+                    $("#compTable").html("").append(row);
+                    scores.forEach(function myFunction(item, index) {
+                        var row = $("<tr>").append($("<td>").html(item["name"])).append($("<td>").html(item["score"]));
+                        $("#compTable").append(row);
+                    });
+//                    document.getElementById("scoreSchool").innerHTML = data["school"];
                 },
                 failure: function(errMsg) {
                     alert(errMsg);
@@ -308,7 +373,8 @@
       <li class="active"><a data-toggle="tab" href="#Intro">Intro</a></li>
 {#      <li><a data-toggle="tab" href="#Game">Game</a></li>#}
       <li><a data-toggle="tab" href="#Bot">Bot</a></li>
-      <li><a id="scoreSelector" data-toggle="tab" href="#Score" style="display: none;">Scoreboard</a></li>
+      <li><a id="scoreSelector" data-toggle="tab" href="#Score" style="display: none;">School Scoreboard</a></li>
+      <li><a id="compSelector" data-toggle="tab" href="#Comp" style="display: none;">Competition Rankings</a></li>
       <li style="float: right;"><a id="logout" style="display: none;"><span id="token"></span>Log out</a></li>
       <li style="float: right;"><a id="login" style="">Log in</a></li>
     </ul>
@@ -377,6 +443,16 @@
   <div id="Score" class="tab-pane fade">
       <h3>Scoreboard for <span id="scoreSchool"></span></h3>
       <table id="scoreTable">
+          <tr>
+              <th>Name</th>
+              <th>Average Score</th>
+          </tr>
+      </table>
+  </div>
+  <div id="Comp" class="tab-pane fade">
+      <!--<h3>Scoreboard for <span id="scoreSchool"></span></h3>-->
+      <h3>Rankings</h3>
+      <table id="compTable">
           <tr>
               <th>Name</th>
               <th>Average Score</th>

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from __future__ import print_function
 import os
+import sys
 from CYLGame.Database import GameDB
 
 gamedb = None
@@ -11,11 +12,14 @@ def clear():
     os.system("clear")
 
 
+def pause(prompt="Enter any input: "):
+    get_input(prompt, lambda x: 1)
+
+
 def get_input(prompt="", validator=lambda x: x, error_msg=""):
-    inp = None
-    err = ""
-    while not inp or not validator(inp):
-        print(err)
+    inp = raw_input(prompt)
+    while not validator(inp):
+        print(error_msg)
         inp = raw_input(prompt)
     return inp
 
@@ -26,6 +30,32 @@ def print_menu(options=[], title=""):
     for index, option in enumerate(options):
         print(str(index+1)+":", option)
     return int(get_input("Select an item: ", lambda x: int(x) in range(1,len(options)+1), "Invalid Selection. Try Again."))-1
+
+
+def add_competition():
+    global gamedb
+    clear()
+    comp_name = get_input("Enter New Competition Name: ")
+    # TODO(derpferd): add school selection
+    # TODO(derpferd): add token selection from school
+    token = gamedb.add_new_competition(comp_name)
+
+    # select the top scoring bots from each school
+    for school in gamedb.get_school_tokens():
+        top_bot = None
+        top_score = -1
+        for user in gamedb.get_tokens_for_school(school):
+            score = gamedb.get_avg_score(user)
+            if score is None:
+                score = 0
+            if score > top_score:
+                top_score = score
+                top_bot = user
+        if top_bot is not None:
+            gamedb.set_token_for_comp(token, top_bot, school)
+
+    print("Please run competition sim script with the following token:", token)
+    pause()
 
 
 def add_school():
@@ -56,7 +86,7 @@ def get_new_tokens():
     for _ in range(count):
         print(gamedb.get_new_token(cur_school))
 
-    get_input("Copy tokens then enter any input: ")
+    pause()
 
 
 def list_tokens():
@@ -66,12 +96,12 @@ def list_tokens():
     for token in gamedb.get_tokens_for_school(cur_school):
         print(token)
 
-    get_input("Enter any input: ")
+    pause()
 
 
 def get_main_menu_options():
     global cur_school
-    options = ["Add New School", "Select School"]
+    options = ["Add New School", "Select School", "Add New Competition"]
     if cur_school is not None:
         options += ["Get new Tokens", "List current Tokens"]
     return options + ["Quit"]
@@ -90,7 +120,11 @@ def main():
     print("Welcome to the GameDB Editor")
     print("!!!!WARNING!!!!!!")
     print("If you do NOT know what you are doing. Please exit now!!!")
-    game_path = os.path.abspath(get_input("Your current dir is '"+os.path.abspath(os.curdir)+"'\nEnter path to game dir: ", lambda x: os.path.exists(x), error_msg="Invalid Game Directory. Try Again."))
+    if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+        game_path = os.path.abspath(sys.argv[1])
+        print("You choose", game_path, "as a game path.")
+    else:
+        game_path = os.path.abspath(get_input("Your current dir is '"+os.path.abspath(os.curdir)+"'\nEnter path to game dir: ", lambda x: os.path.exists(x), error_msg="Invalid Game Directory. Try Again."))
     gamedb = GameDB(game_path)
     option = ""
     while option != "Quit":
@@ -99,6 +133,8 @@ def main():
         print("You selected:", option)
         if option == "Select School":
             select_school()
+        elif option == "Add New Competition":
+            add_competition()
         elif option == "Add New School":
             add_school()
         elif option == "Get new Tokens":
