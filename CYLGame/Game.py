@@ -207,9 +207,9 @@ class GameRunner(object):
 
 def run(game_class):
     def serve(args):
+        print("I am going to serve")
         from .Server import serve
         serve(game_class, host=args.host, port=args.port)
-        print("I am going to serve")
 
     def play(args):
         print("Playing...")
