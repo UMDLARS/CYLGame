@@ -160,13 +160,23 @@
                 dataType: "json",
                 success: function(data) {
                     console.log(data);
+                    // Sort the data
+                    function compare(a,b) {
+                      if (a.score < b.score)
+                        return 1;
+                      if (a.score > b.score)
+                        return -1;
+                      return 0;
+                    }
+                    var scores = data["scores"];
+                    scores.sort(compare);
+
                     var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Average Score"));
-                    $("#scoreTable").html("");
-                    $("#scoreTable").append(row);
-                    data["scores"].forEach(function myFunction(item, index) {
+                    $("#scoreTable").html("").append(row);
+                    scores.forEach(function myFunction(item, index) {
                         var row = $("<tr>").append($("<td>").html(item["name"])).append($("<td>").html(item["score"]));
                         $("#scoreTable").append(row);
-                    })
+                    });
                     document.getElementById("scoreSchool").innerHTML = data["school"];
                 },
                 failure: function(errMsg) {
