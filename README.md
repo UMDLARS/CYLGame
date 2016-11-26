@@ -11,6 +11,9 @@
 **Ubuntu install command**
 ```sudo apt-get install python-dev python-pip libsdl1.2debian python-cffi libffi-dev libsdl1.2-dev && sudo -H pip install -U cffi libtcod-cffi tdl```
 
+**Mac OS install command**
+```sudo easy_install pip && sudo -H pip install -U cffi libtcod-cffi tdl```
+
 ### Server
 Add ```sudo -H``` to this command if needed.
 Python:
