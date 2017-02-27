@@ -48,6 +48,7 @@
             document.getElementById("compSelector").style.display = "None";
             document.getElementById("logout").style.display = "None";
             document.getElementById("submitCode").style.display = "None";
+            document.getElementById("loadCode").style.display = "None";
             document.getElementById("login").style.display = "";
         }
         function login() {
@@ -70,7 +71,9 @@
                         document.getElementById("scoreSelector").style.display = "";
                         document.getElementById("logout").style.display = "";
                         document.getElementById("submitCode").style.display = "";
+                        document.getElementById("loadCode").style.display = "";
                         document.getElementById("login").style.display = "None";
+                        loadCodeWithCon();
                         checkComps();
                     }
                 },
@@ -163,6 +166,48 @@
                     } else {
                         document.getElementById("scoreSelector").style.display = "";
                         alert("You average score was " + data["score"]);
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
+        }
+        function loadCodeWithCon() {
+            var curCode = editor.getValue();
+            if (curCode == "{{ example_bot|replace("\n", "\\n") }}") {
+                loadCode();
+                return
+            }
+            var ans = confirm("Do you want to load the code you submitted last?\nThis will overwrite your current program in the editor.");
+            if (ans) {
+                loadCode();
+            }
+        }
+        function loadCode() {
+            if (!window.token) {
+                login();
+            }
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'load_code',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (data.hasOwnProperty("error")) {
+                        if (data["error"] == "Invalid Token") {
+                            logout();
+                        }
+                    } else {
+                        editor.setValue(data["code"], 1);
                     }
                     document.getElementById("loadingOverlay").style["display"] = "none";
                 },
@@ -437,6 +482,7 @@
             </script>
             <br>
             <button id="testCode" onclick="testCode();">Play</button>
+            <button id="loadCode" onclick="loadCodeWithCon();" style="display: none;">Load Last Submitted Code</button>
             <button id="submitCode" onclick="submitCode();" style="display: none;">Submit</button>
         </div>
     </div>

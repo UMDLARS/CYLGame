@@ -155,6 +155,14 @@ class GameServer(flask_classful.FlaskView):
         else:
             return flask.jsonify(result=True)
 
+    @flask_classful.route('/load_code', methods=['POST'])
+    def load_code(self):
+        token = flask.request.get_json(silent=True).get('token', '')
+        if not self.gamedb.is_user_token(token):
+            return flask.jsonify(error="Invalid Token")
+        else:
+            return flask.jsonify(code=self.gamedb.get_code(token))
+
     def index(self):
         return flask.render_template('index.html', game_title=self.game.GAME_TITLE,
                                 example_bot=self.game.default_prog_for_bot(self.language), char_width=self.game.CHAR_WIDTH,
