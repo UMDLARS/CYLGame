@@ -53,6 +53,9 @@
         }
         function login() {
             window.token = prompt("Enter your token:", "");
+            if (window.token == null) {
+                return false;
+            }
             //check_token
             $.ajax({
                 type: "POST",
