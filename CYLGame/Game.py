@@ -2,9 +2,36 @@ import tcod
 import tdl
 import tempfile
 import os.path
+import random
+import string
 
 TCOT_ROOT_CONSOLE = None
 TDL_ROOT_CONSOLE = None
+
+
+# From: http://stackoverflow.com/a/2267446/4441526
+digs = string.digits + string.letters
+def int2base(x, base):
+    if x < 0:
+        sign = -1
+    elif x == 0:
+        return digs[0]
+    else:
+        sign = 1
+
+    x *= sign
+    digits = []
+
+    while x:
+        digits.append(digs[x % base])
+        x /= base
+
+    if sign < 0:
+        digits.append('-')
+
+    digits.reverse()
+
+    return ''.join(digits)
 
 
 def data_file(filename):
@@ -94,15 +121,17 @@ class GameRunner(object):
         self.BOT_CONSTS.update(key_consts)
         self.BOT_CONSTS.update(dir_consts)
 
-    def __run_for(self, score=False, playback=False):
+    def __run_for(self, score=False, playback=False, seed=None):
         global TDL_ROOT_CONSOLE
         assert self.bot is not None  # Make sure that we have a bot to run
         assert score != playback
 
         if not TDL_ROOT_CONSOLE:
             TDL_ROOT_CONSOLE = tdl.init(0, 0)
+        if not seed:
+            seed = random.randint(0, sys.maxint)
+        game = self.game_class(random.Random(seed))
 
-        game = self.game_class()
 
         console = tdl.Console(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
         if playback:
@@ -118,7 +147,7 @@ class GameRunner(object):
                 break
 
         if playback:
-            return screen_cap
+            return {"screen": screen_cap, "seed": int2base(seed, 36)}
         else:  # if score
             return game.get_score()
 
@@ -137,15 +166,15 @@ class GameRunner(object):
             scores += [self.__run_for(score=True)]
         return sum(scores) / times
 
-    def run_for_playback(self):
+    def run_for_playback(self, seed=None):
         """Runs the given game saving the screen captures.
 
         Return:
             The return value is a 3-dimensional list the first dimension is time followed by y and x.
         """
-        return self.__run_for(playback=True)
+        return self.__run_for(playback=True, seed=seed)
 
-    def run(self):
+    def run(self, seed=None):
         """Will run the game for a user.
 
         Returns:
@@ -158,7 +187,7 @@ class GameRunner(object):
         else:
             raise Exception("You are trying the run two games at the time! I cann't do that :(")
 
-        game = self.game_class()
+        game = self.game_class(random.Random(seed))
         console = tdl.Console(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
         while game.is_running():
             self.__run_user_turn(console, game)
@@ -220,6 +249,7 @@ def run(game_class):
     parser = argparse.ArgumentParser(prog="Apple Hunt", description='Play Apple Hunt.')
     subparsers = parser.add_subparsers(help='What do you what to do?')
     parser_play = subparsers.add_parser('play', help='Play Apple Hunt with a GUI')
+    # parser_play.add_argument('-s', '--seed', nargs="?", type=int, help='Manually set the random seed.', default=random.randint(0, sys.maxint))
     parser_play.set_defaults(func=play)
     parser_serve = subparsers.add_parser('serve', help='Serve Apple Hunt to the web.')
     parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)

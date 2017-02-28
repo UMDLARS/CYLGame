@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os
 import re
+import sys
 import ujson
 import flask
 import random
@@ -141,7 +142,7 @@ class GameServer(flask_classful.FlaskView):
             return flask.jsonify(error="Code did not compile")
         runner = GameRunner(self.game, prog)
         try:
-            result = ujson.dumps(runner.run_for_playback())
+            result = ujson.dumps(runner.run_for_playback(seed=random.randint(0, sys.maxint)))
         except Exception as e:
             print(e)
             return flask.jsonify(error="Your bot ran into an error at runtime")

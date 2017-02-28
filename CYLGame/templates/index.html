@@ -134,7 +134,8 @@
                     if (data["error"]) {
                         alert(data["error"]);
                     } else {
-                        drawFrames(data);
+                        drawFrames(data["screen"]);
+                        setSeed(data["seed"]);
                         enable_btn_bar();
                     }
                 },
@@ -405,6 +406,9 @@
         function enable_btn_bar() {
             $("#btn-bar :button").attr("disabled", false);
         }
+        function setSeed(seed) {
+            $("#mapNumberText").html("Map: " + seed);
+        }
     </script>
 </head>
 <body>
@@ -459,6 +463,7 @@
                     </div>
                 </div>
                 <span id="playbackProgressText">Frame 0 of 0</span>
+                <span id="mapNumberText" style="float: right;"></span>
             </div>
             <br>
             <div id="btn-bar">
