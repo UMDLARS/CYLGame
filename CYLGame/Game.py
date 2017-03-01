@@ -4,6 +4,7 @@ import tempfile
 import os.path
 import random
 import string
+import sys
 
 TCOT_ROOT_CONSOLE = None
 TDL_ROOT_CONSOLE = None
@@ -242,14 +243,15 @@ def run(game_class):
 
     def play(args):
         print("Playing...")
-        GameRunner(game_class).run()
+        GameRunner(game_class).run(int(args.seed, 36))
 
     import argparse
 
     parser = argparse.ArgumentParser(prog="Apple Hunt", description='Play Apple Hunt.')
     subparsers = parser.add_subparsers(help='What do you what to do?')
     parser_play = subparsers.add_parser('play', help='Play Apple Hunt with a GUI')
-    # parser_play.add_argument('-s', '--seed', nargs="?", type=int, help='Manually set the random seed.', default=random.randint(0, sys.maxint))
+    parser_play.add_argument('-s', '--seed', nargs="?", type=str, help='Manually set the random seed.',
+                             default=int2base(random.randint(0, sys.maxint), 36))
     parser_play.set_defaults(func=play)
     parser_serve = subparsers.add_parser('serve', help='Serve Apple Hunt to the web.')
     parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
