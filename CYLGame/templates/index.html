@@ -76,7 +76,7 @@
                         document.getElementById("submitCode").style.display = "";
                         document.getElementById("loadCode").style.display = "";
                         document.getElementById("login").style.display = "None";
-                        loadCodeWithCon();
+                        loadCode();
                         checkComps();
                     }
                 },
@@ -210,7 +210,7 @@
                         if (data["error"] == "Invalid Token") {
                             logout();
                         }
-                    } else {
+                    } else if (data["code"] != null) {
                         editor.setValue(data["code"], 1);
                     }
                     document.getElementById("loadingOverlay").style["display"] = "none";
