@@ -120,6 +120,7 @@
             });
         }
         function testCode() {
+            $("#debugTable").html("");
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim',
@@ -134,7 +135,7 @@
                     if (data["error"]) {
                         alert(data["error"]);
                     } else {
-                        drawFrames(data["screen"]);
+                        drawFrames(data["screen"], data["debug"]);
                         setSeed(data["seed"]);
                         enable_btn_bar();
                     }
@@ -301,9 +302,10 @@
                 }
             });
         }
-        function drawFrames(frames) {
+        function drawFrames(frames, vars) {
             play();
             window.replay_frames = frames;
+            window.replay_vars = vars;
             window.cur_frame = 0;
         }
 
@@ -314,7 +316,7 @@
             }
             $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
             $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
-            draw(window.replay_frames[window.cur_frame]);
+            draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
         }
 
         function nextFrame() {
@@ -324,7 +326,7 @@
             }
             $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
             $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
-            draw(window.replay_frames[window.cur_frame]);
+            draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
         }
 
         function drawLoop() {
@@ -332,7 +334,7 @@
                 if (window.cur_frame < replay_frames.length) {
                     $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
                     $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
-                    draw(window.replay_frames[window.cur_frame]);
+                    draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
                     window.cur_frame++;
                     if (window.cur_frame == replay_frames.length) {
                         window.cur_frame--;
@@ -345,7 +347,7 @@
             setTimeout(drawLoop, window.playback_timeout);
         }
 
-        function draw(frame) {
+        function draw(frame, cur_vars) {
             var c=document.getElementById("display");
             var ctx=c.getContext("2d");
             var img=document.getElementById("chars");
@@ -354,6 +356,7 @@
                     draw_char(c,ctx,img,frame[i][j],j,i);
                 }
             }
+            create_var_table(cur_vars);
         }
         function draw_char(canvas, ctx, img, char, x, y){
             var rows = 16;
@@ -379,7 +382,20 @@
             var destY = y*char_height;
 
             ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
+        }
+        function create_var_table(vars) {
+            var keys = Object.keys(vars);
+            keys.sort();
 
+//            var scores = data["scores"];
+//            scores.sort(compare);
+
+            var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Value"));
+            $("#debugTable").html("").append(row);
+            keys.forEach(function myFunction(item, index) {
+                var row = $("<tr>").append($("<td>").html(item)).append($("<td>").html(vars[item]));
+                $("#debugTable").append(row);
+            });
         }
         function pause() {
             window.is_playing = false;
@@ -395,7 +411,7 @@
             window.cur_frame = 0;
             $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
             $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
-            draw(window.replay_frames[window.cur_frame]);
+            draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
         }
         function cancelSubmit() {
             window.canceled = true;
@@ -410,6 +426,15 @@
         }
         function setSeed(seed) {
             $("#mapNumberText").html("Map: " + seed);
+        }
+        function toggle_debug_table() {
+            if ($("#debugTable").css("display") == "none") {
+                $("#debugTable").css("display", "");
+                $("#btnToggleDebug").html("Hide Debug Table");
+            } else {
+                $("#debugTable").css("display", "none");
+                $("#btnToggleDebug").html("Show Debug Table");
+            }
         }
     </script>
 </head>
@@ -478,7 +503,15 @@
                 <button onclick="setPlaybackTimeout(200);">5x</button>
                 <button onclick="setPlaybackTimeout(100);">10x</button>
                 <button onclick="setPlaybackTimeout(10);">100x</button>
+                <button id="btnToggleDebug" onclick="toggle_debug_table();" style="float: right;">Show Debug Table</button>
                 <br>
+            </div>
+            <div>
+                <br>
+                <center>
+                    <table id="debugTable" style="display: none;">
+                    </table>
+                </center>
             </div>
         </div>
         <div id="right_col">

@@ -112,11 +112,14 @@ class GameRunner(object):
                [chr(x) for x in range(ord("a"), ord("z") + 1)] + \
                [chr(x) for x in range(ord("0"), ord("9") + 1)]
 
+        self.CONST_NAMES = {}
+
         key_consts = {}
         for c in keys:
             key_consts["key_" + c] = ord(c)
 
         dir_consts = {"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d")}
+        self.CONST_NAMES.update({ord("w"): "North", ord("s"): "South", ord("a"): "West", ord("d"): "East"})
 
         self.BOT_CONSTS = {}
         self.BOT_CONSTS.update(key_consts)
@@ -137,6 +140,7 @@ class GameRunner(object):
         console = tdl.Console(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
         if playback:
             screen_cap = []
+            debug_vars = []
         vars = {}
         while game.is_running():
             result = self.__run_bot_turn(console, game, vars, capture_screen=playback)
@@ -144,11 +148,18 @@ class GameRunner(object):
                 vars, screen = result
                 if playback:
                     screen_cap += [screen]
+                    human_vars = {}
+                    for v in vars:
+                        if vars[v] in self.CONST_NAMES:
+                            human_vars[v] = self.CONST_NAMES[vars[v]] + " ("+str(vars[v])+")"
+                        else:
+                            human_vars[v] = vars[v]
+                    debug_vars += [human_vars]
             else:
                 break
 
         if playback:
-            return {"screen": screen_cap, "seed": int2base(seed, 36)}
+            return {"screen": screen_cap, "seed": int2base(seed, 36), "debug": debug_vars}
         else:  # if score
             return game.get_score()
 
@@ -227,6 +238,10 @@ class GameRunner(object):
         vars.update(self.BOT_CONSTS)
         vars.update(game.get_vars_for_bot())
         nxt_vars = self.bot.run(vars)
+
+        # remove consts
+        for key in self.BOT_CONSTS:
+            nxt_vars.pop(key)
 
         if "move" in nxt_vars:
             game.handle_key(chr(nxt_vars["move"]))

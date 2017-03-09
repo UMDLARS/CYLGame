@@ -13,7 +13,7 @@ canvas {
    margin:0 auto;
 }
 
-#scoreTable th, td {
+th, td {
     padding: 8px;
 }
 

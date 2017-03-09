@@ -32,3 +32,15 @@ pre, code {
     color: #9fff8f;
     background-color: #115215;
 }
+
+#debugTable th {
+    border-bottom: 1px solid #2a2;
+}
+
+#debugTable td {
+    width: 100px;
+}
+
+#debugTable tr th:first-child,td:first-child {
+    border-right: 1px solid #2a2;
+}
