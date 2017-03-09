@@ -1,3 +1,4 @@
+import io
 import os
 import ujson
 import random
@@ -121,7 +122,7 @@ class GameDB(object):
         os.mkdir(os.path.join(self.schools_dir, token))
         os.mkdir(os.path.join(self.schools_dir, token, "tokens"))
 
-        with open(os.path.join(self.schools_dir, token, "name"), "w") as fp:
+        with io.open(os.path.join(self.schools_dir, token, "name"), "w", encoding="utf8") as fp:
             fp.write(name)
 
         return token
@@ -132,7 +133,7 @@ class GameDB(object):
         os.mkdir(os.path.join(self.competitions_dir, token))
         os.mkdir(os.path.join(self.competitions_dir, token, "schools"))
 
-        with open(os.path.join(self.competitions_dir, token, "name"), "w") as fp:
+        with io.open(os.path.join(self.competitions_dir, token, "name"), "w", encoding="utf8") as fp:
             fp.write(name)
 
         return token
@@ -145,7 +146,7 @@ class GameDB(object):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         if not os.path.exists(school_dir):
             os.mkdir(school_dir)
-        with open(os.path.join(school_dir, "code.lp"), "w") as fp:
+        with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
             code = self.get_code(utoken)
             assert code is not None
             fp.write(code)
@@ -157,7 +158,7 @@ class GameDB(object):
     def get_comp_code(self, ctoken, stoken):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         if os.path.exists(os.path.join(school_dir, "code.lp")):
-            with open(os.path.join(school_dir, "code.lp"), "r") as fp:
+            with io.open(os.path.join(school_dir, "code.lp"), "r", encoding="utf8") as fp:
                 return fp.read()
         else:
             return None
@@ -171,13 +172,13 @@ class GameDB(object):
     def set_comp_avg_score(self, ctoken, stoken, score):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         assert school_dir is not None
-        with open(os.path.join(school_dir, "avg_score"), "w") as fp:
+        with io.open(os.path.join(school_dir, "avg_score"), "w", encoding="utf8") as fp:
             fp.write(str(score))
 
     def get_comp_avg_score(self, ctoken, stoken):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         if os.path.exists(os.path.join(school_dir, "avg_score")):
-            with open(os.path.join(school_dir, "avg_score"), "r") as fp:
+            with io.open(os.path.join(school_dir, "avg_score"), "r", encoding="utf8") as fp:
                 return int(fp.read())
         else:
             return None
@@ -190,7 +191,7 @@ class GameDB(object):
             code (str): The user's code.
         """
         assert os.path.exists(self.__get_dir_for_token(token))
-        with open(self.__get_dir_for_token(token, "code.lp"), "w") as fp:
+        with io.open(self.__get_dir_for_token(token, "code.lp"), "w", encoding="utf8") as fp:
             fp.write(code)
 
     def save_name(self, token, name):
@@ -201,7 +202,7 @@ class GameDB(object):
             name (str): The user's name.
         """
         assert os.path.exists(self.__get_dir_for_token(token))
-        with open(self.__get_dir_for_token(token, "name"), "w") as fp:
+        with io.open(self.__get_dir_for_token(token, "name"), "w", encoding="utf8") as fp:
             fp.write(name)
 
     def save_avg_score(self, token, score):
@@ -212,12 +213,12 @@ class GameDB(object):
             score (int): The user's average score.
         """
         assert os.path.exists(self.__get_dir_for_token(token))
-        with open(self.__get_dir_for_token(token, "avg_score"), "w") as fp:
-            fp.write(str(score))
+        with io.open(self.__get_dir_for_token(token, "avg_score"), "w", encoding="utf8") as fp:
+            fp.write(unicode(score))
 
     def get_code(self, token):
         if os.path.exists(self.__get_dir_for_token(token, "code.lp")):
-            with open(self.__get_dir_for_token(token, "code.lp"), "r") as fp:
+            with io.open(self.__get_dir_for_token(token, "code.lp"), "r", encoding="utf8") as fp:
                 return fp.read()
         else:
             return None
@@ -225,14 +226,19 @@ class GameDB(object):
     def get_name(self, token):
         if self.is_user_token(token) or self.is_school_token(token) or self.is_comp_token(token):
             if os.path.exists(self.__get_dir_for_token(token, "name")):
-                with open(self.__get_dir_for_token(token, "name"), "r") as fp:
+                with io.open(self.__get_dir_for_token(token, "name"), "r", encoding="utf8") as fp:
                     return fp.read()
         return None
 
     def get_avg_score(self, token):
         if os.path.exists(self.__get_dir_for_token(token, "avg_score")):
-            with open(self.__get_dir_for_token(token, "avg_score"), "r") as fp:
-                return int(fp.read())
+            with io.open(self.__get_dir_for_token(token, "avg_score"), "r", encoding="utf8") as fp:
+                try:
+                    # Try to convert to int
+                    return int(fp.read())
+                except ValueError as e:
+                    # If failed return none
+                    return None
         else:
             return None
 
