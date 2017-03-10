@@ -15,6 +15,7 @@
     <script type=text/javascript>
         $SCRIPT_ROOT = "";
         pause();
+        window.seed = "";
         window.onload = function() {
 {#            document.getElementById("display").width = {{ screen_width }}*{{ char_width }};#}
 {#            document.getElementById("display").height = {{ screen_height }}*{{ char_height }};#}
@@ -124,7 +125,7 @@
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim',
-                data: JSON.stringify({code: editor.getValue()}),
+                data: JSON.stringify({code: editor.getValue(), seed: window.seed}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -133,6 +134,9 @@
                     }
                     document.getElementById("loadingOverlay").style["display"] = "none";
                     if (data["error"]) {
+                        if (data["error"] == "Invalid Seed") {
+                            window.seed = "";
+                        }
                         alert(data["error"]);
                     } else {
                         drawFrames(data["screen"], data["debug"]);
@@ -436,6 +440,10 @@
                 $("#btnToggleDebug").html("Show Debug Table");
             }
         }
+        function set_seed() {
+            window.seed = prompt("Enter map seed.\nIf you want a random seed leave blank.", "");
+            console.log(window.seed);
+        }
     </script>
 </head>
 <body>
@@ -503,7 +511,10 @@
                 <button onclick="setPlaybackTimeout(200);">5x</button>
                 <button onclick="setPlaybackTimeout(100);">10x</button>
                 <button onclick="setPlaybackTimeout(10);">100x</button>
-                <button id="btnToggleDebug" onclick="toggle_debug_table();" style="float: right;">Show Debug Table</button>
+                <div style="float: right;">
+                    <button id="btnSetSeed" onclick="set_seed();">Set Map Seed</button>
+                    <button id="btnToggleDebug" onclick="toggle_debug_table();">Show Debug Table</button>
+                </div>
                 <br>
             </div>
             <div>

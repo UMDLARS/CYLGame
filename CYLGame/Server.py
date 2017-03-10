@@ -138,13 +138,20 @@ class GameServer(flask_classful.FlaskView):
     @flask_classful.route('/sim', methods=['POST'])
     def sim(self):
         code = flask.request.get_json(silent=True).get('code', '')
+        seed_str = flask.request.get_json(silent=True).get('seed', '')
+        seed = random.randint(0, sys.maxint)
+        if seed_str:
+            try:
+                seed = int(seed_str, 36)
+            except:
+                return flask.jsonify(error="Invalid Seed")
         try:
             prog = self.compiler.compile(code.split("\n"))
         except:
             return flask.jsonify(error="Code did not compile")
         runner = GameRunner(self.game, prog)
         try:
-            result = ujson.dumps(runner.run_for_playback(seed=random.randint(0, sys.maxint)))
+            result = ujson.dumps(runner.run_for_playback(seed=seed))
         except Exception as e:
             print(e)
             return flask.jsonify(error="Your bot ran into an error at runtime")
