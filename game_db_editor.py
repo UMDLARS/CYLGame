@@ -62,7 +62,7 @@ def add_competition():
     #     if top_bot is not None:
     #         gamedb.set_token_for_comp(token, top_bot, school)
 
-    print("Please run competition sim script with the following token:", cur_comp)
+    print("Don't forget to run competition sim script with the following token:", cur_comp)
     pause()
 
 
@@ -89,6 +89,8 @@ def add_school_to_comp():
     selection = options_to_tokens[print_menu(options, "Select School")]
     gamedb.add_school_to_comp(cur_comp, selection)
     print("School added")
+    print("Don't forget to run competition sim script with the following token:", cur_comp)
+    pause()
 
 
 def list_schools_in_comp():
