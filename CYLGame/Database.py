@@ -198,7 +198,7 @@ class GameDB(object):
         stoken = self.get_school_for_token(utoken)
         for comp in self.__get_comp_tokens():
             if stoken in self.get_schools_in_comp(comp):
-                comps += [stoken]
+                comps += [comp]
         return comps
 
     def get_schools_in_comp(self, ctoken):
