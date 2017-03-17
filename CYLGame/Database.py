@@ -134,7 +134,7 @@ class GameDB(object):
         return token
 
     def add_new_competition(self, name=""):
-        token = self.__get_new_token(self.__get_school_tokens(), prefix="P")
+        token = self.__get_new_token(self.__get_comp_tokens(), prefix="P")
 
         os.mkdir(os.path.join(self.competitions_dir, token))
         os.mkdir(os.path.join(self.competitions_dir, token, "schools"))
@@ -144,22 +144,43 @@ class GameDB(object):
 
         return token
 
-    def set_token_for_comp(self, ctoken, utoken, stoken):
+    def add_school_to_comp(self, ctoken, stoken):
         assert self.is_comp_token(ctoken)
-        assert self.is_user_token(utoken)
         assert self.is_school_token(stoken)
 
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         if not os.path.exists(school_dir):
             os.mkdir(school_dir)
+
+    # TODO(derpferd): add function to remove a school
+
+    def set_comp_school_code(self, ctoken, stoken, code):
+        assert self.is_comp_token(ctoken)
+        assert self.is_school_token(stoken)
+
+        school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
+        if not os.path.exists(school_dir):
+            os.mkdir(school_dir)
+
         with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
-            code = self.get_code(utoken)
-            assert code is not None
             fp.write(code)
-        # with open(os.path.join(school_dir, "name"), "w") as fp:
-        #     name = self.get_name(stoken)
-        #     assert name is not None
-        #     fp.write(name)
+
+    # def set_token_for_comp(self, ctoken, utoken, stoken):
+    #     assert self.is_comp_token(ctoken)
+    #     assert self.is_user_token(utoken)
+    #     assert self.is_school_token(stoken)
+    #
+    #     school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
+    #     if not os.path.exists(school_dir):
+    #         os.mkdir(school_dir)
+    #     with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
+    #         code = self.get_code(utoken)
+    #         assert code is not None
+    #         fp.write(code)
+    #     # with open(os.path.join(school_dir, "name"), "w") as fp:
+    #     #     name = self.get_name(stoken)
+    #     #     assert name is not None
+    #     #     fp.write(name)
 
     def get_comp_code(self, ctoken, stoken):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
@@ -169,7 +190,7 @@ class GameDB(object):
         else:
             return None
 
-    def get_comps_for_token(self, utoken):
+    def get_comp_tokens(self):
         return self.__get_comp_tokens()
 
     def get_schools_in_comp(self, ctoken):
