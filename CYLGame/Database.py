@@ -140,7 +140,7 @@ class GameDB(object):
         os.mkdir(os.path.join(self.competitions_dir, token, "schools"))
 
         with io.open(os.path.join(self.competitions_dir, token, "name"), "w", encoding="utf8") as fp:
-            fp.write(name)
+            fp.write(unicode(name))
 
         return token
 
