@@ -176,7 +176,7 @@ class GameRunner(object):
         # TODO: make this able to run in a pool of threads (So it can be run on multiple CPUs)
         for t in range(times):
             scores += [self.__run_for(score=True)]
-        return sum(scores) / times
+        return float(sum(scores*100) / times)/100
 
     def run_for_playback(self, seed=None):
         """Runs the given game saving the screen captures.
@@ -254,7 +254,7 @@ def run(game_class):
     def serve(args):
         print("I am going to serve")
         from .Server import serve
-        serve(game_class, host=args.host, port=args.port)
+        serve(game_class, host=args.host, port=args.port, game_data_path=args.dbfile)
 
     def play(args):
         print("Playing...")
@@ -270,6 +270,7 @@ def run(game_class):
     parser_play.set_defaults(func=play)
     parser_serve = subparsers.add_parser('serve', help='Serve Apple Hunt to the web.')
     parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
+    parser_serve.add_argument('-db', '--dbfile', nargs="?", type=str, help='The root path of the game database', default="temp_game")
     parser_serve.add_argument('--host', nargs="?", type=str, help='The mask to host to', default='127.0.0.1')
     parser_serve.set_defaults(func=serve)
 

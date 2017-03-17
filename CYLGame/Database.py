@@ -88,6 +88,12 @@ class GameDB(object):
             return os.path.join(self.competitions_dir, token, *fns)
         return None
 
+    def __get_cur_code_for_token(self, token):
+        pass
+
+    def __get_next_code_for_token(self, token):
+        pass
+
     def is_comp_token(self, token):
         if len(token) > 0 and token[0] == "P":
             # It is a competition token
@@ -173,13 +179,13 @@ class GameDB(object):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         assert school_dir is not None
         with io.open(os.path.join(school_dir, "avg_score"), "w", encoding="utf8") as fp:
-            fp.write(str(score))
+            fp.write(unicode(score))
 
     def get_comp_avg_score(self, ctoken, stoken):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         if os.path.exists(os.path.join(school_dir, "avg_score")):
             with io.open(os.path.join(school_dir, "avg_score"), "r", encoding="utf8") as fp:
-                return int(fp.read())
+                return float(fp.read())
         else:
             return None
 
@@ -234,8 +240,8 @@ class GameDB(object):
         if os.path.exists(self.__get_dir_for_token(token, "avg_score")):
             with io.open(self.__get_dir_for_token(token, "avg_score"), "r", encoding="utf8") as fp:
                 try:
-                    # Try to convert to int
-                    return int(fp.read())
+                    # Try to convert to float
+                    return float(fp.read())
                 except ValueError as e:
                     # If failed return none
                     return None
@@ -255,6 +261,7 @@ class GameDB(object):
                 return school
         return None
 
+    # Get tokens that belong to a school
     def get_tokens_for_school(self, school_tk):
         return self.__get_school_user_tokens(school_tk)
 
