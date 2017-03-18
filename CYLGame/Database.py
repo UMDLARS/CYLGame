@@ -129,7 +129,7 @@ class GameDB(object):
         os.mkdir(os.path.join(self.schools_dir, token, "tokens"))
 
         with io.open(os.path.join(self.schools_dir, token, "name"), "w", encoding="utf8") as fp:
-            fp.write(name)
+            fp.write(unicode(name))
 
         return token
 
@@ -163,7 +163,7 @@ class GameDB(object):
             os.mkdir(school_dir)
 
         with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
-            fp.write(code)
+            fp.write(unicode(code))
 
     # def set_token_for_comp(self, ctoken, utoken, stoken):
     #     assert self.is_comp_token(ctoken)
@@ -227,7 +227,7 @@ class GameDB(object):
         """
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "code.lp"), "w", encoding="utf8") as fp:
-            fp.write(code)
+            fp.write(unicode(code))
 
     def save_name(self, token, name):
         """Save a user's name under their token.
@@ -238,7 +238,7 @@ class GameDB(object):
         """
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "name"), "w", encoding="utf8") as fp:
-            fp.write(name)
+            fp.write(unicode(name))
 
     def save_avg_score(self, token, score):
         """Save a user's average score.

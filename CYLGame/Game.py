@@ -262,13 +262,13 @@ def run(game_class):
 
     import argparse
 
-    parser = argparse.ArgumentParser(prog="Apple Hunt", description='Play Apple Hunt.')
+    parser = argparse.ArgumentParser(prog=game_class.GAME_TITLE, description='Play ' + game_class.GAME_TITLE + '.')
     subparsers = parser.add_subparsers(help='What do you what to do?')
-    parser_play = subparsers.add_parser('play', help='Play Apple Hunt with a GUI')
+    parser_play = subparsers.add_parser('play', help='Play ' + game_class.GAME_TITLE + ' with a GUI')
     parser_play.add_argument('-s', '--seed', nargs="?", type=str, help='Manually set the random seed.',
                              default=int2base(random.randint(0, sys.maxint), 36))
     parser_play.set_defaults(func=play)
-    parser_serve = subparsers.add_parser('serve', help='Serve Apple Hunt to the web.')
+    parser_serve = subparsers.add_parser('serve', help='Serve ' + game_class.GAME_TITLE + ' to the web.')
     parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
     parser_serve.add_argument('-db', '--dbfile', nargs="?", type=str, help='The root path of the game database', default="temp_game")
     parser_serve.add_argument('--host', nargs="?", type=str, help='The mask to host to', default='127.0.0.1')
