@@ -178,7 +178,7 @@ class GameServer(flask_classful.FlaskView):
                                 example_bot=self.game.default_prog_for_bot(self.language), char_width=self.game.CHAR_WIDTH,
                                 char_height=self.game.CHAR_HEIGHT, screen_width=self.game.SCREEN_WIDTH,
                                 screen_height=self.game.SCREEN_HEIGHT, char_set=self.charset,
-                                intro_text=GameLanguage.get_language_description(self.language))
+                                intro_text=self.game.get_intro()+GameLanguage.get_language_description(self.language))
 
     @classmethod
     def serve(cls, game, host=None, port=None, compression=False, language=GameLanguage.LITTLEPY,

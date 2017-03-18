@@ -102,6 +102,10 @@ class Game(object):
     def default_prog_for_bot(language):
         raise Exception("Not implemented!")
 
+    @staticmethod
+    def get_intro():
+        raise Exception("Not implemented!")
+
 
 class GameRunner(object):
     def __init__(self, game_class, bot=None):
