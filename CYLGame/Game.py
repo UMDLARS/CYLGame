@@ -118,8 +118,11 @@ class GameRunner(object):
         for c in keys:
             key_consts["key_" + c] = ord(c)
 
-        dir_consts = {"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d")}
-        self.CONST_NAMES.update({ord("w"): "North", ord("s"): "South", ord("a"): "West", ord("d"): "East"})
+        dir_consts = {"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
+                      "northeast": ord("e"), "southeast": ord("c"), "northwest": ord("q"), "southwest": ord("z")}
+        self.CONST_NAMES.update({ord("w"): "North", ord("s"): "South", ord("a"): "West", ord("d"): "East",
+                                 ord("e"): "Northeast", ord("c"): "Southeast", ord("q"): "Northwest",
+                                 ord("z"): "Southwest"})
 
         self.BOT_CONSTS = {}
         self.BOT_CONSTS.update(key_consts)
