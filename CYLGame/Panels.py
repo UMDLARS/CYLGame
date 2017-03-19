@@ -1,5 +1,6 @@
 from collections import defaultdict, namedtuple, Mapping
 from functools import reduce
+from copy import deepcopy
 
 DEFAULT_CHAR = ' '
 
@@ -101,12 +102,12 @@ class Map(object):
             char = char.char
         assert isinstance(char, str)
         assert len(char) == 1
-        return self.char_to_ps[char]
+        return deepcopy(self.char_to_ps[char])
 
     # will return default_char if the position is not set
     # Will return a ColoredChar
     def get_char_at(self, pos):
-        return self.p_to_char[pos]
+        return deepcopy(self.p_to_char[pos])
 
 
 class PanelPadding(object):
