@@ -154,7 +154,9 @@ class GameServer(flask_classful.FlaskView):
             result = ujson.dumps(runner.run_for_playback(seed=seed))
         except Exception as e:
             print(e)
-            return flask.jsonify(error="Your bot ran into an error at runtime")
+            return flask.jsonify(error="Your bot ran into an error at runtime.\n"
+                                       "If you think that your bot is correct, please file a bug report!\n"
+                                       "Make sure to include your code.")
         return result
 
     @flask_classful.route('/check_token', methods=['POST'])
