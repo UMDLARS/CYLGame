@@ -106,31 +106,25 @@ class Game(object):
     def get_intro():
         raise Exception("Not implemented!")
 
+    @staticmethod
+    def get_move_consts():
+        return {"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
+                "northeast": ord("e"), "southeast": ord("c"), "northwest": ord("q"), "southwest": ord("z")}
+
+    @staticmethod
+    def get_move_names():
+        return {ord("w"): "North", ord("s"): "South", ord("a"): "West", ord("d"): "East",
+                ord("e"): "Northeast", ord("c"): "Southeast", ord("q"): "Northwest",
+                ord("z"): "Southwest"}
+
 
 class GameRunner(object):
     def __init__(self, game_class, bot=None):
         self.game_class = game_class  # type: type
         self.bot = bot  # type: LPProg
 
-        keys = [chr(x) for x in range(ord("A"), ord("Z") + 1)] + \
-               [chr(x) for x in range(ord("a"), ord("z") + 1)] + \
-               [chr(x) for x in range(ord("0"), ord("9") + 1)]
-
-        self.CONST_NAMES = {}
-
-        key_consts = {}
-        for c in keys:
-            key_consts["key_" + c] = ord(c)
-
-        dir_consts = {"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
-                      "northeast": ord("e"), "southeast": ord("c"), "northwest": ord("q"), "southwest": ord("z")}
-        self.CONST_NAMES.update({ord("w"): "North", ord("s"): "South", ord("a"): "West", ord("d"): "East",
-                                 ord("e"): "Northeast", ord("c"): "Southeast", ord("q"): "Northwest",
-                                 ord("z"): "Southwest"})
-
-        self.BOT_CONSTS = {}
-        self.BOT_CONSTS.update(key_consts)
-        self.BOT_CONSTS.update(dir_consts)
+        self.BOT_CONSTS = self.game_class.get_move_consts()
+        self.CONST_NAMES = self.game_class.get_move_names()
 
     def __run_for(self, score=False, playback=False, seed=None):
         global TDL_ROOT_CONSOLE
