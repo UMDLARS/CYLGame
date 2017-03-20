@@ -27,7 +27,7 @@ Clone this repo and add the path to the repo to your path variable.
 Ex. export PYTHONPATH=$PYTHONPATH:/path/to/add/CYLGame
 
 ## Play a game
-Go here and download the repo: [https://github.com/UMDCYL/applegame](https://github.com/UMDCYL/applegame)
+Go here and download the repo: [https://github.com/UMDCYL/applehunt](https://github.com/UMDCYL/applehunt)
 To play run:
 ```
 python apple_game.py play
