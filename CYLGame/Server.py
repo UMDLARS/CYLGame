@@ -176,11 +176,12 @@ class GameServer(flask_classful.FlaskView):
             return flask.jsonify(code=self.gamedb.get_code(token))
 
     def index(self):
+        intro = self.game.get_intro() + GameLanguage.get_language_description(self.language)
         return flask.render_template('index.html', game_title=self.game.GAME_TITLE,
                                 example_bot=self.game.default_prog_for_bot(self.language), char_width=self.game.CHAR_WIDTH,
                                 char_height=self.game.CHAR_HEIGHT, screen_width=self.game.SCREEN_WIDTH,
                                 screen_height=self.game.SCREEN_HEIGHT, char_set=self.charset,
-                                intro_text=self.game.get_intro()+GameLanguage.get_language_description(self.language))
+                                intro_text=intro)
 
     @classmethod
     def serve(cls, game, host=None, port=None, compression=False, language=GameLanguage.LITTLEPY,
@@ -195,7 +196,14 @@ class GameServer(flask_classful.FlaskView):
         cls.charset = cls.__copy_in_charset(game.CHAR_SET)
 
         cls.app = flask.Flask(__name__.split('.')[0])
-        flask_markdown.Markdown(cls.app)
+
+        @cls.app.template_filter('markdown')
+        def markdown_filter(data):
+            from flask import Markup
+            from markdown import markdown
+
+            return Markup(markdown(data))
+
         if cls.compression:
             import flask_compress
             flask_compress.Compress(cls.app)

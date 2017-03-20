@@ -470,7 +470,7 @@
 
 <div class="tab-content">
   <div id="Intro" class="tab-pane fade in active">
-    <p>{% filter markdown %}{{ intro_text }}{% endfilter %}</p>
+      <p>{{ intro_text|markdown }}</p>
   </div>
   <div id="Game" class="tab-pane fade">
       <h3>Play the Game</h3>
