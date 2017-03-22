@@ -7,6 +7,7 @@ import flask
 import random
 import shutil
 import flask_classful
+from flask import escape
 import flaskext.markdown as flask_markdown
 from Game import GameRunner
 from Game import GameLanguage
@@ -89,7 +90,7 @@ class GameServer(flask_classful.FlaskView):
         for user_tk in self.gamedb.get_tokens_for_school(school_tk):
             score = self.gamedb.get_avg_score(user_tk)
             if score is not None:
-                obj["scores"] += [{"name": self.gamedb.get_name(user_tk), "score": self.gamedb.get_avg_score(user_tk)}]
+                obj["scores"] += [{"name": escape(self.gamedb.get_name(user_tk)), "score": self.gamedb.get_avg_score(user_tk)}]
         return ujson.dumps(obj)
 
     @flask_classful.route('/comp_scoreboards', methods=["POST"])
@@ -104,7 +105,7 @@ class GameServer(flask_classful.FlaskView):
             for school in self.gamedb.get_schools_in_comp(comp):
                 score = self.gamedb.get_comp_avg_score(comp, school)
                 if score is not None:
-                    comp_obj["scores"] += [{"name": self.gamedb.get_name(school), "score": score}]
+                    comp_obj["scores"] += [{"name": escape(self.gamedb.get_name(school)), "score": score}]
             obj["comps"] += [comp_obj]
         return ujson.dumps(obj)
 
