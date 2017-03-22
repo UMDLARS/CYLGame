@@ -153,6 +153,10 @@ class GameRunner(object):
                     for v in vars:
                         if vars[v] in self.CONST_NAMES:
                             human_vars[v] = self.CONST_NAMES[vars[v]] + " ("+str(vars[v])+")"
+                        elif str(vars[v]) == str(True):
+                            human_vars[v] = 1
+                        elif str(vars[v]) == str(False):
+                            human_vars[v] = 0
                         else:
                             human_vars[v] = vars[v]
                     debug_vars += [human_vars]
