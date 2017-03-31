@@ -257,7 +257,7 @@
                     var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Average Score"));
                     $("#scoreTable").html("").append(row);
                     scores.forEach(function myFunction(item, index) {
-                        var row = $("<tr>").append($("<td>").html(item["name"])).append($("<td>").html(item["score"]));
+                        var row = $("<tr>").append($("<td>").text(item["name"])).append($("<td>").text(item["score"]));
                         $("#scoreTable").append(row);
                     });
                     document.getElementById("scoreSchool").innerHTML = data["school"];
