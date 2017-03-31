@@ -231,8 +231,10 @@ class GameRunner(object):
         if key.char:
             game.handle_key(key.char)
 
-    def __run_bot_turn(self, console, game, prev_vars={}, capture_screen=True):
+    def __run_bot_turn(self, console, game, prev_vars=None, capture_screen=True):
         """run_bot will do a single bot turn"""
+        if prev_vars  is None:
+            prev_vars = dict()
         game.draw_screen(tcod, console.tcod_console)
         if capture_screen:
             screen_cap = self.get_screen_array(console)
@@ -240,6 +242,9 @@ class GameRunner(object):
             screen_cap = None
 
         vars = dict(prev_vars)
+        read_bot_state = getattr(game, "read_bot_state", None)
+        if callable(read_bot_state):
+            read_bot_state(prev_vars)
         vars.update(self.BOT_CONSTS)
         vars.update(game.get_vars_for_bot())
         nxt_vars = self.bot.run(vars)
