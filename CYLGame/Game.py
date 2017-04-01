@@ -168,7 +168,7 @@ class GameRunner(object):
         else:  # if score
             return game.get_score()
 
-    def run_for_avg_score(self, times=1):
+    def run_for_avg_score(self, times=1, seed=None):
         """Runs the given game keeping only the scores.
 
         Args:
@@ -180,7 +180,7 @@ class GameRunner(object):
         scores = []
         # TODO: make this able to run in a pool of threads (So it can be run on multiple CPUs)
         for t in range(times):
-            scores += [self.__run_for(score=True)]
+            scores += [self.__run_for(score=True, seed=seed)]
         return float(sum(scores*100) / times)/100
 
     def run_for_playback(self, seed=None):
