@@ -109,6 +109,17 @@ class Map(object):
     def get_char_at(self, pos):
         return copy(self.p_to_char[pos])
 
+    # offset should be in the format tuple(x, y)
+    def shift_all(self, offset):
+        assert type(offset) == tuple
+        old_char_to_ps = copy(self.char_to_ps)
+        self.char_to_ps = defaultdict(set)
+        self.p_to_char = defaultdict(lambda: ColoredChar(self.default_char, self.default_foreground,
+                                                         self.default_background))
+        for char, ps in old_char_to_ps.items():
+            for p in ps:
+                self.add(char, tuple(p[0] + offset[0], p[1] + offset[1]))
+
 
 class PanelPadding(object):
     TOP = 1
