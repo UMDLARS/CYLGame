@@ -59,6 +59,14 @@ class Map(object):
         x, y = pos
         return 0 <= x < self.w and 0 <= y < self.h
 
+    def wrap(self, pos, wrap_x=False, wrap_y=False):
+        x, y = pos
+        if wrap_x:
+            x %= self.w
+        if wrap_y:
+            y %= self.h
+        return (x, y)
+
     # changes in the format of a dictionary
     # key: (x, y)
     # value: new_char
@@ -98,7 +106,7 @@ class Map(object):
         return copy(self.p_to_char[pos])
 
     # offset should be in the format tuple(x, y)
-    def shift_all(self, offset):
+    def shift_all(self, offset, wrap_x=False, wrap_y=False):
         assert type(offset) == tuple
         old_char_to_ps = copy(self.char_to_ps)
         self.char_to_ps = defaultdict(set)
@@ -107,7 +115,7 @@ class Map(object):
             for p in ps:
                 if p not in self.changes:
                     self.changes[p] = self.default_char
-                new_pos = (p[0] + offset[0], p[1] + offset[1])
+                new_pos = self.wrap((p[0] + offset[0], p[1] + offset[1]), wrap_x, wrap_y)
                 if self.in_bounds(new_pos):
                     self.add(char, new_pos)
 
