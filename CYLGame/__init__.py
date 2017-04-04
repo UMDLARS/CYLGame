@@ -10,6 +10,5 @@ from .Panels import MessagePanel
 from .Panels import StatusPanel
 from .Panels import PanelBorder
 from .Panels import PanelPadding
-from .Panels import ColoredChar
 
 __version__ = '0.2.0'
