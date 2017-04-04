@@ -1,41 +1,19 @@
 from collections import defaultdict, namedtuple, Mapping
+from itertools import product
 from functools import reduce
 from copy import copy
 
 DEFAULT_CHAR = ' '
 
 
-class ColoredChar(object):
-    def __init__(self, char=None, foreground=None, background=None):
-        if isinstance(char, ColoredChar):
-            self.char = char.char
-            self.foreground = char.foreground
-            self.background = char.background
-        else:
-            self.char = char
-            self.foreground = foreground
-            self.background = background
-
-    def __str__(self):
-        return self.char
-
-    def __iter__(self):
-        return [self.char, self.foreground, self.background].__iter__()
-
-    def __repr__(self):
-        return "<ColoredChar '" + str(self.char) + "', " + str(self.foreground) + ", " + str(self.background) + ">"
-
-    # NOTE: == will only test both chars not the colors.
-    def __eq__(self, other):
-        if isinstance(other, str):
-            return self.char == other
-        else:
-            assert isinstance(other, ColoredChar)
-            return self.char == other.char
+def is_char(c):
+    return type(c) == str and len(c) == 1
 
 
-# WARNING: this does not do bounds checking
-# TODO: Should the map do bounds checking?
+def is_coord(p):
+    return type(p) == tuple and len(p) == 2 and type(p[0]) == int and type(p[1]) == int
+
+
 class Map(object):
     """
     char_to_ps: This is a dictionary which has a character for the keys and the value for the key is a set of all the
@@ -43,17 +21,13 @@ class Map(object):
     p_to_char:  The is a dictionary which has a position(tuple with two elements: x and y) as a key and the current
                 ColoredChar as the value.
     """
-    def __init__(self, default_char=DEFAULT_CHAR, default_foreground=(255, 255, 255), default_background=(0, 0, 0), default_colored_char=None):
-        if default_colored_char:
-            self.default_char = default_colored_char.char
-            self.default_foreground = default_colored_char.foreground
-            self.default_background = default_colored_char.background
-        else:
-            self.default_char = default_char
-            self.default_foreground = default_foreground
-            self.default_background = default_background
+
+    def __init__(self, width, height, default_char=DEFAULT_CHAR):
+        self.w = width
+        self.h = height
+        self.default_char = default_char
         self.char_to_ps = defaultdict(set)
-        self.p_to_char = defaultdict(lambda: ColoredChar(self.default_char, self.default_foreground, self.default_background))
+        self.p_to_char = defaultdict(lambda: self.default_char)
         self.changes = {}
 
     def __setitem__(self, key, value):
@@ -61,6 +35,29 @@ class Map(object):
 
     def __getitem__(self, item):
         return self.get_char_at(item)
+
+    def get_x_y_dist_to_foo(self, pos, foo, wrapping=False, diagonal_moving=False):
+        assert is_coord(pos) and is_char(foo)
+
+        dists = []
+        x, y = pos
+        for foo_pos in self.get_all_pos(foo):
+            foo_x, foo_y = foo_pos
+            # TODO(derpferd): Implement wrapping
+            if wrapping or diagonal_moving:
+                # for i, j in product(range(-1, 0, 1), range(-1, 0, 1)):
+                #     pass
+                raise NotImplementedError("Wrapping and Diagonal_moving not implemented")
+            else:
+                d_x, d_y = foo_x + x, foo_y + y
+                dists += [(d_x, d_y)]
+        return min(dists, key=lambda d: d[0]+d[1])
+
+    # checks if pos is in bound of the map
+    def in_bounds(self, pos):
+        assert is_coord(pos)
+        x, y = pos
+        return 0 <= x < self.w and 0 <= y < self.h
 
     # changes in the format of a dictionary
     # key: (x, y)
@@ -72,41 +69,32 @@ class Map(object):
 
     # pos must be tuple
     def add(self, char, pos):
-        if type(char) == str:
-            colored_char = ColoredChar(char)
-        else:
-            colored_char = char
-            char = colored_char.char
-            assert type(colored_char) == ColoredChar
-        assert type(pos) == tuple
+        assert is_char(char)
+        assert self.in_bounds(pos)
 
         if pos in self.p_to_char.keys():
             self.rm_char(pos)
         self.char_to_ps[char].add(pos)
-        self.p_to_char[pos] = colored_char
-        self.changes[pos] = colored_char
+        self.p_to_char[pos] = char
+        self.changes[pos] = char
 
     # pos must be tuple
     def rm_char(self, pos):
-        assert type(pos) == tuple
-        colored_char = self.p_to_char[pos]
+        assert self.in_bounds(pos)
+        char = self.p_to_char[pos]
         del self.p_to_char[pos]
-        char = colored_char.char
         if char in self.char_to_ps and pos in self.char_to_ps[char]:
             self.char_to_ps[char].remove(pos)
             self.changes[pos] = self.default_char
 
     # returns a set of pos
     def get_all_pos(self, char):
-        if isinstance(char, ColoredChar):
-            char = char.char
-        assert isinstance(char, str)
-        assert len(char) == 1
+        assert is_char(char)
         return copy(self.char_to_ps[char])
 
     # will return default_char if the position is not set
-    # Will return a ColoredChar
     def get_char_at(self, pos):
+        assert self.in_bounds(pos)
         return copy(self.p_to_char[pos])
 
     # offset should be in the format tuple(x, y)
@@ -114,11 +102,14 @@ class Map(object):
         assert type(offset) == tuple
         old_char_to_ps = copy(self.char_to_ps)
         self.char_to_ps = defaultdict(set)
-        self.p_to_char = defaultdict(lambda: ColoredChar(self.default_char, self.default_foreground,
-                                                         self.default_background))
+        self.p_to_char = defaultdict(lambda: self.default_char)
         for char, ps in old_char_to_ps.items():
             for p in ps:
-                self.add(char, tuple(p[0] + offset[0], p[1] + offset[1]))
+                if p not in self.changes:
+                    self.changes[p] = self.default_char
+                new_pos = (p[0] + offset[0], p[1] + offset[1])
+                if self.in_bounds(new_pos):
+                    self.add(char, new_pos)
 
 
 class PanelPadding(object):
@@ -265,8 +256,8 @@ class PanelBorder(object):
 
 
 class Panel(Map):
-    def __init__(self, x, y, w, h, background_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding(), default_colored_char=None):
-        super(Panel, self).__init__(background_char, default_colored_char=default_colored_char)
+    def __init__(self, x, y, w, h, background_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding()):
+        super(Panel, self).__init__(w, h, background_char)
         self.x = x
         self.y = y
         self.w = w
@@ -298,20 +289,12 @@ class Panel(Map):
         if PanelPadding.RIGHT in self.padding:
             self.w -= self.padding[PanelPadding.RIGHT]
 
-    def draw_colored_char(self, colored_char, pos, libtcod, console):
+    def draw_char(self, char, pos, libtcod, console):
         # TODO: add asserts for these
-        char, foreground, background = colored_char
         x, y = pos
-        if char is not None:
-            libtcod.console_set_char(console, x, y, char)
-        if foreground is not None:
-            libtcod.console_set_char_foreground(console, x, y, foreground)
-        else:
-            libtcod.console_set_char_foreground(console, x, y, self.default_foreground)
-        if background is not None:
-            libtcod.console_set_char_background(console, x, y, background)
-        else:
-            libtcod.console_set_char_background(console, x, y, self.default_background)
+        assert is_char(char)
+        libtcod.console_set_char(console, x, y, char)
+        libtcod.console_set_char_foreground(console, x, y, (255, 255, 255))
 
     def redraw(self, libtcod, console):
         if PanelBorder.TOP in self.border:
@@ -324,29 +307,34 @@ class Panel(Map):
                                          libtcod.BKGND_NONE)
         if PanelBorder.BOTTOM in self.border:
             for i in range(self.real_w):
-                libtcod.console_put_char(console, self.real_x + i, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM],
+                libtcod.console_put_char(console, self.real_x + i, self.real_y + self.real_h - 1,
+                                         self.border[PanelBorder.BOTTOM],
                                          libtcod.BKGND_NONE)
         if PanelBorder.RIGHT in self.border:
             for i in range(self.real_h):
-                libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y + i, self.border[PanelBorder.RIGHT],
+                libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y + i,
+                                         self.border[PanelBorder.RIGHT],
                                          libtcod.BKGND_NONE)
         if PanelBorder.TOP in self.border and PanelBorder.LEFT in self.border:
             libtcod.console_put_char(console, self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
-            libtcod.console_put_char(console, self.real_x, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
+            libtcod.console_put_char(console, self.real_x, self.real_y + self.real_h - 1,
+                                     self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
-            libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y, self.border[PanelBorder.TOP | PanelBorder.RIGHT],
+            libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y,
+                                     self.border[PanelBorder.TOP | PanelBorder.RIGHT],
                                      libtcod.BKGND_NONE)
         if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
-            libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
+            libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y + self.real_h - 1,
+                                     self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
                                      libtcod.BKGND_NONE)
 
 
 class MapPanel(Panel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding(), default_colored_char=None):
-        super(MapPanel, self).__init__(x, y, w, h, default_char, border, padding, default_colored_char=default_colored_char)
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding()):
+        super(MapPanel, self).__init__(x, y, w, h, default_char, border, padding)
         # self.first_draw()
         self.is_first = True
 
@@ -354,7 +342,7 @@ class MapPanel(Panel):
         # pass
         for x in range(self.w):
             for y in range(self.h):
-                self.draw_colored_char(self[(x, y)], (self.x + x, self.y + y), libtcod, console)
+                self.draw_char(self[(x, y)], (self.x + x, self.y + y), libtcod, console)
 
     def redraw(self, libtcod, console):
         super(MapPanel, self).redraw(libtcod, console)
@@ -363,22 +351,18 @@ class MapPanel(Panel):
             self.is_first = False
         diff = self.get_diff()
         for pos in diff:
-            colored_char = diff[pos]
-            # if not colored_char.foreground:
-            #     colored_char = ColoredChar(colored_char.char, self.default_foreground, colored_char.background)
-            # if not colored_char.background:
-            #     colored_char = ColoredChar(colored_char.char, colored_char.foreground, self.default_background)
+            char = diff[pos]
 
             # Check that the position is in bounds
             if 0 <= pos[0] < self.w and 0 <= pos[1] < self.h:
-                self.draw_colored_char(colored_char, (self.x + pos[0], self.y + pos[1]), libtcod, console)
-                # libtcod.console_put_char(console, self.x + pos[0], self.y + pos[1], char, libtcod.BKGND_NONE)
+                self.draw_char(char, (self.x + pos[0], self.y + pos[1]), libtcod, console)
             else:
                 raise Warning("Char out of bounds: Decided to skip drawing it!")
 
 
 class MessagePanel(Panel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding.create(*[1]*4)):
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(),
+                 padding=PanelPadding.create(*[1] * 4)):
         super(MessagePanel, self).__init__(x, y, w, h, default_char, border, padding)
         self.msgs = []
         self.rows = self.h
@@ -435,7 +419,8 @@ class MessagePanel(Panel):
 
 
 class StatusPanel(MessagePanel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding().create(*[1]*4)):
+    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(),
+                 padding=PanelPadding().create(*[1] * 4)):
         super(StatusPanel, self).__init__(x, y, w, h, default_char, border, padding)
         self.info = {}
 
