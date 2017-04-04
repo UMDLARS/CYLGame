@@ -37,7 +37,10 @@ class Map(object):
         return self.get_char_at(item)
 
     def get_x_y_dist_to_foo(self, pos, foo, wrapping=False, diagonal_moving=False):
-        assert is_coord(pos) and is_char(foo)
+        if type(pos) == list:
+            pos = tuple(pos)
+        assert is_coord(pos), "pos is not a coord: %r" % pos
+        assert is_char(foo), "foo is not a char: %r" % foo
 
         dists = []
         x, y = pos
@@ -49,9 +52,9 @@ class Map(object):
                 #     pass
                 raise NotImplementedError("Wrapping and Diagonal_moving not implemented")
             else:
-                d_x, d_y = foo_x + x, foo_y + y
+                d_x, d_y = foo_x - x, foo_y - y
                 dists += [(d_x, d_y)]
-        return min(dists, key=lambda d: d[0]+d[1])
+        return min(dists, key=lambda d: abs(d[0]) + abs(d[1]))
 
     # checks if pos is in bound of the map
     def in_bounds(self, pos):
