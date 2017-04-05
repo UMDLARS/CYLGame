@@ -36,7 +36,7 @@ class Map(object):
     def __getitem__(self, item):
         return self.get_char_at(item)
 
-    def get_x_y_dist_to_foo(self, pos, foo, wrapping=False, diagonal_moving=False):
+    def get_x_y_dist_to_foo(self, pos, foo, wrapping=False, diagonal_moving=False, default=None):
         if type(pos) == list:
             pos = tuple(pos)
         assert is_coord(pos), "pos is not a coord: %r" % pos
@@ -54,7 +54,10 @@ class Map(object):
             else:
                 d_x, d_y = foo_x - x, foo_y - y
                 dists += [(d_x, d_y)]
-        return min(dists, key=lambda d: abs(d[0]) + abs(d[1]))
+        if len(dists) == 0:
+            return default
+        else:
+            return min(dists, key=lambda d: abs(d[0]) + abs(d[1]))
 
     # checks if pos is in bound of the map
     def in_bounds(self, pos):
