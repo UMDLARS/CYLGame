@@ -13,7 +13,7 @@ Variable names can contain alphanumeric characters and underscore (so a-z, A-Z, 
 ### Logical Operators
 
 #### is
-LP supports the logical tests `is` (instead of the more common ==) and `is not` (instead of !=). LP also supports logical `or` and logical `and`. Logical tests evaluate to **true** or **false**. So, the logical statement `1 is 1` is **true**, because 1 doesn't equal 2. 
+LP supports the logical tests `is` (instead of the more common ==) and `is not` (instead of !=). LP also supports logical `or` and logical `and`. Logical tests evaluate to **true** or **false**. So, the logical statement `1 is 1` is **true**, because 1 equals 1. 
 
 #### is not
 
