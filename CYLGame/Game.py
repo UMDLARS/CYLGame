@@ -49,7 +49,50 @@ class GameLanguage(object):
             return open(data_file("little_python_intro.md")).read()
 
 
-class NonGridGame(object):
+class Player(object):
+    def __init__(self):
+        self.state = {}
+        self.bot = None
+        self.debug_vars = []
+
+
+class Game(object):
+    WEBONLY = True
+    SCREEN_WIDTH = 0
+    SCREEN_HEIGHT = 0
+    GAME_TITLE = ""
+
+    def is_running(self):
+        """This is how the game runner knows if the game is over.
+
+        Returns:
+            bool: True if the game should still be play. False otherwise
+        """
+        raise Exception("Not implemented!")
+
+    def create_players(self, number=1):
+        """This creates 'number' Objects that inherit from the Player class.
+
+        Returns:
+            list of Players.
+        """
+        pass
+
+    def do_turn(self):
+        pass
+
+    def get_frame(self):
+        pass
+
+    @staticmethod
+    def default_prog_for_bot(language):
+        raise Exception("Not implemented!")
+
+    @staticmethod
+    def get_intro():
+        raise Exception("Not implemented!")
+
+class NonGridGame(Game):
     WEBONLY = True
 
     def read_bot_state(self, state):
@@ -59,7 +102,7 @@ class NonGridGame(object):
         raise Exception("Not Implemented!")
 
 
-class Game(object):
+class GridGame(Game):
     WEBONLY = False
     SCREEN_WIDTH = 80
     SCREEN_HEIGHT = 25
@@ -68,13 +111,6 @@ class Game(object):
     GAME_TITLE = ""
     CHAR_SET = data_file("fonts/terminal8x8_gs_ro.png")
 
-    def is_running(self):
-        """This is how the game runner knows if the game is over.
-
-        Returns:
-            bool: True if the game should still be play. False otherwise
-        """
-        raise Exception("Not implemented!")
 
     def handle_key(self, key):
         """This is where your game should react to user input.
@@ -109,13 +145,6 @@ class Game(object):
         """
         raise Exception("Not implemented!")
 
-    @staticmethod
-    def default_prog_for_bot(language):
-        raise Exception("Not implemented!")
-
-    @staticmethod
-    def get_intro():
-        raise Exception("Not implemented!")
 
     @staticmethod
     def get_move_consts():
