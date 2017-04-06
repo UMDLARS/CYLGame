@@ -49,7 +49,18 @@ class GameLanguage(object):
             return open(data_file("little_python_intro.md")).read()
 
 
+class NonGridGame(object):
+    WEBONLY = True
+
+    def read_bot_state(self, state):
+        raise Exception("Not Implemented!")
+
+    def get_vars_for_bot(self):
+        raise Exception("Not Implemented!")
+
+
 class Game(object):
+    WEBONLY = False
     SCREEN_WIDTH = 80
     SCREEN_HEIGHT = 25
     CHAR_WIDTH = 8
