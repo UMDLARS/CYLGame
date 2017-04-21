@@ -213,12 +213,12 @@ class GameRunner(object):
     def get_screen_array(console):
         tf = tempfile.NamedTemporaryFile(mode="rb")
         tcod.console_save_asc(console.tcod_console, tf.name)
-        lines = tf.readlines()
-        y, x = map(int, lines[1].split())
-        chars = lines[2][1::9]
+        data = tf.read()
+        x, y = map(int, data.split("\n")[1].split())
+        chars = "\n".join(data.split("\n")[2:])[1::9]
         arr = []
         for i in range(y):
-            arr += [map(ord, chars[i::x])]
+            arr += [map(ord, chars[i::y])]
         return arr
 
     @staticmethod
