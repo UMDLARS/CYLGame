@@ -35,6 +35,10 @@ def int2base(x, base):
     return ''.join(digits)
 
 
+def average(scores):
+    return float((sum(scores) * 100) / len(scores)) / 100
+
+
 def data_file(filename):
     resource_path = os.path.join(os.path.split(__file__)[0], os.path.pardir, "data", filename)
     return resource_path
@@ -168,7 +172,7 @@ class GameRunner(object):
         else:  # if score
             return game.get_score()
 
-    def run_for_avg_score(self, times=1, seed=None):
+    def run_for_avg_score(self, times=1, seed=None, func=average):
         """Runs the given game keeping only the scores.
 
         Args:
@@ -181,7 +185,7 @@ class GameRunner(object):
         # TODO: make this able to run in a pool of threads (So it can be run on multiple CPUs)
         for t in range(times):
             scores += [self.__run_for(score=True, seed=seed)]
-        return float(sum(scores*100) / times)/100
+        return func(scores)
 
     def run_for_playback(self, seed=None):
         """Runs the given game saving the screen captures.
@@ -260,11 +264,11 @@ class GameRunner(object):
         return nxt_vars, screen_cap
 
 
-def run(game_class):
+def run(game_class, avg_game_func=average):
     def serve(args):
         print("I am going to serve")
         from .Server import serve
-        serve(game_class, host=args.host, port=args.port, game_data_path=args.dbfile)
+        serve(game_class, host=args.host, port=args.port, game_data_path=args.dbfile, avg_game_func=avg_game_func)
 
     def play(args):
         print("Playing...")
