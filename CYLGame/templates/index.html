@@ -10,18 +10,22 @@
     <link rel="stylesheet" href="static/main.css">
     <link rel="icon" href="static/icon.png">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-{#    <script>window.jQuery || document.write('<script src="static/jquery.min.js">\x3C/script>')</script>#}
     <script>window.jQuery || document.write('<script src="static/jquery.min.js">\x3C/script>')</script>
     <script type=text/javascript>
         $SCRIPT_ROOT = "";
         pause();
         window.seed = "";
         window.onload = function() {
-{#            document.getElementById("display").width = {{ screen_width }}*{{ char_width }};#}
-{#            document.getElementById("display").height = {{ screen_height }}*{{ char_height }};#}
-            window.playback_timeout = 1000;
+            window.cur_frame = 0;
+            window.real_cur_frame = 0;
+            window.cur_speed = 1;
+            window.fps = 30;
+            window.playback_timeout = 1000/window.fps;
+            window.is_really_playing = false;
+            window.replay_vars = [];
+            window.replay_frames = [];
             window.canceled = false;
-            drawLoop();
+//            drawLoop();
             disable_btn_bar();
             window.charSetLayout = "col";
             var charSetName = document.getElementById("chars").src;
@@ -93,11 +97,29 @@
             return false;
         }
         function setPlaybackTimeout(timeout) {
-            window.playback_timeout = timeout;
-            if (window.cur_frame >= replay_frames.length) {
-                window.cur_frame = 0;
-            }
+            window.cur_speed = timeout;
             play();
+        }
+        function slower() {
+            if (window.cur_frame >= window.replay_frames.length-1) {
+                prevFrame();
+            }
+            if (window.cur_speed > 0) {
+                reset_speed();
+                window.cur_speed *= -1;
+            }
+            window.cur_speed *= 2;
+            play();
+        }
+        function faster() {
+            if (window.cur_speed < 0) {
+                reset_speed();
+            }
+            window.cur_speed *= 2;
+            play();
+        }
+        function reset_speed() {
+            window.cur_speed = .1;
         }
         function checkComps() {
             $.ajax({
@@ -307,48 +329,70 @@
             });
         }
         function drawFrames(frames, vars) {
-            play();
+            stop();
             window.replay_frames = frames;
             window.replay_vars = vars;
-            window.cur_frame = 0;
+            play();
         }
 
         function prevFrame() {
             pause();
             if (window.cur_frame > 0) {
                 window.cur_frame--;
+                window.real_cur_frame = window.cur_frame;
             }
-            $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
-            $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
-            draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
+            reset_speed();
+            drawCurFrame();
         }
 
         function nextFrame() {
             pause();
             if (window.cur_frame < replay_frames.length-1) {
                 window.cur_frame++;
+                window.real_cur_frame = window.cur_frame;
             }
-            $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
-            $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
-            draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
+            reset_speed();
+            drawCurFrame();
         }
 
         function drawLoop() {
+            console.log("In draw loop");
             if (window.is_playing) {
-                if (window.cur_frame < replay_frames.length) {
-                    $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
-                    $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
-                    draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
-                    window.cur_frame++;
-                    if (window.cur_frame == replay_frames.length) {
-                        window.cur_frame--;
+//                window.cur_frame = Math.min(window.cur_frame+window.cur_speed, window.replay_vars.length-1);
+                window.real_cur_frame += window.cur_speed;
+                window.cur_frame = Math.min(Math.floor(window.real_cur_frame), window.replay_vars.length-1);
+                window.cur_frame = Math.max(window.cur_frame, 0);
+                if (window.cur_frame < replay_frames.length && window.cur_frame > -1) {
+                    drawCurFrame();
+                    if (window.cur_frame == window.replay_vars.length-1 && window.cur_speed > 0) {
+                        console.log("end pause");
+                        pause();
+                    } else if (window.cur_frame == 0 && window.cur_speed < 0) {
+                        console.log("end pause");
+                        pause();
                     }
                 } else {
+                    console.log("else pause");
                     pause();
-{#                    window.cur_frame = 0;#}
                 }
+                window.is_really_playing = true;
+                console.log("called timeout");
+                setTimeout(drawLoop, window.playback_timeout);
+            } else {
+                console.log("else 1");
+                window.is_really_playing = false;
             }
-            setTimeout(drawLoop, window.playback_timeout);
+
+        }
+
+        function drawCurFrame() {
+            if (window.cur_frame >= 0 && window.cur_frame < window.replay_frames.length) {
+                $("#playbackProgress").css("width", (window.cur_frame / (replay_frames.length - 1)) * 100 + "%");
+                $("#playbackProgressText").html("Frame " + (window.cur_frame + 1) + " of " + (replay_frames.length));
+                draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
+            } else {
+                console.log("Not drawing frame: "+window.cur_frame);
+            }
         }
 
         function draw(frame, cur_vars) {
@@ -362,6 +406,7 @@
             }
             create_var_table(cur_vars);
         }
+
         function draw_char(canvas, ctx, img, char, x, y){
             var rows = 16;
             var cols = 16;
@@ -406,16 +451,32 @@
         }
         function play() {
             window.is_playing = true;
+            if (window.is_really_playing == false) {
+                if (window.cur_frame >= replay_frames.length-1) {
+                    window.cur_frame = 0;
+                    window.real_cur_frame = 0;
+                }
+                drawLoop();
+            }
         }
         function toggle_play() {
-            window.is_playing = !window.is_playing;
+            reset_speed();
+            if (window.is_playing) {
+                pause();
+//                window.is_playing = false;
+//
+            } else {
+                play();
+//                window.is_playing = true;
+            }
+//            window.is_playing = !window.is_playing;
         }
         function stop() {
             pause();
+            reset_speed();
             window.cur_frame = 0;
-            $("#playbackProgress").css("width", (window.cur_frame/(replay_frames.length-1))*100 + "%");
-            $("#playbackProgressText").html("Frame " + (window.cur_frame+1) + " of " + (replay_frames.length));
-            draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
+            window.real_cur_frame = 0;
+            drawCurFrame();
         }
         function cancelSubmit() {
             window.canceled = true;
@@ -503,14 +564,11 @@
             <br>
             <div id="btn-bar">
                 <button onclick="stop();">Stop</button>
+                <button onclick="slower();">&lt;&lt;</button>
                 <button onclick="prevFrame();">&lt;</button>
                 <button onclick="toggle_play();">Play/Pause</button>
                 <button onclick="nextFrame();">&gt;</button>
-                <button onclick="setPlaybackTimeout(1000);">1x</button>
-                <button onclick="setPlaybackTimeout(500);">2x</button>
-                <button onclick="setPlaybackTimeout(200);">5x</button>
-                <button onclick="setPlaybackTimeout(100);">10x</button>
-                <button onclick="setPlaybackTimeout(10);">100x</button>
+                <button onclick="faster();">&gt;&gt;</button>
                 <div style="float: right;">
                     <button id="btnSetSeed" onclick="set_seed();">Set Map Seed</button>
                     <button id="btnToggleDebug" onclick="toggle_debug_table();">Show Debug Table</button>

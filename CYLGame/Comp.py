@@ -3,7 +3,11 @@ from Game import GameRunner
 from random import random
 
 
-def sim_competition(compiler, game, gamedb, token, runs, debug=False):
+def avg(scores):
+    return float((sum(scores) * 100) / len(scores)) / 100
+
+
+def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func=avg):
     assert gamedb is not None
     assert gamedb.is_comp_token(token)
 
@@ -48,7 +52,7 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False):
                 except Exception as e:
                     print("There was an error simulating the game (Moving to next seed):", e)
                     seed += 1
-            score = float(sum(scores * 100) / count) / 100
+            score = score_func(scores)
             # score = runner.run_for_avg_score(times=runs)
 
             # while score is None:
