@@ -42,7 +42,7 @@ class GameServer(flask_classful.FlaskView):
     compression = None
     language = None
     avg_game_count = None
-    avg_game_func = None
+    _avg_game_func = None
     charset = None
     gamedb = None
     route_base = '/'
@@ -124,7 +124,7 @@ class GameServer(flask_classful.FlaskView):
             return flask.jsonify(error="Code did not compile")
         runner = GameRunner(self.game, prog)
         try:
-            score = runner.run_for_avg_score(times=self.avg_game_count, func=self.avg_game_func)
+            score = runner.run_for_avg_score(times=self.avg_game_count, func=self._avg_game_func)
             self.gamedb.save_avg_score(token, score)
             self.gamedb.save_code(token, code)
             name = find_name_from_code(code)
@@ -195,7 +195,7 @@ class GameServer(flask_classful.FlaskView):
         cls.compression = compression
         cls.language = language
         cls.avg_game_count = avg_game_count
-        cls.avg_game_func = avg_game_func
+        cls._avg_game_func = avg_game_func
         cls.gamedb = GameDB(game_data_path)
         cls.charset = cls.__copy_in_charset(game.CHAR_SET)
 
