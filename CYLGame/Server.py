@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+import traceback
 import ujson
 import flask
 import random
@@ -156,6 +157,7 @@ class GameServer(flask_classful.FlaskView):
         try:
             result = ujson.dumps(runner.run_for_playback(seed=seed))
         except Exception as e:
+            traceback.print_exc(file=sys.stdout)
             print(e)
             return flask.jsonify(error="Your bot ran into an error at runtime.\n"
                                        "If you think that your bot is correct, please file a bug report!\n"

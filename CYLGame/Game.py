@@ -9,7 +9,6 @@ import sys
 TCOT_ROOT_CONSOLE = None
 TDL_ROOT_CONSOLE = None
 
-
 # From: http://stackoverflow.com/a/2267446/4441526
 digs = string.digits + string.letters
 def int2base(x, base):
@@ -54,10 +53,22 @@ class GameLanguage(object):
 
 
 class Player(object):
-    def __init__(self):
+    def __init__(self, prog):
         self.state = {}
-        self.bot = None
+        self.prog = prog # type: LPProg
         self.debug_vars = []
+
+    def get_state(self):
+        return self.state
+
+    def set_state(self, state):
+        self.state = state
+
+    def add_debug_vars(self, debug_vars):
+        self.debug_vars.append(debug_vars)
+
+    def get_debug_vars(self):
+        return self.debug_vars
 
 
 class Game(object):
@@ -74,19 +85,22 @@ class Game(object):
         """
         raise Exception("Not implemented!")
 
-    def create_players(self, number=1):
-        """This creates 'number' Objects that inherit from the Player class.
+    def create_new_player(self, prog):
+        """This creates a new oject that inherits from the Player class.
 
         Returns:
-            list of Players.
+            An object that inherets from the Player class with the given program.
         """
-        pass
+        raise Exception("Not implemented!")
 
     def do_turn(self):
-        pass
+        raise Exception("Not implemented!")
 
     def get_frame(self):
-        pass
+        raise Exception("Not implemented!")
+
+    def init_board(self):
+        raise Exception("Not implemented!")
 
     @staticmethod
     def default_prog_for_bot(language):
@@ -114,7 +128,6 @@ class GridGame(Game):
     CHAR_HEIGHT = 8
     GAME_TITLE = ""
     CHAR_SET = data_file("fonts/terminal8x8_gs_ro.png")
-
 
     def handle_key(self, key):
         """This is where your game should react to user input.
@@ -149,6 +162,72 @@ class GridGame(Game):
         """
         raise Exception("Not implemented!")
 
+    def create_new_player(self, prog):
+        """Maybe we should force this to be implemented by the game maker, but that 
+        would mean we have to update all of our current games... Just make a default for now.
+        """
+        # only support one player for GridGame right now
+        self.player = Player(prog)
+
+    def init_board(self):
+        global TDL_ROOT_CONSOLE
+        if not TDL_ROOT_CONSOLE:
+            TDL_ROOT_CONSOLE = tdl.init(0, 0)
+
+        self.console = tdl.Console(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+
+    def do_turn(self):
+        bot_consts = self.get_move_consts()
+        const_names = self.get_move_names()
+
+        prev_vars = self.player.get_state()
+        vars = dict(prev_vars)
+        read_bot_state = getattr(self, "read_bot_state", None)
+        if callable(read_bot_state):
+            read_bot_state(prev_vars)
+        vars.update(bot_consts)
+        vars.update(self.get_vars_for_bot())
+        next_vars = self.player.prog.run(vars)
+
+        # remove consts
+        for key in bot_consts:
+            next_vars.pop(key)
+
+        if "move" in next_vars:
+            self.handle_key(chr(next_vars["move"]))
+            self.player.set_state(next_vars)
+
+            human_vars = {}
+            for v in next_vars:
+                if next_vars[v] in const_names:
+                    human_vars[v] = const_names[next_vars[v]] + " ("+str(next_vars[v])+")"
+                elif str(next_vars[v]) == str(True):
+                    human_vars[v] = 1
+                elif str(next_vars[v]) == str(False):
+                    human_vars[v] = 0
+                else:
+                    human_vars[v] = next_vars[v]
+            self.player.add_debug_vars([human_vars])
+
+    def get_debug_vars(self):
+        return self.player.get_debug_vars()
+
+    @staticmethod
+    def get_screen_array(console):
+        tf = tempfile.NamedTemporaryFile(mode="rb")
+        tcod.console_save_asc(console.tcod_console, tf.name)
+        data = tf.read()
+        x, y = map(int, data.split("\n")[1].split())
+        chars = "\n".join(data.split("\n")[2:])[1::9]
+        arr = []
+        for i in range(y):
+            arr += [map(ord, chars[i::y])]
+        return arr
+
+    def get_frame(self):
+        self.draw_screen(tcod, self.console.tcod_console)
+        return self.get_screen_array(self.console)
+        pass
 
     @staticmethod
     def get_move_consts():
@@ -163,52 +242,40 @@ class GridGame(Game):
 
 
 class GameRunner(object):
-    def __init__(self, game_class, bot=None):
+    def __init__(self, game_class, progs=None):
         self.game_class = game_class  # type: type
-        self.bot = bot  # type: LPProg
+        self.progs = None # type: list of LPProg
+        if type(progs) is list:
+            self.progs = progs  # type: LPProg
+        elif progs:
+            self.progs = [progs]
 
         self.BOT_CONSTS = self.game_class.get_move_consts()
         self.CONST_NAMES = self.game_class.get_move_names()
 
     def __run_for(self, score=False, playback=False, seed=None):
-        global TDL_ROOT_CONSOLE
-        assert self.bot is not None  # Make sure that we have a bot to run
+        assert self.progs is not None  # Make sure that we have a bot to run
         assert score != playback
 
-        if not TDL_ROOT_CONSOLE:
-            TDL_ROOT_CONSOLE = tdl.init(0, 0)
         if not seed:
             seed = random.randint(0, sys.maxint)
+
         game = self.game_class(random.Random(seed))
+        game.init_board()
+        for prog in self.progs:
+            game.create_new_player(prog)
 
-
-        console = tdl.Console(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
         if playback:
             screen_cap = []
             debug_vars = []
-        vars = {}
+
         while game.is_running():
-            result = self.__run_bot_turn(console, game, vars, capture_screen=playback)
-            if result:
-                vars, screen = result
-                if playback:
-                    screen_cap += [screen]
-                    human_vars = {}
-                    for v in vars:
-                        if vars[v] in self.CONST_NAMES:
-                            human_vars[v] = self.CONST_NAMES[vars[v]] + " ("+str(vars[v])+")"
-                        elif str(vars[v]) == str(True):
-                            human_vars[v] = 1
-                        elif str(vars[v]) == str(False):
-                            human_vars[v] = 0
-                        else:
-                            human_vars[v] = vars[v]
-                    debug_vars += [human_vars]
-            else:
-                break
+            if playback:
+                screen_cap += [game.get_frame()]
+            game.do_turn()
 
         if playback:
-            return {"screen": screen_cap, "seed": int2base(seed, 36), "debug": debug_vars}
+            return {"screen": screen_cap, "seed": int2base(seed, 36), "debug": game.get_debug_vars()}
         else:  # if score
             return game.get_score()
 
@@ -240,6 +307,7 @@ class GameRunner(object):
 
         Returns:
         """
+        #TODO: abort if WEBONLY == True
         global TDL_ROOT_CONSOLE
         if not TDL_ROOT_CONSOLE:
             tdl.setFont(self.game_class.CHAR_SET)
@@ -274,34 +342,6 @@ class GameRunner(object):
         key = tdl.event.key_wait()
         if key.char:
             game.handle_key(key.char)
-
-    def __run_bot_turn(self, console, game, prev_vars=None, capture_screen=True):
-        """run_bot will do a single bot turn"""
-        if prev_vars  is None:
-            prev_vars = dict()
-        game.draw_screen(tcod, console.tcod_console)
-        if capture_screen:
-            screen_cap = self.get_screen_array(console)
-        else:
-            screen_cap = None
-
-        vars = dict(prev_vars)
-        read_bot_state = getattr(game, "read_bot_state", None)
-        if callable(read_bot_state):
-            read_bot_state(prev_vars)
-        vars.update(self.BOT_CONSTS)
-        vars.update(game.get_vars_for_bot())
-        nxt_vars = self.bot.run(vars)
-
-        # remove consts
-        for key in self.BOT_CONSTS:
-            nxt_vars.pop(key)
-
-        if "move" in nxt_vars:
-            game.handle_key(chr(nxt_vars["move"]))
-        else:
-            return False
-        return nxt_vars, screen_cap
 
 
 def run(game_class, avg_game_func=average):
