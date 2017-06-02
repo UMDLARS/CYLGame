@@ -51,18 +51,56 @@ class GameLanguage(object):
         if language == GameLanguage.LITTLEPY:
             return open(data_file("little_python_intro.md")).read()
 
-
 class Player(object):
-    def __init__(self, prog):
+    """
+    Player base class. Requires the following attributes be initialized by the game maker:
+    prog = LPProg
+    """
+    def run_program(self):
+        try:
+            old_state = self.get_state()
+            new_state = self.prog.run(old_state)
+            self.update_state(new_state)
+        except AttributeError:
+            print("Player class not properly initialized before running program!")
+
+    def get_state(self):
+        raise Exception("Not implemented!")
+
+    def update_state(self, new_state):
+        raise Exception("Not implemented!")
+
+class DefaultPlayer(Player):
+    def __init__(self, prog, move_consts, move_names, game):
         self.state = {}
         self.prog = prog # type: LPProg
         self.debug_vars = []
+        self.move_consts = move_consts
+        self.move_names = move_names
+        # need this to get the player's state
+        self.game = game
 
     def get_state(self):
-        return self.state
+        v = dict(self.state)
+        v.update(self.move_consts)
+        v.update(self.game.get_vars_for_bot())
+        return v
 
-    def set_state(self, state):
-        self.state = state
+    def update_state(self, new_state):
+        for key in self.move_consts:
+            new_state.pop(key)
+        self.state = new_state
+        human_vars = {}
+        for v in self.state:
+            if self.state[v] in self.move_names:
+                human_vars[v] = self.move_names[self.state[v]] + " ("+str(self.state[v])+")"
+            elif str(self.state[v]) == str(True):
+                human_vars[v] = 1
+            elif str(self.state[v]) == str(False):
+                human_vars[v] = 0
+            else:
+                human_vars[v] = self.state[v]
+        self.add_debug_vars([human_vars])
 
     def add_debug_vars(self, debug_vars):
         self.debug_vars.append(debug_vars)
@@ -91,6 +129,9 @@ class Game(object):
         Returns:
             An object that inherets from the Player class with the given program.
         """
+        raise Exception("Not implemented!")
+
+    def get_debug_vars(self):
         raise Exception("Not implemented!")
 
     def do_turn(self):
@@ -128,6 +169,11 @@ class GridGame(Game):
     CHAR_HEIGHT = 8
     GAME_TITLE = ""
     CHAR_SET = data_file("fonts/terminal8x8_gs_ro.png")
+    MOVE_CONSTS = {"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
+                "northeast": ord("e"), "southeast": ord("c"), "northwest": ord("q"), "southwest": ord("z")}
+    MOVE_NAMES = {ord("w"): "North", ord("s"): "South", ord("a"): "West", ord("d"): "East",
+                ord("e"): "Northeast", ord("c"): "Southeast", ord("q"): "Northwest",
+                ord("z"): "Southwest"}
 
     def handle_key(self, key):
         """This is where your game should react to user input.
@@ -167,7 +213,8 @@ class GridGame(Game):
         would mean we have to update all of our current games... Just make a default for now.
         """
         # only support one player for GridGame right now
-        self.player = Player(prog)
+        self.player = DefaultPlayer(prog, self.MOVE_CONSTS, self.MOVE_NAMES, self)
+        return self.player
 
     def init_board(self):
         global TDL_ROOT_CONSOLE
@@ -176,38 +223,13 @@ class GridGame(Game):
 
         self.console = tdl.Console(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
 
-    def do_turn(self):
-        bot_consts = self.get_move_consts()
-        const_names = self.get_move_names()
+    def do_turn(self, players):
+        if len(players) > 1:
+            raise Exception("This framework only supports on player!")
 
-        prev_vars = self.player.get_state()
-        vars = dict(prev_vars)
-        read_bot_state = getattr(self, "read_bot_state", None)
-        if callable(read_bot_state):
-            read_bot_state(prev_vars)
-        vars.update(bot_consts)
-        vars.update(self.get_vars_for_bot())
-        next_vars = self.player.prog.run(vars)
-
-        # remove consts
-        for key in bot_consts:
-            next_vars.pop(key)
-
+        next_vars = players[0].state
         if "move" in next_vars:
             self.handle_key(chr(next_vars["move"]))
-            self.player.set_state(next_vars)
-
-            human_vars = {}
-            for v in next_vars:
-                if next_vars[v] in const_names:
-                    human_vars[v] = const_names[next_vars[v]] + " ("+str(next_vars[v])+")"
-                elif str(next_vars[v]) == str(True):
-                    human_vars[v] = 1
-                elif str(next_vars[v]) == str(False):
-                    human_vars[v] = 0
-                else:
-                    human_vars[v] = next_vars[v]
-            self.player.add_debug_vars([human_vars])
 
     def get_debug_vars(self):
         return self.player.get_debug_vars()
@@ -229,6 +251,7 @@ class GridGame(Game):
         return self.get_screen_array(self.console)
         pass
 
+    # leaving these in for backwards compatibility
     @staticmethod
     def get_move_consts():
         return {"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
@@ -250,9 +273,6 @@ class GameRunner(object):
         elif progs:
             self.progs = [progs]
 
-        self.BOT_CONSTS = self.game_class.get_move_consts()
-        self.CONST_NAMES = self.game_class.get_move_names()
-
     def __run_for(self, score=False, playback=False, seed=None):
         assert self.progs is not None  # Make sure that we have a bot to run
         assert score != playback
@@ -262,17 +282,20 @@ class GameRunner(object):
 
         game = self.game_class(random.Random(seed))
         game.init_board()
+        players = []
         for prog in self.progs:
-            game.create_new_player(prog)
+            players.append(game.create_new_player(prog))
 
         if playback:
             screen_cap = []
             debug_vars = []
 
         while game.is_running():
+            for player in players:
+                player.run_program()
             if playback:
                 screen_cap += [game.get_frame()]
-            game.do_turn()
+            game.do_turn(players)
 
         if playback:
             return {"screen": screen_cap, "seed": int2base(seed, 36), "debug": game.get_debug_vars()}
