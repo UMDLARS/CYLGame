@@ -1,4 +1,5 @@
 import io
+import cPickle
 import os
 import ujson
 import random
@@ -218,16 +219,20 @@ class GameDB(object):
         else:
             return None
 
-    def save_code(self, token, code):
+    def save_code(self, token, code, options=None):
         """Save a user's code under their token.
 
         Args:
             token (str): The user's token.
             code (str): The user's code.
+            options (pickle-able object): The user's options.
         """
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "code.lp"), "w", encoding="utf8") as fp:
             fp.write(unicode(code))
+        if options:
+            with io.open(self.__get_dir_for_token(token, "options.pickle"), "w", encoding="utf8") as fp:
+                fp.write(unicode(cPickle.dumps(options)))
 
     def save_name(self, token, name):
         """Save a user's name under their token.
@@ -252,11 +257,14 @@ class GameDB(object):
             fp.write(unicode(score))
 
     def get_code(self, token):
+        ret = {"code" : None, "options" : None}
         if os.path.exists(self.__get_dir_for_token(token, "code.lp")):
             with io.open(self.__get_dir_for_token(token, "code.lp"), "r", encoding="utf8") as fp:
-                return fp.read()
-        else:
-            return None
+                ret["code"] = fp.read()
+        if os.path.exists(self.__get_dir_for_token(token, "options.pickle")):
+            with io.open(self.__get_dir_for_token(token, "options.pickle"), "r", encoding="utf8") as fp:
+                ret["options"] = cPickle.load(fp)
+        return ret
 
     def get_name(self, token):
         if self.is_user_token(token) or self.is_school_token(token) or self.is_comp_token(token):

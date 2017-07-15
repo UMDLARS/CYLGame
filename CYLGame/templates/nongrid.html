@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <title>{{ game_title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="static/jquery.min.js"></script>
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="static/dark.css">
     <link rel="stylesheet" href="static/main.css">
     <link rel="icon" href="static/icon.png">
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script>window.jQuery || document.write('<script src="static/jquery.min.js">\x3C/script>')</script>
-    <script type=text/javascript>
+	<script src="static/draw_functions.js"></script>
+    <script type="text/javascript">
         $SCRIPT_ROOT = "";
         pause();
         window.seed = "";
@@ -27,13 +28,6 @@
             window.canceled = false;
 //            drawLoop();
             disable_btn_bar();
-            window.charSetLayout = "col";
-            var charSetName = document.getElementById("chars").src;
-            if (charSetName.indexOf("_ro.") != -1) {
-                window.charSetLayout = "row";
-            } else if (charSetName.indexOf("_tc.") != -1) {
-                window.charSetLayout = "tc";
-            }
             document.getElementById("scoreSelector").onclick = function () {
                 updateScoreboard();
             };
@@ -80,6 +74,7 @@
                         document.getElementById("logout").style.display = "";
                         document.getElementById("submitCode").style.display = "";
                         document.getElementById("loadCode").style.display = "";
+                        document.getElementById("saveCode").style.display = "";
                         document.getElementById("login").style.display = "None";
                         loadCode();
                         checkComps();
@@ -142,12 +137,22 @@
                 }
             });
         }
+		function to_json() {
+			var json = {};
+			json["code"] = editor.getValue();
+			json["seed"] = window.seed;
+			if (document.getElementById("options_div")) {
+				json["options"] = options_to_json();
+			}
+			json["token"] = window.token; 
+			return json;
+		}
         function testCode() {
             $("#debugTable").html("");
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim',
-                data: JSON.stringify({code: editor.getValue(), seed: window.seed}),
+                data: JSON.stringify(to_json()),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -177,6 +182,39 @@
             document.getElementById("loadingOverlay").style["display"] = "";
             return false;
         }
+		function saveCode() {
+            if (!window.token) {
+                login();
+            }
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'save_code',
+                data: JSON.stringify(to_json()),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (data.hasOwnProperty("error")) {
+                        if (data["error"] == "Invalid Token") {
+                            logout();
+                        } else {
+                            alert(data["error"]);
+                        }
+                    } else {
+                        alert("Save successful.");
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
+		}
         function submitCode() {
             if (!window.token) {
                 login();
@@ -184,7 +222,7 @@
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim_avg',
-                data: JSON.stringify({code: editor.getValue(), token: window.token}),
+                data: JSON.stringify(to_json()),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -241,6 +279,13 @@
                         }
                     } else if (data["code"] != null) {
                         editor.setValue(data["code"], 1);
+						if (data["options"] != null) {
+							if (typeof load_options === "function") {
+								load_options(data["options"]);
+							} else {
+								console.log("loadCode(): error - recieved options but load_options() not defined.");
+							}
+						}
                     }
                     document.getElementById("loadingOverlay").style["display"] = "none";
                 },
@@ -398,41 +443,21 @@
         function draw(frame, cur_vars) {
             var c=document.getElementById("display");
             var ctx=c.getContext("2d");
-            var img=document.getElementById("chars");
-            for (var i = 0; i < frame.length; i++) {
-                for (var j = 0; j < frame[i].length; j++) {
-                    draw_char(c,ctx,img,frame[i][j],j,i);
-                }
-            }
+
+			ctx.clearRect(0, 0, c.width, c.height);
+			for (var i = 0; i < frame.length; i++) {
+				var func = frame[i][0];
+				var args = frame[i][1];
+				draw_functions[func](c, ctx, args);
+			}
+
             create_var_table(cur_vars);
         }
 
-        function draw_char(canvas, ctx, img, char, x, y){
-            var rows = 16;
-            var cols = 16;
-            var char_height = {{ char_height }};
-            var char_width = {{ char_width }};
-
-            if (window.charSetLayout == "col") {
-                var sourceY = (char%rows)*char_width;
-                var sourceX = Math.floor(char/rows)*char_width;
-                var sourceWidth = char_width;
-                var sourceHeight = char_height;
-            } else if (window.charSetLayout == "row") {
-                var sourceX = (char%cols)*char_width;
-                var sourceY = Math.floor(char/cols)*char_width;
-                var sourceWidth = char_width;
-                var sourceHeight = char_height;
-            }
-
-            var destWidth = sourceWidth;
-            var destHeight = sourceHeight;
-            var destX = x*char_width;
-            var destY = y*char_height;
-
-            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight);
-        }
         function create_var_table(vars) {
+			if (!vars) {
+				return;
+			}
             var keys = Object.keys(vars);
             keys.sort();
 
@@ -537,7 +562,7 @@
       <h3>Play the Game</h3>
       <p>This is where the user can play the game to test out different ideas.</p>
       <div style="margin-left: 1em;margin-right: 1em;">
-        <canvas id="displayPlayer" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
+        <canvas id="displayPlayer" height="{{ screen_height }}px" width="{{ screen_width }}px"></canvas>
       </div>
   </div>
   <div id="Bot" class="tab-pane fade">
@@ -552,7 +577,7 @@
         <div id="left_col">
 {#            <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">#}
             <img id="chars" src="static/fonts/{{ char_set }}" style="display: none;">
-            <canvas id="display" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
+            <canvas id="display" height="{{ screen_height }}px" width="{{ screen_width }}px"></canvas>
             <div>
                 <div class="progress">
                     <div id="playbackProgress" class="progress-bar fast" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
@@ -584,18 +609,23 @@
             </div>
         </div>
         <div id="right_col">
-            <pre id="editor">{{ example_bot }}</pre>
-{#            <script src="static/ace/ace.js" type="text/javascript" charset="utf-8"></script>#}
-            <script src="static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-            <script>
-                var editor = ace.edit("editor");
-                editor.setTheme("ace/theme/twilight");
-                editor.session.setMode("ace/mode/lp");
-            </script>
-            <br>
-            <button id="testCode" onclick="testCode();">Play</button>
-            <button id="loadCode" onclick="loadCodeWithCon();" style="display: none;">Load Last Submitted Code</button>
-            <button id="submitCode" onclick="submitCode();" style="display: none;">Submit</button>
+			<div id="editor_div">
+                <pre id="editor">{{ example_bot }}</pre>
+                <script src="static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+                <script>
+                    var editor = ace.edit("editor");
+                    editor.setTheme("ace/theme/twilight");
+                    editor.session.setMode("ace/mode/lp");
+                </script>
+                <br>
+                <button id="testCode" onclick="testCode();">Play</button>
+                <button id="loadCode" onclick="loadCodeWithCon();" style="display: none;">Load Last Submitted Code</button>
+                <button id="saveCode" onclick="saveCode();" style="display: none;">Save Code</button>
+                <button id="submitCode" onclick="submitCode();" style="display: none;">Submit</button>
+			</div>
+			{% if options is defined and options %}
+				{% include options + '.html' %}
+			{% endif %}
         </div>
     </div>
   </div>

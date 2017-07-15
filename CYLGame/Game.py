@@ -5,6 +5,8 @@ import os.path
 import random
 import string
 import sys
+import traceback
+import copy
 
 TCOT_ROOT_CONSOLE = None
 TDL_ROOT_CONSOLE = None
@@ -61,7 +63,9 @@ class Player(object):
             old_state = self.get_state()
             new_state = self.prog.run(old_state)
             self.update_state(new_state)
-        except AttributeError:
+        except (AttributeError, TypeError):
+            traceback.print_exc(file=sys.stdout)
+            #print old_state
             print("Player class not properly initialized before running program!")
 
     def get_state(self):
@@ -114,6 +118,7 @@ class Game(object):
     SCREEN_WIDTH = 0
     SCREEN_HEIGHT = 0
     GAME_TITLE = ""
+    OPTIONS = None
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -123,7 +128,7 @@ class Game(object):
         """
         raise Exception("Not implemented!")
 
-    def create_new_player(self, prog):
+    def create_new_player(self, prog, options=None):
         """This creates a new oject that inherits from the Player class.
 
         Returns:
@@ -153,6 +158,7 @@ class Game(object):
 
 class NonGridGame(Game):
     WEBONLY = True
+    GRID = False
 
     def read_bot_state(self, state):
         raise Exception("Not Implemented!")
@@ -160,9 +166,28 @@ class NonGridGame(Game):
     def get_vars_for_bot(self):
         raise Exception("Not Implemented!")
 
+class GameFrame(object):
+    def __init__(self):
+        self.objs = []
+
+    def draw_char(self, c, x, y, height, width):
+        self.objs.append(["char", [c, x, y, height, width]])
+
+    def draw_tank(self, x, y, rotation, turret, fire, led, color):
+        self.objs.append(["tank", [x, y, rotation, turret, fire, led, color]])
+
+    def draw_crater(self, x, y, rotation, color):
+        self.objs.append(["crater", [x, y, rotation, color]])
+
+    def draw_sensors(self, x, y, rotation, turret, color, sensors):
+        self.objs.append(["sensors", [x, y, rotation, turret, color, copy.deepcopy(sensors)]])
+
+    def get_obj_array(self):
+        return self.objs
 
 class GridGame(Game):
     WEBONLY = False
+    GRID = True
     SCREEN_WIDTH = 80
     SCREEN_HEIGHT = 25
     CHAR_WIDTH = 8
@@ -234,22 +259,22 @@ class GridGame(Game):
     def get_debug_vars(self):
         return self.player.get_debug_vars()
 
-    @staticmethod
-    def get_screen_array(console):
+    def get_screen_array(self, console):
         tf = tempfile.NamedTemporaryFile(mode="rb")
         tcod.console_save_asc(console.tcod_console, tf.name)
         data = tf.read()
+        # x isn't used
         x, y = map(int, data.split("\n")[1].split())
         chars = "\n".join(data.split("\n")[2:])[1::9]
-        arr = []
+        frame = GameFrame()
         for i in range(y):
-            arr += [map(ord, chars[i::y])]
-        return arr
+            for j, c in enumerate(chars[i::y]):
+                frame.draw_char(ord(c), j, i, self.CHAR_HEIGHT, self.CHAR_WIDTH)
+        return frame
 
     def get_frame(self):
         self.draw_screen(tcod, self.console.tcod_console)
         return self.get_screen_array(self.console)
-        pass
 
     # leaving these in for backwards compatibility
     @staticmethod
@@ -265,26 +290,52 @@ class GridGame(Game):
 
 
 class GameRunner(object):
-    def __init__(self, game_class, progs=None):
+    def __init__(self, game_class, progs, options=None):
+        """
+        game_class - type: type
+        progs - type: list of LPProg
+        options - type: list of dicts <-- important that they are dicts
+        options[i] are the options for progs[i]
+        """
         self.game_class = game_class  # type: type
-        self.progs = None # type: list of LPProg
-        if type(progs) is list:
-            self.progs = progs  # type: LPProg
-        elif progs:
-            self.progs = [progs]
+        self.player_args = [] # type: list of dicts
+        if type(progs) is not list:
+            progs_list = [progs]
+        else:
+            progs_list = progs
+        if options:
+            if type(options) is not list:
+                options_list = [options]
+            else:
+                options_list = options
+        else:
+            options_list = []
+       
+        for i in range(len(progs_list)):
+            args = {
+                "program" : progs_list[i]
+            }
+            if i < len(options_list):
+                args["options"] = options_list[i]
+            else:
+                args["options"] = None
+            self.player_args.append(args)
 
     def __run_for(self, score=False, playback=False, seed=None):
-        assert self.progs is not None  # Make sure that we have a bot to run
+        assert self.player_args is not None  # Make sure that we have a bot to run
         assert score != playback
 
         if not seed:
             seed = random.randint(0, sys.maxint)
 
         game = self.game_class(random.Random(seed))
-        game.init_board()
         players = []
-        for prog in self.progs:
-            players.append(game.create_new_player(prog))
+        for args in self.player_args:
+            player = game.create_new_player(args["program"], 
+                                            args["options"])
+            players.append(player)
+
+        game.init_board()
 
         if playback:
             screen_cap = []
@@ -294,8 +345,8 @@ class GameRunner(object):
             for player in players:
                 player.run_program()
             if playback:
-                screen_cap += [game.get_frame()]
-            game.do_turn(players)
+                screen_cap.append(game.get_frame().get_obj_array())
+            game.do_turn()
 
         if playback:
             return {"screen": screen_cap, "seed": int2base(seed, 36), "debug": game.get_debug_vars()}

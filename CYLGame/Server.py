@@ -112,28 +112,44 @@ class GameServer(flask_classful.FlaskView):
             obj["comps"] += [comp_obj]
         return ujson.dumps(obj)
 
+    @flask_classful.route('/save_code', methods=['POST'])
+    def save_code(self):
+        code = flask.request.get_json(silent=True).get('code', '')
+        token = flask.request.get_json(silent=True).get('token', '')
+        options = flask.request.get_json(silent=True).get('options', None)
+        if not self.gamedb.is_user_token(token):
+            return flask.jsonify(error="Invalid Token")
+
+        self.gamedb.save_code(token, code, options)
+        name = find_name_from_code(code)
+        if name:
+            self.gamedb.save_name(token, name)
+
+        return flask.jsonify(message="success")
+
     @flask_classful.route('/sim_avg', methods=['POST'])
     def sim_avg(self):
         # TODO: create this to run the game 100 times returning the average score to the user.
         code = flask.request.get_json(silent=True).get('code', '')
         token = flask.request.get_json(silent=True).get('token', '')
+        options = flask.request.get_json(silent=True).get('options', None)
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         try:
             prog = self.compiler.compile(code.split("\n"))
         except:
             return flask.jsonify(error="Code did not compile")
-        runner = GameRunner(self.game, prog)
+        runner = GameRunner(self.game, prog, options)
         try:
             score = runner.run_for_avg_score(times=self.avg_game_count, func=self._avg_game_func)
             self.gamedb.save_avg_score(token, score)
-            self.gamedb.save_code(token, code)
+            self.gamedb.save_code(token, code, options)
             name = find_name_from_code(code)
             if name:
                 self.gamedb.save_name(token, name)
             return flask.jsonify(score=score)
         except Exception as e:
-            print(e)
+            traceback.print_exc(file=sys.stdout)
             return flask.jsonify(error="Your bot ran into an error at runtime.\n"
                                        "If you think that your bot is correct, please file a bug report!\n"
                                        "Make sure to include your code.")
@@ -143,17 +159,24 @@ class GameServer(flask_classful.FlaskView):
     def sim(self):
         code = flask.request.get_json(silent=True).get('code', '')
         seed_str = flask.request.get_json(silent=True).get('seed', '')
+        options = flask.request.get_json(silent=True).get('options', None)
         seed = random.randint(0, sys.maxint)
         if seed_str:
             try:
                 seed = int(seed_str, 36)
             except:
                 return flask.jsonify(error="Invalid Seed")
+        progs = []
         try:
             prog = self.compiler.compile(code.split("\n"))
+            progs.append(prog)
+            for i in range(getattr(self.game, "num_defaults", 0)):
+                def_prog = self.game.default_prog_for_bot(self.language)
+                progs.append(self.compiler.compile(def_prog.split("\n")))
         except:
+            traceback.print_exc(file=sys.stdout)
             return flask.jsonify(error="Code did not compile")
-        runner = GameRunner(self.game, prog)
+        runner = GameRunner(self.game, progs, options)
         try:
             result = ujson.dumps(runner.run_for_playback(seed=seed))
         except Exception as e:
@@ -178,15 +201,22 @@ class GameServer(flask_classful.FlaskView):
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         else:
-            return flask.jsonify(code=self.gamedb.get_code(token))
+            return flask.jsonify(self.gamedb.get_code(token))
 
     def index(self):
         intro = self.game.get_intro() + GameLanguage.get_language_description(self.language)
-        return flask.render_template('index.html', game_title=self.game.GAME_TITLE,
-                                example_bot=self.game.default_prog_for_bot(self.language), char_width=self.game.CHAR_WIDTH,
-                                char_height=self.game.CHAR_HEIGHT, screen_width=self.game.SCREEN_WIDTH,
-                                screen_height=self.game.SCREEN_HEIGHT, char_set=self.charset,
-                                intro_text=intro)
+        if self.game.GRID:
+            return flask.render_template('grid.html', game_title=self.game.GAME_TITLE,
+                                    example_bot=self.game.default_prog_for_bot(self.language), char_width=self.game.CHAR_WIDTH,
+                                    char_height=self.game.CHAR_HEIGHT, screen_width=self.game.SCREEN_WIDTH,
+                                    screen_height=self.game.SCREEN_HEIGHT, char_set=self.charset,
+                                    intro_text=intro)
+        else:
+            return flask.render_template('nongrid.html', game_title=self.game.GAME_TITLE,
+                                    example_bot=self.game.default_prog_for_bot(self.language), 
+                                    screen_width=self.game.SCREEN_WIDTH,
+                                    screen_height=self.game.SCREEN_HEIGHT,
+                                    intro_text=intro, options=self.game.OPTIONS)
 
     @classmethod
     def serve(cls, game, host=None, port=None, compression=False, language=GameLanguage.LITTLEPY,
@@ -199,7 +229,10 @@ class GameServer(flask_classful.FlaskView):
         cls.avg_game_count = avg_game_count
         cls._avg_game_func = avg_game_func
         cls.gamedb = GameDB(game_data_path)
-        cls.charset = cls.__copy_in_charset(game.CHAR_SET)
+        try:
+            cls.charset = cls.__copy_in_charset(game.CHAR_SET)
+        except AttributeError:
+            pass
 
         cls.app = flask.Flask(__name__.split('.')[0])
 
@@ -211,6 +244,7 @@ class GameServer(flask_classful.FlaskView):
             return Markup(markdown(data))
 
         if cls.compression:
+            # BUUT WHAT ABOUT BREACH ATTACKS
             import flask_compress
             flask_compress.Compress(cls.app)
         cls.register(cls.app)
@@ -224,7 +258,7 @@ class GameServer(flask_classful.FlaskView):
         else:
             cls.app.run()
         print("Dying...")
-        if os.path.exists(static_file(os.path.join("fonts", cls.charset))):
+        if cls.charset and os.path.exists(static_file(os.path.join("fonts", cls.charset))):
             print("Removing charset...")
             os.remove(static_file(os.path.join("fonts", cls.charset)))
         print("All good :)")
