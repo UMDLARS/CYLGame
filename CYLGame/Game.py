@@ -53,6 +53,7 @@ class GameLanguage(object):
         if language == GameLanguage.LITTLEPY:
             return open(data_file("little_python_intro.md")).read()
 
+
 class Player(object):
     """
     Player base class. Requires the following attributes be initialized by the game maker:
@@ -73,6 +74,7 @@ class Player(object):
 
     def update_state(self, new_state):
         raise Exception("Not implemented!")
+
 
 class DefaultPlayer(Player):
     def __init__(self, prog, move_consts, move_names, game):
@@ -156,6 +158,7 @@ class Game(object):
     def get_intro():
         raise Exception("Not implemented!")
 
+
 class NonGridGame(Game):
     WEBONLY = True
     GRID = False
@@ -165,6 +168,7 @@ class NonGridGame(Game):
 
     def get_vars_for_bot(self):
         raise Exception("Not Implemented!")
+
 
 class GameFrame(object):
     def __init__(self):
@@ -184,6 +188,7 @@ class GameFrame(object):
 
     def get_obj_array(self):
         return self.objs
+
 
 class GridGame(Game):
     WEBONLY = False

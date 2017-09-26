@@ -136,7 +136,7 @@ class GameServer(flask_classful.FlaskView):
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         try:
-            prog = self.compiler.compile(code.split("\n"))
+            prog = self.compiler.compile(code)
         except:
             return flask.jsonify(error="Code did not compile")
         runner = GameRunner(self.game, prog, options)
@@ -168,11 +168,11 @@ class GameServer(flask_classful.FlaskView):
                 return flask.jsonify(error="Invalid Seed")
         progs = []
         try:
-            prog = self.compiler.compile(code.split("\n"))
+            prog = self.compiler.compile(code)
             progs.append(prog)
             for i in range(getattr(self.game, "num_defaults", 0)):
                 def_prog = self.game.default_prog_for_bot(self.language)
-                progs.append(self.compiler.compile(def_prog.split("\n")))
+                progs.append(self.compiler.compile(def_prog))
         except:
             traceback.print_exc(file=sys.stdout)
             return flask.jsonify(error="Code did not compile")
