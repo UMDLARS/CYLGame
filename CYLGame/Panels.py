@@ -1,7 +1,6 @@
-from collections import defaultdict, namedtuple, Mapping
-from itertools import product
-from functools import reduce
+from collections import defaultdict
 from copy import copy
+from functools import reduce
 
 DEFAULT_CHAR = ' '
 
@@ -303,47 +302,38 @@ class Panel(Map):
         if PanelPadding.RIGHT in self.padding:
             self.w -= self.padding[PanelPadding.RIGHT]
 
-    def draw_char(self, char, pos, libtcod, console):
+    def draw_char(self, char, pos, frame_buffer):
         # TODO: add asserts for these
         x, y = pos
         assert is_char(char)
-        libtcod.console_set_char(console, x, y, char)
-        libtcod.console_set_char_foreground(console, x, y, (255, 255, 255))
+        frame_buffer.set(x, y, char)
 
-    def redraw(self, libtcod, console):
+    def redraw(self, frame_buffer):
         if PanelBorder.TOP in self.border:
             for i in range(self.real_w):
-                libtcod.console_put_char(console, self.real_x + i, self.real_y, self.border[PanelBorder.TOP],
-                                         libtcod.BKGND_NONE)
+                frame_buffer.set(self.real_x + i, self.real_y, self.border[PanelBorder.TOP])
         if PanelBorder.LEFT in self.border:
             for i in range(self.real_h):
-                libtcod.console_put_char(console, self.real_x, self.real_y + i, self.border[PanelBorder.LEFT],
-                                         libtcod.BKGND_NONE)
+                frame_buffer.set(self.real_x, self.real_y + i, self.border[PanelBorder.LEFT])
         if PanelBorder.BOTTOM in self.border:
             for i in range(self.real_w):
-                libtcod.console_put_char(console, self.real_x + i, self.real_y + self.real_h - 1,
-                                         self.border[PanelBorder.BOTTOM],
-                                         libtcod.BKGND_NONE)
+                frame_buffer.set(self.real_x + i, self.real_y + self.real_h - 1,
+                                 self.border[PanelBorder.BOTTOM])
         if PanelBorder.RIGHT in self.border:
             for i in range(self.real_h):
-                libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y + i,
-                                         self.border[PanelBorder.RIGHT],
-                                         libtcod.BKGND_NONE)
+                frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + i,
+                                 self.border[PanelBorder.RIGHT])
         if PanelBorder.TOP in self.border and PanelBorder.LEFT in self.border:
-            libtcod.console_put_char(console, self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT],
-                                     libtcod.BKGND_NONE)
+            frame_buffer.set(self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT])
         if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
-            libtcod.console_put_char(console, self.real_x, self.real_y + self.real_h - 1,
-                                     self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
-                                     libtcod.BKGND_NONE)
+            frame_buffer.set(self.real_x, self.real_y + self.real_h - 1,
+                             self.border[PanelBorder.BOTTOM | PanelBorder.LEFT])
         if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
-            libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y,
-                                     self.border[PanelBorder.TOP | PanelBorder.RIGHT],
-                                     libtcod.BKGND_NONE)
+            frame_buffer.set(self.real_x + self.real_w - 1, self.real_y,
+                             self.border[PanelBorder.TOP | PanelBorder.RIGHT])
         if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
-            libtcod.console_put_char(console, self.real_x + self.real_w - 1, self.real_y + self.real_h - 1,
-                                     self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
-                                     libtcod.BKGND_NONE)
+            frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + self.real_h - 1,
+                             self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT])
 
 
 class MapPanel(Panel):
@@ -352,16 +342,16 @@ class MapPanel(Panel):
         # self.first_draw()
         self.is_first = True
 
-    def first_draw(self, libtcod, console):
+    def first_draw(self, frame_buffer):
         # pass
         for x in range(self.w):
             for y in range(self.h):
-                self.draw_char(self[(x, y)], (self.x + x, self.y + y), libtcod, console)
+                self.draw_char(self[(x, y)], (self.x + x, self.y + y), frame_buffer)
 
-    def redraw(self, libtcod, console):
-        super(MapPanel, self).redraw(libtcod, console)
+    def redraw(self, frame_buffer):
+        super(MapPanel, self).redraw(frame_buffer)
         if self.is_first:
-            self.first_draw(libtcod, console)
+            self.first_draw(frame_buffer)
             self.is_first = False
         diff = self.get_diff()
         for pos in diff:
@@ -369,7 +359,7 @@ class MapPanel(Panel):
 
             # Check that the position is in bounds
             if 0 <= pos[0] < self.w and 0 <= pos[1] < self.h:
-                self.draw_char(char, (self.x + pos[0], self.y + pos[1]), libtcod, console)
+                self.draw_char(char, (self.x + pos[0], self.y + pos[1]), frame_buffer)
             else:
                 raise Warning("Char out of bounds: Decided to skip drawing it!")
 
@@ -418,18 +408,18 @@ class MessagePanel(Panel):
     def get_current_messages(self):
         return self.msgs[-self.rows:]
 
-    def redraw(self, libtcod, console):
-        super(MessagePanel, self).redraw(libtcod, console)
+    def redraw(self, frame_buffer):
+        super(MessagePanel, self).redraw(frame_buffer)
         msgs_to_display = self.get_current_messages()
         for j in range(len(msgs_to_display)):
             msg = msgs_to_display[j]
             # TODO: optimize this
             # Clear msg board
             for i in range(self.max_len):
-                libtcod.console_put_char(console, self.x + i, self.y + j, self.default_char)
+                frame_buffer.set(self.x + i, self.y + j, self.default_char)
             # Print msg
             for i in range(min(len(msg), self.max_len)):
-                libtcod.console_put_char(console, self.x + i, self.y + j, msg[i])
+                frame_buffer.set(self.x + i, self.y + j, msg[i])
 
 
 class StatusPanel(MessagePanel):
