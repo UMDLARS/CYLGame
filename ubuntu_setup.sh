@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "Installing dependencies..."
-sudo apt-get install python-dev python-pip libsdl1.2debian python-cffi libffi-dev libsdl1.2-dev || { echo "Failed to install dependencies. Quiting." ; exit 1; }
-sudo -H pip install -U cffi tdl libtcod-cffi || { echo "Failed install python dependencies. Quiting." ; exit 1; }
+sudo apt-get install python-dev python-pip || { echo "Failed to install dependencies. Quiting." ; exit 1; }
+sudo -H pip install -U pygame || { echo "Failed install python dependencies. Quiting." ; exit 1; }
 mkdir ~/cylgameenv
 cd ~/cylgameenv
 clear

@@ -1,13 +1,11 @@
-import tcod
-import tdl
-import tempfile
 import os.path
 import random
 import string
 import sys
 
-TCOT_ROOT_CONSOLE = None
-TDL_ROOT_CONSOLE = None
+from CYLGame.Frame import GridFrameBuffer
+
+FPS = 30
 
 
 # From: http://stackoverflow.com/a/2267446/4441526
@@ -88,7 +86,7 @@ class Game(object):
         """
         raise Exception("Not implemented!")
 
-    def draw_screen(self, libtcod, console):
+    def draw_screen(self, frame_buffer):
         raise Exception("Not implemented!")
 
     def get_vars_for_bot(self):
@@ -124,31 +122,27 @@ class Game(object):
 
 class GameRunner(object):
     def __init__(self, game_class, bot=None):
-        self.game_class = game_class  # type: type
+        self.game_class = game_class  # type: Type[Game]
         self.bot = bot  # type: LPProg
 
         self.BOT_CONSTS = self.game_class.get_move_consts()
         self.CONST_NAMES = self.game_class.get_move_names()
 
     def __run_for(self, score=False, playback=False, seed=None):
-        global TDL_ROOT_CONSOLE
         assert self.bot is not None  # Make sure that we have a bot to run
         assert score != playback
 
-        if not TDL_ROOT_CONSOLE:
-            TDL_ROOT_CONSOLE = tdl.init(0, 0)
         if not seed:
             seed = random.randint(0, sys.maxint)
         game = self.game_class(random.Random(seed))
 
-
-        console = tdl.Console(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
+        framebuffer = GridFrameBuffer(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
         if playback:
             screen_cap = []
             debug_vars = []
         vars = {}
         while game.is_running():
-            result = self.__run_bot_turn(console, game, vars, capture_screen=playback)
+            result = self.__run_bot_turn(framebuffer, game, vars, capture_screen=playback)
             if result:
                 vars, screen = result
                 if playback:
@@ -197,51 +191,36 @@ class GameRunner(object):
 
     def run(self, seed=None):
         """Will run the game for a user.
-
-        Returns:
         """
-        global TDL_ROOT_CONSOLE
-        if not TDL_ROOT_CONSOLE:
-            tdl.setFont(self.game_class.CHAR_SET)
-            TDL_ROOT_CONSOLE = tdl.init(self.game_class.SCREEN_WIDTH, self.game_class.SCREEN_HEIGHT,
-                                        self.game_class.GAME_TITLE)
-        else:
-            raise Exception("You are trying the run two games at the time! I cann't do that :(")
-
+        # This import statement is here so pygame is only imported if needed.
+        from CYLGame import Display
         game = self.game_class(random.Random(seed))
-        console = tdl.Console(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
+
+        charset = Display.CharSet(self.game_class.CHAR_SET, self.game_class.CHAR_WIDTH, self.game_class.CHAR_HEIGHT)
+        display = Display.PyGameDisplay(*charset.char_size_to_pix((game.SCREEN_WIDTH, game.SCREEN_HEIGHT)), title=game.GAME_TITLE)
+
+        clock = Display.get_clock()
+
+        frame_buffer = GridFrameBuffer(*charset.pix_size_to_char(display.get_size()), charset=charset)
+        frame_updated = True
         while game.is_running():
-            self.__run_user_turn(console, game)
+            clock.tick(FPS)
+            for key in display.get_keys():
+                game.handle_key(key)
+                frame_updated = True
 
-    @staticmethod
-    def get_screen_array(console):
-        tf = tempfile.NamedTemporaryFile(mode="rb")
-        tcod.console_save_asc(console.tcod_console, tf.name)
-        data = tf.read()
-        x, y = map(int, data.split("\n")[1].split())
-        chars = "\n".join(data.split("\n")[2:])[1::9]
-        arr = []
-        for i in range(y):
-            arr += [map(ord, chars[i::y])]
-        return arr
+            if frame_updated:
+                game.draw_screen(frame_buffer)
+                display.update(frame_buffer)
+                frame_updated = False
 
-    @staticmethod
-    def __run_user_turn(console, game):
-        game.draw_screen(tcod, console.tcod_console)
-        TDL_ROOT_CONSOLE.blit(console, 0, 0, game.SCREEN_WIDTH, game.SCREEN_HEIGHT, 0, 0)
-        tdl.flush()
-
-        key = tdl.event.key_wait()
-        if key.char:
-            game.handle_key(key.char)
-
-    def __run_bot_turn(self, console, game, prev_vars=None, capture_screen=True):
+    def __run_bot_turn(self, framebuffer, game, prev_vars=None, capture_screen=True):
         """run_bot will do a single bot turn"""
         if prev_vars  is None:
             prev_vars = dict()
-        game.draw_screen(tcod, console.tcod_console)
+        game.draw_screen(framebuffer)
         if capture_screen:
-            screen_cap = self.get_screen_array(console)
+            screen_cap = framebuffer.dump()
         else:
             screen_cap = None
 

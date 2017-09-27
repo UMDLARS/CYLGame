@@ -119,7 +119,7 @@ class GameServer(flask_classful.FlaskView):
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         try:
-            prog = self.compiler.compile(code.split("\n"))
+            prog = self.compiler.compile(code)
         except:
             return flask.jsonify(error="Code did not compile")
         runner = GameRunner(self.game, prog)
@@ -136,7 +136,6 @@ class GameServer(flask_classful.FlaskView):
             return flask.jsonify(error="Your bot ran into an error at runtime.\n"
                                        "If you think that your bot is correct, please file a bug report!\n"
                                        "Make sure to include your code.")
-        # return result
 
     @flask_classful.route('/sim', methods=['POST'])
     def sim(self):
@@ -149,7 +148,7 @@ class GameServer(flask_classful.FlaskView):
             except:
                 return flask.jsonify(error="Invalid Seed")
         try:
-            prog = self.compiler.compile(code.split("\n"))
+            prog = self.compiler.compile(code)
         except:
             return flask.jsonify(error="Code did not compile")
         runner = GameRunner(self.game, prog)
