@@ -33,6 +33,17 @@ def int2base(x, base):
     return ''.join(digits)
 
 
+def scorer(func):
+    """This function is a decorator for a scoring function.
+       This is hack a to get around self being passed as the first argument to the scoring function."""
+    def wrapped(a, b=None):
+        if b is not None:
+            return func(b)
+        return func(a)
+    return wrapped
+
+
+@scorer
 def average(scores):
     return float((sum(scores) * 100) / len(scores)) / 100
 
