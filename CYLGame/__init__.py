@@ -11,4 +11,6 @@ from .Panels import StatusPanel
 from .Panels import PanelBorder
 from .Panels import PanelPadding
 
-__version__ = '0.2.0'
+from .version import version
+
+__version__ = version
