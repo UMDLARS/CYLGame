@@ -365,6 +365,30 @@ class MapPanel(Panel):
 
 
 class MessagePanel(Panel):
+    """ This panel contains messages to be displayed to the user. It acts as a scrolling text log.
+        This means that the first message is display on the first line and some on till you have
+        enough messages to fill the height. Then the next message added will push all the other
+        messages up and the first message will be discarded.
+
+        Example:
+            A MessagePanel with height of 3. Add messages "A", "B" and "C". It will display like the following:
+                A
+                B
+                C
+            Add message "D" and it will display like the following:
+                B
+                C
+                D
+
+        Note:
+            The following is deprecated:
+            >>> m = MessagePanel()
+            >>> m += ["Hi"]
+            You should do this instead:
+            >>> m = MessagePanel()
+            >>> m.add("Hi")
+
+    """
     def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(),
                  padding=PanelPadding.create(*[1] * 4)):
         super(MessagePanel, self).__init__(x, y, w, h, default_char, border, padding)
@@ -373,6 +397,7 @@ class MessagePanel(Panel):
         self.max_len = self.w
 
     def __add__(self, other):
+        print("The __add__ method on a MessagePanel has been deprecated.")
         self.add(other)
         return self
 
@@ -411,12 +436,17 @@ class MessagePanel(Panel):
     def redraw(self, frame_buffer):
         super(MessagePanel, self).redraw(frame_buffer)
         msgs_to_display = self.get_current_messages()
-        for j in range(len(msgs_to_display)):
-            msg = msgs_to_display[j]
-            # TODO: optimize this
-            # Clear msg board
+
+        # Clear the WHOLE message panel
+        for j in range(self.rows):
+            # TODO: optimize this by only clearing what should be changed.
+            # Clear msg row
             for i in range(self.max_len):
                 frame_buffer.set(self.x + i, self.y + j, self.default_char)
+
+        # Write the message we have to the panel
+        for j in range(len(msgs_to_display)):
+            msg = msgs_to_display[j]
             # Print msg
             for i in range(min(len(msg), self.max_len)):
                 frame_buffer.set(self.x + i, self.y + j, msg[i])
