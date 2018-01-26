@@ -160,7 +160,7 @@ class GameRunner(object):
         assert score != playback
 
         if not seed:
-            seed = random.randint(0, sys.maxint)
+            seed = random.randint(0, sys.maxsize)
         game = self.game_class(random.Random(seed))
 
         self.players = []
@@ -303,7 +303,7 @@ def run(game_class, avg_game_func=average):
     subparsers = parser.add_subparsers(help='What do you what to do?')
     parser_play = subparsers.add_parser('play', help='Play ' + game_class.GAME_TITLE + ' with a GUI')
     parser_play.add_argument('-s', '--seed', nargs="?", type=str, help='Manually set the random seed.',
-                             default=int2base(random.randint(0, sys.maxint), 36))
+                             default=int2base(random.randint(0, sys.maxsize), 36))
     parser_play.set_defaults(func=play)
     parser_serve = subparsers.add_parser('serve', help='Serve ' + game_class.GAME_TITLE + ' to the web.')
     parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
