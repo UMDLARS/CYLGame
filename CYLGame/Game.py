@@ -228,19 +228,18 @@ class GameRunner(object):
         frame_buffer = GridFrameBuffer(*charset.pix_size_to_char(display.get_size()), charset=charset)
         frame_updated = True
 
-        user = UserProg()
-        game.get_new_player(user)
+        player = game.get_new_player(UserProg())
 
         while game.is_running():
             clock.tick(FPS)
             for key in display.get_keys():
                 # TODO: fix
-                user.key = key
+                player.prog.key = key
+                player.make_move(None)
                 game.update()
                 frame_updated = True
 
             if frame_updated:
-                game.update()
                 game.draw_screen(frame_buffer)
                 display.update(frame_buffer)
                 frame_updated = False
