@@ -4,6 +4,7 @@ import string
 import sys
 
 from CYLGame.Frame import GridFrameBuffer
+from CYLGame.Player import UserProg
 
 FPS = 30
 
@@ -69,6 +70,7 @@ class Game(object):
     CHAR_HEIGHT = 8
     GAME_TITLE = ""
     CHAR_SET = data_file("fonts/terminal8x8_gs_ro.png")
+    TURN_BASED = False  # TODO: document
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -78,29 +80,21 @@ class Game(object):
         """
         raise Exception("Not implemented!")
 
-    def handle_key(self, key):
-        """This is where your game should react to user input.
-        We have decided on some standards for input. The following are the standard chars and their meaning:
-            Q:  Quit, you should do whatever you need to before the game ends. Probably set a flag so the draw_screen
-                function can draw an end of game screen.
-            w:  North or Up
-            a:  West or Left
-            d:  East or Right
-            s:  South or Down
-            q:  Northwest
-            e:  Northeast
-            z:  Southwest
-            c:  Southeast
-
-        Args:
-            key (str): key is a string of length one repenting a key press.
+    def get_new_player(self, prog):  # TODO: add option to create computer, user or bot players.
+        """ TODO: write this
         """
+        raise Exception("Not Implemented!")
+
+    def update(self):
+        """This function should move all of the players."""
         raise Exception("Not implemented!")
 
     def draw_screen(self, frame_buffer):
         raise Exception("Not implemented!")
 
-    def get_vars_for_bot(self):
+    def get_vars(self, player):
+        """ TODO: write this
+        """
         raise Exception("Not implemented!")
 
     def get_score(self):
@@ -131,49 +125,68 @@ class Game(object):
                 ord("z"): "Southwest"}
 
 
+class Room(object):
+    def __init__(self, bots=None):
+        if bots is None:
+            self.bots = []
+        else:
+            self.bots = bots
+
+        self.debug_vars = {}
+        self.screen_cap = None
+
+    def set_bot_debug(self, bot, debug_vars):
+        self.debug_vars[bot] = debug_vars
+
+    def set_playback(self, screen_cap):
+        self.screen_cap = screen_cap
+
+
 class GameRunner(object):
-    def __init__(self, game_class, bot=None):
+    def __init__(self, game_class, room=None):
         self.game_class = game_class  # type: Type[Game]
-        self.bot = bot  # type: LPProg
+        self.user_is_playing = False
+        if room is None:
+            self.user_is_playing = True
+        else:
+            self.room = room  # type: Room
+        self.players = []
 
         self.BOT_CONSTS = self.game_class.get_move_consts()
         self.CONST_NAMES = self.game_class.get_move_names()
 
     def __run_for(self, score=False, playback=False, seed=None):
-        assert self.bot is not None  # Make sure that we have a bot to run
+        assert len(self.room.bots) > 0  # Make sure that we have a bot to run
         assert score != playback
 
         if not seed:
             seed = random.randint(0, sys.maxint)
         game = self.game_class(random.Random(seed))
 
+        self.players = []
+        for bot in self.room.bots:
+            self.players += [game.get_new_player(bot)]
+
         framebuffer = GridFrameBuffer(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
         if playback:
             screen_cap = []
-            debug_vars = []
+            for player in self.players:
+                player.debug_vars = []
+        if game.TURN_BASED:
+            self.current_player = 0
         vars = {}
         while game.is_running():
-            result = self.__run_bot_turn(framebuffer, game, vars, capture_screen=playback)
-            if result:
-                vars, screen = result
-                if playback:
-                    screen_cap += [screen]
-                    human_vars = {}
-                    for v in vars:
-                        if vars[v] in self.CONST_NAMES:
-                            human_vars[v] = self.CONST_NAMES[vars[v]] + " ("+str(vars[v])+")"
-                        elif str(vars[v]) == str(True):
-                            human_vars[v] = 1
-                        elif str(vars[v]) == str(False):
-                            human_vars[v] = 0
-                        else:
-                            human_vars[v] = vars[v]
-                    debug_vars += [human_vars]
+            screen = self.__run_bot_turn(framebuffer, game, vars, capture_screen=playback)
+            if screen and playback:
+                screen_cap += [screen]
+                self.room.set_playback(screen_cap)
+                for player in self.players:
+                    self.room.set_bot_debug(player.bot, player.debug_vars)
             else:
                 break
 
         if playback:
-            return {"screen": screen_cap, "seed": int2base(seed, 36), "debug": debug_vars}
+            return {"seed": int2base(seed, 36)}
         else:  # if score
             return game.get_score()
 
@@ -214,44 +227,64 @@ class GameRunner(object):
 
         frame_buffer = GridFrameBuffer(*charset.pix_size_to_char(display.get_size()), charset=charset)
         frame_updated = True
+
+        user = UserProg()
+        game.get_new_player(user)
+
         while game.is_running():
             clock.tick(FPS)
             for key in display.get_keys():
-                game.handle_key(key)
+                # TODO: fix
+                user.key = key
+                game.update()
                 frame_updated = True
 
             if frame_updated:
+                game.update()
                 game.draw_screen(frame_buffer)
                 display.update(frame_buffer)
                 frame_updated = False
 
-    def __run_bot_turn(self, framebuffer, game, prev_vars=None, capture_screen=True):
+    def __run_next_turn(self, framebuffer, game, playback=True):
         """run_bot will do a single bot turn"""
-        if prev_vars  is None:
-            prev_vars = dict()
+        # if prev_vars is None:
+        #     prev_vars = dict()
         game.draw_screen(framebuffer)
-        if capture_screen:
+        if playback:
             screen_cap = framebuffer.dump()
         else:
             screen_cap = None
 
-        vars = dict(prev_vars)
-        read_bot_state = getattr(game, "read_bot_state", None)
-        if callable(read_bot_state):
-            read_bot_state(prev_vars)
-        vars.update(self.BOT_CONSTS)
-        vars.update(game.get_vars_for_bot())
-        nxt_vars = self.bot.run(vars)
+        players = self.players
+        if game.TURN_BASED:
+            players = [self.players[self.current_player]]
+            self.current_player = (self.current_player + 1) % len(self.players)
+            # TODO: sync screen cap and debug vars.
 
-        # remove consts
-        for key in self.BOT_CONSTS:
-            nxt_vars.pop(key)
+        for player in players:
+            vars = dict(player.prev_vars)
+            vars.update(self.BOT_CONSTS)
+            vars.update(game.get_vars(player))
+            nxt_vars = player.make_move(vars)
 
-        if "move" in nxt_vars:
-            game.handle_key(chr(nxt_vars["move"]))
-        else:
-            return False
-        return nxt_vars, screen_cap
+            # remove consts
+            for key in self.BOT_CONSTS:
+                nxt_vars.pop(key)
+
+            player.prev_vars = nxt_vars
+            if playback:
+                human_vars = {}
+                for name, val in nxt_vars.items():
+                    if val in self.CONST_NAMES:
+                        human_vars[name] = self.CONST_NAMES[val] + " (" + str(val) + ")"
+                    elif str(val) == str(True):
+                        human_vars[name] = 1
+                    elif str(val) == str(False):
+                        human_vars[name] = 0
+                    else:
+                        human_vars[name] = val
+                player.debug_vars += [human_vars]
+        return screen_cap
 
 
 def run(game_class, avg_game_func=average):

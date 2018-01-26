@@ -11,6 +11,8 @@ from .Panels import StatusPanel
 from .Panels import PanelBorder
 from .Panels import PanelPadding
 
+from .Player import Player
+
 from .version import version
 
 __version__ = version
