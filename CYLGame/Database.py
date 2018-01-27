@@ -218,16 +218,20 @@ class GameDB(object):
         else:
             return None
 
-    def save_code(self, token, code):
+    def save_code(self, token, code, options=None):
         """Save a user's code under their token.
 
         Args:
             token (str): The user's token.
             code (str): The user's code.
+            options (json-able object): The user's options.
         """
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "code.lp"), "w", encoding="utf8") as fp:
             fp.write(unicode(code))
+        if options:
+            with io.open(self.__get_dir_for_token(token, "options.json"), "w", encoding="utf8") as fp:
+                fp.write(unicode(ujson.dumps(options)))
 
     def save_name(self, token, name):
         """Save a user's name under their token.
@@ -251,12 +255,15 @@ class GameDB(object):
         with io.open(self.__get_dir_for_token(token, "avg_score"), "w", encoding="utf8") as fp:
             fp.write(unicode(score))
 
-    def get_code(self, token):
+    def get_code_and_options(self, token):
+        code, options = None, None
         if os.path.exists(self.__get_dir_for_token(token, "code.lp")):
             with io.open(self.__get_dir_for_token(token, "code.lp"), "r", encoding="utf8") as fp:
-                return fp.read()
-        else:
-            return None
+                code = fp.read()
+        if os.path.exists(self.__get_dir_for_token(token, "options.json")):
+            with io.open(self.__get_dir_for_token(token, "options.json"), "r", encoding="utf8") as fp:
+                options = ujson.load(fp)
+        return code, options
 
     def get_name(self, token):
         if self.is_user_token(token) or self.is_school_token(token) or self.is_comp_token(token):

@@ -1,11 +1,12 @@
-from copy import copy
+from copy import copy, deepcopy
 
 
 class FrameBuffer(object):
     # TODO: decide what should go here.
-    def __init__(self, width, height):
-        self.x = width
-        self.y = height
+    pass
+    # def __init__(self, width, height):
+    #     self.x = width
+    #     self.y = height
 
 
 class GridFrameBuffer(FrameBuffer):
@@ -18,7 +19,9 @@ class GridFrameBuffer(FrameBuffer):
                               then any draw function will not work.)
             init_value:
         """
-        super(GridFrameBuffer, self).__init__(width, height)
+        # super(GridFrameBuffer, self).__init__(width, height)
+        self.x = width
+        self.y = height
         self.charset = charset
         self.arr = []
         for i in range(height):
@@ -53,3 +56,23 @@ class GridFrameBuffer(FrameBuffer):
             List[List[int]]: a copy of the frame buffer's grid
         """
         return list(map(copy, self.arr))
+
+
+class GameFrame(FrameBuffer):
+    def __init__(self):
+        self.objs = []
+
+    def draw_char(self, c, x, y, height, width):
+        self.objs.append(["char", [c, x, y, height, width]])
+
+    def draw_tank(self, x, y, rotation, turret, fire, led, color):
+        self.objs.append(["tank", [x, y, rotation, turret, fire, led, color]])
+
+    def draw_crater(self, x, y, rotation, color):
+        self.objs.append(["crater", [x, y, rotation, color]])
+
+    def draw_sensors(self, x, y, rotation, turret, color, sensors):
+        self.objs.append(["sensors", [x, y, rotation, turret, color, deepcopy(sensors)]])
+
+    def get_obj_array(self):
+        return self.objs

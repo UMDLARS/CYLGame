@@ -1,0 +1,248 @@
+<style>
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+.sensor_input {
+	color: black;
+}
+legend {
+	color: white;
+	margin-bottom: 0px;
+}
+fieldset {
+	padding: 15px;
+}
+</style>
+<div id="options_div" class="clearfix" style="margin-top:1em; border: 1px solid #22aa22;">
+	<div id="preview" style="width:50%; float: right;"><canvas id="design" style="border: 0; width: 100%;"></canvas></div>
+<script type="text/javascript">
+var tank_args = [101,101,0,0,0,0,"#c0c0c0"];
+var sensors = new Array(10);
+for (var i = 0; i < 10; i++) {
+	sensors[i] = {
+		"range" : 0,
+		"angle" : 0,
+		"width" : 0,
+		"turret" : false,
+		"triggered" : 0
+	};
+}
+var sensor_args = [tank_args[0], tank_args[1], tank_args[2], tank_args[3], tank_args[6], sensors];
+function min(a, b) {
+    if (a < b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+function update() {
+    var color = document.getElementsByName('color')[0].value;
+	tank_args[6] = color;
+    for (i = 0; i < 10; i += 1) {
+        var range = document.getElementsByName('s'+i+'r')[0].value;
+        var angle = document.getElementsByName('s'+i+'a')[0].value;
+        var width = document.getElementsByName('s'+i+'w')[0].value;
+        var turret = document.getElementsByName('s'+i+'t')[0].checked;
+
+		sensors[i] = { 
+			"range" : min(range, 100),
+            "angle" : (angle % 360)*Math.PI/180,
+            "width" : (width % 360)*Math.PI/180,
+            "turret" : turret,
+			"triggered" : 0
+		};
+    }
+}
+function design() {
+    var frame = 0;
+    var loop_id;
+
+    canvas = document.getElementById('design');
+    ctx = canvas.getContext('2d');
+
+    canvas.width = 202;
+    canvas.height = 202;
+
+	draw_functions["tank"](canvas, ctx, tank_args)
+
+    function update() {
+        var turret = frame * Math.PI / 90;
+		tank_args[3] = turret;
+		sensor_args[3] = turret;
+
+        frame += 1;
+        canvas.width = canvas.width;
+		draw_functions["sensors"](canvas, ctx, sensor_args);
+		draw_functions["tank"](canvas, ctx, tank_args);
+    }
+
+    loop_id = setInterval(update, 66);
+}
+function options_to_json() {
+	var prop_name = {
+		"r" : "range",
+		"a" : "angle",
+		"w" : "width",
+		"t" : "turret"
+	};
+	var sensors = new Array();
+	var inputs = document.getElementsByClassName("sensor_input");
+	for (var i = 0; i < inputs.length; i++) {
+		var input = inputs[i];
+		var sensor_num = parseInt(input.name[1]);
+		var prop = input.name[2];
+		if (!sensors[sensor_num]) {
+			sensors[sensor_num] = {};
+		}
+		if (input.type == "checkbox") {
+			sensors[sensor_num][prop_name[prop]] = input.checked;
+		} else {
+			sensors[sensor_num][prop_name[prop]] = input.value;
+		}
+	}
+    var color = document.getElementsByName('color')[0].value;
+	return {"sensors": sensors, "color" : color};
+}
+function load_options(options) {
+	var prop_name = {
+		"range" : "r",
+		"angle" : "a",
+		"width" : "w",
+		"turret" : "t"
+	};
+
+	document.getElementsByName("color")[0].value = options["color"];
+	var sensors = options["sensors"];
+	for (var i = 0; i < sensors.length; i++) {
+		var sensor = sensors[i];
+		for (prop in sensor) {
+			if (typeof prop_name[prop] === "undefined")
+				continue;
+
+			var input_name = "s" + i.toString() + prop_name[prop];
+			if (prop == "turret") {
+				document.getElementsByName(input_name)[0].checked = sensor[prop];
+			} else {
+				var input = document.getElementsByName(input_name)[0];
+				if (typeof input === "undefined")
+					console.log(input_name);
+				else
+					input.value = sensor[prop];
+			}
+		}
+	}
+	update();
+}
+</script>
+<div id="config" style="width: 50%; float: left">
+  <fieldset id="metadata">
+    <legend>Color</legend>
+    <input name="color" type="color" value="#c0c0c0" onchange="update();">
+  </fieldset>
+  <fieldset id="sensors">
+    <legend>Sensors</legend>
+    <table>
+      <thead>
+        <tr>
+          <td>#</td>
+          <td>Range</td>
+          <td>Angle</td>
+          <td>Width</td>
+          <td>Turret?</td>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td>0</td>
+          <td><input class="sensor_input" name="s0r" type="number" min="0" max="100" onchange="update();" value="50"></td>
+          <td><input class="sensor_input" name="s0a" type="number" min="-359" max="359" onchange="update();" value="0"></td>
+          <td><input class="sensor_input" name="s0w" type="number" min="-359" max="359" onchange="update();" value="7"></td>
+          <td><input class="sensor_input" name="s0t" type="checkbox" onchange="update();" checked="1"></td>
+        </tr>
+
+        <tr>
+          <td>1</td>
+          <td><input class="sensor_input" name="s1r" type="number" min="0" max="100" onchange="update();" value="30"></td>
+          <td><input class="sensor_input" name="s1a" type="number" min="-359" max="359" onchange="update();" value="0"></td>
+          <td><input class="sensor_input" name="s1w" type="number" min="-359" max="359" onchange="update();" value="90"></td>
+          <td><input class="sensor_input" name="s1t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+        <tr>
+          <td>2</td>
+          <td><input class="sensor_input" name="s2r" type="number" min="0" max="100" onchange="update();"></td>
+          <td><input class="sensor_input" name="s2a" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s2w" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s2t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+        <tr>
+          <td>3</td>
+          <td><input class="sensor_input" name="s3r" type="number" min="0" max="100" onchange="update();"></td>
+          <td><input class="sensor_input" name="s3a" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s3w" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s3t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+        <tr>
+          <td>4</td>
+          <td><input class="sensor_input" name="s4r" type="number" min="0" max="100" onchange="update();"></td>
+          <td><input class="sensor_input" name="s4a" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s4w" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s4t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+        <tr>
+          <td>5</td>
+          <td><input class="sensor_input" name="s5r" type="number" min="0" max="100" onchange="update();"></td>
+          <td><input class="sensor_input" name="s5a" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s5w" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s5t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+        <tr>
+          <td>6</td>
+          <td><input class="sensor_input" name="s6r" type="number" min="0" max="100" onchange="update();"></td>
+          <td><input class="sensor_input" name="s6a" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s6w" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s6t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+        <tr>
+          <td>7</td>
+          <td><input class="sensor_input" name="s7r" type="number" min="0" max="100" onchange="update();"></td>
+          <td><input class="sensor_input" name="s7a" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s7w" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s7t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+        <tr>
+          <td>8</td>
+          <td><input class="sensor_input" name="s8r" type="number" min="0" max="100" onchange="update();"></td>
+          <td><input class="sensor_input" name="s8a" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s8w" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s8t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+        <tr>
+          <td>9</td>
+          <td><input class="sensor_input" name="s9r" type="number" min="0" max="100" onchange="update();"></td>
+          <td><input class="sensor_input" name="s9a" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s9w" type="number" min="-359" max="359" onchange="update();"></td>
+          <td><input class="sensor_input" name="s9t" type="checkbox" onchange="update();"></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </fieldset>
+</div>
+</div>
+<script type="text/javascript">
+design(); update();
+</script>

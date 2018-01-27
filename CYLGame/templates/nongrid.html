@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ game_title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="static/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/dark.css">
+    <link rel="stylesheet" href="static/main.css">
+    <link rel="icon" href="static/icon.png">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>window.jQuery || document.write('<script src="static/jquery.min.js">\x3C/script>')</script>
+	<script src="static/draw_functions.js"></script>
+    <script type="text/javascript">
+        $SCRIPT_ROOT = "";
+        pause();
+        window.seed = "";
+        window.onload = function() {
+            window.cur_frame = 0;
+            window.real_cur_frame = 0;
+            window.cur_speed = 1;
+            window.fps = 30;
+            window.playback_timeout = 1000/window.fps;
+            window.is_really_playing = false;
+            window.replay_vars = [];
+            window.replay_frames = [];
+            window.canceled = false;
+//            drawLoop();
+            disable_btn_bar();
+            document.getElementById("scoreSelector").onclick = function () {
+                updateScoreboard();
+            };
+            document.getElementById("compSelector").onclick = function () {
+                updateComp();
+            };
+            document.getElementById("logout").onclick = function() {
+                logout();
+            };
+            document.getElementById("login").onclick = function() {
+                login();
+            };
+        };
+        function logout() {
+            delete window.token;
+            document.getElementById("scoreSelector").style.display = "None";
+            document.getElementById("compSelector").style.display = "None";
+            document.getElementById("logout").style.display = "None";
+            document.getElementById("submitCode").style.display = "None";
+            document.getElementById("loadCode").style.display = "None";
+            document.getElementById("login").style.display = "";
+        }
+        function login() {
+            window.token = prompt("Enter your token:", "");
+            if (window.token == null) {
+                return false;
+            }
+            //check_token
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'check_token',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    if (data["error"]) {
+                        alert(data["error"]);
+                    } else {
+                        document.getElementById("scoreSelector").style.display = "";
+                        document.getElementById("logout").style.display = "";
+                        document.getElementById("submitCode").style.display = "";
+                        document.getElementById("loadCode").style.display = "";
+                        document.getElementById("saveCode").style.display = "";
+                        document.getElementById("login").style.display = "None";
+                        loadCode();
+                        checkComps();
+                    }
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
+        }
+        function setPlaybackTimeout(timeout) {
+            window.cur_speed = timeout;
+            play();
+        }
+        function slower() {
+            if (window.cur_frame >= window.replay_frames.length-1) {
+                prevFrame();
+            }
+            if (window.cur_speed > 0) {
+                reset_speed();
+                window.cur_speed *= -1;
+            }
+            window.cur_speed *= 2;
+            play();
+        }
+        function faster() {
+            if (window.cur_speed < 0) {
+                reset_speed();
+            }
+            window.cur_speed *= 2;
+            play();
+        }
+        function reset_speed() {
+            window.cur_speed = .1;
+        }
+        function checkComps() {
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'comp_scoreboards',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    data = data["comps"];
+                    // Sort the data
+                    if (data.length <= 0) {
+                        return;
+                    }
+                    document.getElementById("compSelector").style.display = "";
+                },
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
+        }
+		function to_json() {
+			var json = {};
+			json["code"] = editor.getValue();
+			json["seed"] = window.seed;
+			if (document.getElementById("options_div")) {
+				json["options"] = options_to_json();
+			}
+			json["token"] = window.token; 
+			return json;
+		}
+        function testCode() {
+            $("#debugTable").html("");
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'sim',
+                data: JSON.stringify(to_json()),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    if (data["error"]) {
+                        if (data["error"] == "Invalid Seed") {
+                            window.seed = "";
+                        }
+                        alert(data["error"]);
+                    } else {
+                        drawFrames(data["screen"], data["debug"]);
+                        setSeed(data["seed"]);
+                        enable_btn_bar();
+                    }
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
+        }
+		function saveCode() {
+            if (!window.token) {
+                login();
+            }
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'save_code',
+                data: JSON.stringify(to_json()),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (data.hasOwnProperty("error")) {
+                        if (data["error"] == "Invalid Token") {
+                            logout();
+                        } else {
+                            alert(data["error"]);
+                        }
+                    } else {
+                        alert("Save successful.");
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
+		}
+        function submitCode() {
+            if (!window.token) {
+                login();
+            }
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'sim_avg',
+                data: JSON.stringify(to_json()),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (data.hasOwnProperty("error")) {
+                        if (data["error"] == "Invalid Token") {
+                            logout();
+//                            window.token = "";
+//                            document.getElementById("scoreSelector").style.display = "None";
+                        } else {
+                            alert(data["error"]);
+                        }
+                    } else {
+                        document.getElementById("scoreSelector").style.display = "";
+                        alert("You average score was " + data["score"]);
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
+        }
+        function loadCodeWithCon() {
+            var curCode = editor.getValue();
+            if (curCode == "{{ example_bot|replace("\n", "\\n") }}") {
+                loadCode();
+                return
+            }
+            var ans = confirm("Do you want to load the code you submitted last?\nThis will overwrite your current program in the editor.");
+            if (ans) {
+                loadCode();
+            }
+        }
+        function loadCode() {
+            if (!window.token) {
+                login();
+            }
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'load_code',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    if (data.hasOwnProperty("error")) {
+                        if (data["error"] == "Invalid Token") {
+                            logout();
+                        }
+                    } else if (data["code"] != null) {
+                        editor.setValue(data["code"], 1);
+						if (data["options"] != null) {
+							if (typeof load_options === "function") {
+								load_options(data["options"]);
+							} else {
+								console.log("loadCode(): error - recieved options but load_options() not defined.");
+							}
+						}
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            document.getElementById("loadingOverlay").style["display"] = "";
+            return false;
+        }
+        function updateScoreboard() {
+            $("#scoreTable").html("");
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'scoreboard',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    // Sort the data
+                    function compare(a,b) {
+                      if (a.score < b.score)
+                        return 1;
+                      if (a.score > b.score)
+                        return -1;
+                      return 0;
+                    }
+                    var scores = data["scores"];
+                    scores.sort(compare);
+
+                    var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Average Score"));
+                    $("#scoreTable").html("").append(row);
+                    scores.forEach(function myFunction(item, index) {
+                        var row = $("<tr>").append($("<td>").text(item["name"])).append($("<td>").text(item["score"]));
+                        $("#scoreTable").append(row);
+                    });
+                    document.getElementById("scoreSchool").innerHTML = data["school"];
+                },
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
+        }
+        function updateComp() {
+            $("#compTable").html("");
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + 'comp_scoreboards',
+                data: JSON.stringify({token: window.token}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                    data = data["comps"];
+                    // Sort the data
+                    if (data.length <= 0) {
+                        return;
+                    }
+                    comp = data[0];
+                    function compare(a,b) {
+                      if (a.score < b.score)
+                        return 1;
+                      if (a.score > b.score)
+                        return -1;
+                      return 0;
+                    }
+                    var scores = comp["scores"];
+                    scores.sort(compare);
+
+                    var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Average Score"));
+                    $("#compTable").html("").append(row);
+                    scores.forEach(function myFunction(item, index) {
+                        var row = $("<tr>").append($("<td>").html(item["name"])).append($("<td>").html(item["score"]));
+                        $("#compTable").append(row);
+                    });
+//                    document.getElementById("scoreSchool").innerHTML = data["school"];
+                },
+                failure: function(errMsg) {
+                    alert(errMsg);
+                }
+            });
+        }
+        function drawFrames(frames, vars) {
+            stop();
+            window.replay_frames = frames;
+            window.replay_vars = vars;
+            play();
+        }
+
+        function prevFrame() {
+            pause();
+            if (window.cur_frame > 0) {
+                window.cur_frame--;
+                window.real_cur_frame = window.cur_frame;
+            }
+            reset_speed();
+            drawCurFrame();
+        }
+
+        function nextFrame() {
+            pause();
+            if (window.cur_frame < replay_frames.length-1) {
+                window.cur_frame++;
+                window.real_cur_frame = window.cur_frame;
+            }
+            reset_speed();
+            drawCurFrame();
+        }
+
+        function drawLoop() {
+            console.log("In draw loop");
+            if (window.is_playing) {
+//                window.cur_frame = Math.min(window.cur_frame+window.cur_speed, window.replay_vars.length-1);
+                window.real_cur_frame += window.cur_speed;
+                window.cur_frame = Math.min(Math.floor(window.real_cur_frame), window.replay_vars.length-1);
+                window.cur_frame = Math.max(window.cur_frame, 0);
+                if (window.cur_frame < replay_frames.length && window.cur_frame > -1) {
+                    drawCurFrame();
+                    if (window.cur_frame == window.replay_vars.length-1 && window.cur_speed > 0) {
+                        console.log("end pause");
+                        pause();
+                    } else if (window.cur_frame == 0 && window.cur_speed < 0) {
+                        console.log("end pause");
+                        pause();
+                    }
+                } else {
+                    console.log("else pause");
+                    pause();
+                }
+                window.is_really_playing = true;
+                console.log("called timeout");
+                setTimeout(drawLoop, window.playback_timeout);
+            } else {
+                console.log("else 1");
+                window.is_really_playing = false;
+            }
+
+        }
+
+        function drawCurFrame() {
+            if (window.cur_frame >= 0 && window.cur_frame < window.replay_frames.length) {
+                $("#playbackProgress").css("width", (window.cur_frame / (replay_frames.length - 1)) * 100 + "%");
+                $("#playbackProgressText").html("Frame " + (window.cur_frame + 1) + " of " + (replay_frames.length));
+                draw(window.replay_frames[window.cur_frame], window.replay_vars[window.cur_frame]);
+            } else {
+                console.log("Not drawing frame: "+window.cur_frame);
+            }
+        }
+
+        function draw(frame, cur_vars) {
+            var c=document.getElementById("display");
+            var ctx=c.getContext("2d");
+
+			ctx.clearRect(0, 0, c.width, c.height);
+			for (var i = 0; i < frame.length; i++) {
+				var func = frame[i][0];
+				var args = frame[i][1];
+				draw_functions[func](c, ctx, args);
+			}
+
+            create_var_table(cur_vars);
+        }
+
+        function create_var_table(vars) {
+			if (!vars) {
+				return;
+			}
+            var keys = Object.keys(vars);
+            keys.sort();
+
+//            var scores = data["scores"];
+//            scores.sort(compare);
+
+            var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Value"));
+            $("#debugTable").html("").append(row);
+            keys.forEach(function myFunction(item, index) {
+                var row = $("<tr>").append($("<td>").html(item)).append($("<td>").html(vars[item]));
+                $("#debugTable").append(row);
+            });
+        }
+        function pause() {
+            window.is_playing = false;
+        }
+        function play() {
+            window.is_playing = true;
+            if (window.is_really_playing == false) {
+                if (window.cur_frame >= replay_frames.length-1) {
+                    window.cur_frame = 0;
+                    window.real_cur_frame = 0;
+                }
+                drawLoop();
+            }
+        }
+        function toggle_play() {
+            reset_speed();
+            if (window.is_playing) {
+                pause();
+//                window.is_playing = false;
+//
+            } else {
+                play();
+//                window.is_playing = true;
+            }
+//            window.is_playing = !window.is_playing;
+        }
+        function stop() {
+            pause();
+            reset_speed();
+            window.cur_frame = 0;
+            window.real_cur_frame = 0;
+            drawCurFrame();
+        }
+        function cancelSubmit() {
+            window.canceled = true;
+            document.getElementById("loadingOverlay").style["display"] = "none";
+            play();
+        }
+        function disable_btn_bar() {
+            $("#btn-bar :button").attr("disabled", true);
+        }
+        function enable_btn_bar() {
+            $("#btn-bar :button").attr("disabled", false);
+        }
+        function setSeed(seed) {
+            $("#mapNumberText").html("Map: " + seed);
+        }
+        function toggle_debug_table() {
+            if ($("#debugTable").css("display") == "none") {
+                $("#debugTable").css("display", "");
+                $("#btnToggleDebug").html("Hide Debug Table");
+            } else {
+                $("#debugTable").css("display", "none");
+                $("#btnToggleDebug").html("Show Debug Table");
+            }
+        }
+        function set_seed() {
+            window.seed = prompt("Enter map seed.\nIf you want a random seed leave blank.", "");
+            console.log(window.seed);
+        }
+    </script>
+</head>
+<body>
+{#<div class="container" style="width: 100%">#}
+{#    <h3>{{ game_title }}</h3>#}
+{#    <ul class="nav nav-pills nav-justified">#}
+{#        <li class="active"><a href="#Intro">Intro</a></li>#}
+{#        <li><a href="#Game">Game</a></li>#}
+{#        <li><a href="#Bot">Bot</a></li>#}
+{#    </ul>#}
+{#</div>#}
+<div class="container" style="width: 100%;padding: 10px;">
+    <h1>{{ game_title }}</h1>
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#Intro">Intro</a></li>
+{#      <li><a data-toggle="tab" href="#Game">Game</a></li>#}
+      <li><a data-toggle="tab" href="#Bot">Bot</a></li>
+      <li><a id="scoreSelector" data-toggle="tab" href="#Score" style="display: none;">School Scoreboard</a></li>
+      <li><a id="compSelector" data-toggle="tab" href="#Comp" style="display: none;">Competition Rankings</a></li>
+      <li style="float: right;"><a id="logout" style="display: none;"><span id="token"></span>Log out</a></li>
+      <li style="float: right;"><a id="login" style="">Log in</a></li>
+    </ul>
+</div>
+
+<div class="tab-content">
+  <div id="Intro" class="tab-pane fade in active">
+      <p>{{ intro_text|markdown }}</p>
+  </div>
+  <div id="Game" class="tab-pane fade">
+      <h3>Play the Game</h3>
+      <p>This is where the user can play the game to test out different ideas.</p>
+      <div style="margin-left: 1em;margin-right: 1em;">
+        <canvas id="displayPlayer" height="{{ screen_height }}px" width="{{ screen_width }}px"></canvas>
+      </div>
+  </div>
+  <div id="Bot" class="tab-pane fade">
+      <div id="loadingOverlay" style="display: none;">
+          <div style="top: 50%; left: 50%; position: absolute;transform: translate3d(-50%,-50%, 0);text-align: center;">
+              <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
+              <br><br>
+              <span id="overlayCancel" onclick="cancelSubmit();">Cancel</span>
+          </div>
+      </div>
+      <div id="wrap">
+        <div id="left_col">
+{#            <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">#}
+            <img id="chars" src="static/fonts/{{ char_set }}" style="display: none;">
+            <canvas id="display" height="{{ screen_height }}px" width="{{ screen_width }}px"></canvas>
+            <div>
+                <div class="progress">
+                    <div id="playbackProgress" class="progress-bar fast" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                    </div>
+                </div>
+                <span id="playbackProgressText">Frame 0 of 0</span>
+                <span id="mapNumberText" style="float: right;"></span>
+            </div>
+            <br>
+            <div id="btn-bar">
+                <button onclick="stop();">Stop</button>
+                <button onclick="slower();">&lt;&lt;</button>
+                <button onclick="prevFrame();">&lt;</button>
+                <button onclick="toggle_play();">Play/Pause</button>
+                <button onclick="nextFrame();">&gt;</button>
+                <button onclick="faster();">&gt;&gt;</button>
+                <div style="float: right;">
+                    <button id="btnSetSeed" onclick="set_seed();">Set Map Seed</button>
+                    <button id="btnToggleDebug" onclick="toggle_debug_table();">Show Debug Table</button>
+                </div>
+                <br>
+            </div>
+            <div>
+                <br>
+                <center>
+                    <table id="debugTable" style="display: none;">
+                    </table>
+                </center>
+            </div>
+        </div>
+        <div id="right_col">
+			<div id="editor_div">
+                <pre id="editor">{{ example_bot }}</pre>
+                <script src="static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+                <script>
+                    var editor = ace.edit("editor");
+                    editor.setTheme("ace/theme/twilight");
+                    editor.session.setMode("ace/mode/lp");
+                </script>
+                <br>
+                <button id="testCode" onclick="testCode();">Play</button>
+                <button id="loadCode" onclick="loadCodeWithCon();" style="display: none;">Load Last Submitted Code</button>
+                <button id="saveCode" onclick="saveCode();" style="display: none;">Save Code</button>
+                <button id="submitCode" onclick="submitCode();" style="display: none;">Submit</button>
+			</div>
+			{% if options is defined and options %}
+				{% include options + '.html' %}
+			{% endif %}
+        </div>
+    </div>
+  </div>
+  <div id="Score" class="tab-pane fade">
+      <h3>Scoreboard for <span id="scoreSchool"></span></h3>
+      <table id="scoreTable">
+          <tr>
+              <th>Name</th>
+              <th>Average Score</th>
+          </tr>
+      </table>
+  </div>
+  <div id="Comp" class="tab-pane fade">
+      <!--<h3>Scoreboard for <span id="scoreSchool"></span></h3>-->
+      <h3>Rankings</h3>
+      <table id="compTable">
+          <tr>
+              <th>Name</th>
+              <th>Average Score</th>
+          </tr>
+      </table>
+  </div>
+</div>
+</body>
+</html>

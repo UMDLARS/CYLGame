@@ -63,18 +63,72 @@ class GameLanguage(object):
             return open(data_file("little_python_intro.md")).read()
 
 
-class NonGridGame(object):
+class Game(object):
     WEBONLY = True
+    SCREEN_WIDTH = 0
+    SCREEN_HEIGHT = 0
+    GAME_TITLE = ""
+    OPTIONS = None
+
+    def is_running(self):
+        """This is how the game runner knows if the game is over.
+
+        Returns:
+            bool: True if the game should still be play. False otherwise
+        """
+        raise Exception("Not implemented!")
+
+    def create_new_player(self, prog, options=None):
+        """This creates a new oject that inherits from the Player class.
+
+        Returns:
+            An object that inherets from the Player class with the given program.
+        """
+        raise Exception("Not implemented!")
+
+    def get_debug_vars(self):
+        raise Exception("Not implemented!")
+
+    def do_turn(self):
+        raise Exception("Not implemented!")
+
+    def get_frame(self):
+        raise Exception("Not implemented!")
+
+    def init_board(self):
+        raise Exception("Not implemented!")
+
+    @staticmethod
+    def default_prog_for_bot(language):
+        raise Exception("Not implemented!")
+
+    @staticmethod
+    def get_intro():
+        raise Exception("Not implemented!")
+
+    @staticmethod
+    def get_move_consts():
+        return {}
+
+    @staticmethod
+    def get_move_names():
+        return {}
+
+
+class NonGridGame(Game):
+    WEBONLY = True
+    GRID = False
 
     def read_bot_state(self, state):
         raise Exception("Not Implemented!")
 
     def get_vars_for_bot(self):
         raise Exception("Not Implemented!")
+    
 
-
-class Game(object):
+class GridGame(Game):
     WEBONLY = False
+    GRID = True
     SCREEN_WIDTH = 80
     SCREEN_HEIGHT = 25
     CHAR_WIDTH = 8
@@ -83,6 +137,7 @@ class Game(object):
     CHAR_SET = data_file("fonts/terminal8x8_gs_ro.png")
     TURN_BASED = False  # TODO: document
     MULTIPLAYER = False  # TODO: document
+    __frame_buffer = None
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -97,12 +152,21 @@ class Game(object):
         """
         raise Exception("Not Implemented!")
 
-    def update(self):
-        """This function should move all of the players."""
+    def do_turn(self):
+        """This function should read the new state of all the players and react to them."""
         raise Exception("Not implemented!")
 
     def draw_screen(self, frame_buffer):
+        """WARNING: There MUST NOT be any game logic in this function since it isn't called when simulating the game
+                    during the competitions.
+        """
         raise Exception("Not implemented!")
+
+    def get_frame(self):
+        if self.__frame_buffer is None:
+            self.__frame_buffer = GridFrameBuffer(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+        self.draw_screen(self.__frame_buffer)
+        return self.__frame_buffer.dump()
 
     def get_vars(self, player):
         """ TODO: write this
@@ -143,23 +207,6 @@ class Game(object):
             int: The number of players needed to play the game.
         """
         raise Exception("Not implemented!")
-
-
-class Room(object):
-    def __init__(self, bots=None):
-        if bots is None:
-            self.bots = []
-        else:
-            self.bots = bots
-
-        self.debug_vars = {}
-        self.screen_cap = None
-
-    def set_bot_debug(self, bot, debug_vars):
-        self.debug_vars[bot] = debug_vars
-
-    def set_playback(self, screen_cap):
-        self.screen_cap = screen_cap
 
 
 class GameRunner(object):
@@ -235,6 +282,8 @@ class GameRunner(object):
 
     def run(self, seed=None):
         """Will run the game for a user.
+
+        Returns:
         """
         # This import statement is here so pygame is only imported if needed.
         from CYLGame import Display
@@ -268,11 +317,10 @@ class GameRunner(object):
         """run_bot will do a single bot turn"""
         # if prev_vars is None:
         #     prev_vars = dict()
-        game.draw_screen(framebuffer)
+
+        screen_cap = None
         if playback:
-            screen_cap = framebuffer.dump()
-        else:
-            screen_cap = None
+            screen_cap = game.get_frame()
 
         players = self.players
         if game.TURN_BASED:
