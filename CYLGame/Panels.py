@@ -82,8 +82,8 @@ class Map(object):
 
     # pos must be tuple
     def add(self, char, pos):
-        assert is_char(char)
-        assert self.in_bounds(pos)
+        assert is_char(char), "'{}' isn't a char".format(char)
+        assert self.in_bounds(pos), "'{}' isn't in bounds".format(pos)
 
         if pos in self.p_to_char.keys():
             self.rm_char(pos)
