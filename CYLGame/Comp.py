@@ -1,6 +1,30 @@
 from __future__ import print_function
-from Game import GameRunner
-from random import random
+from Game import GameRunner, Room
+from random import random, choice
+
+
+def create_room(gamedb, bot, compiler, size):
+    stokens = gamedb.get_school_tokens()
+    pool = []
+    for stoken in stokens:
+        pool += gamedb.get_tokens_for_school(stoken)
+
+    bots = [bot]
+    while True:
+        token = choice(pool)
+        code = gamedb.get_code(token)
+        try:
+            prog = compiler.compile(code)
+            bots += [prog]
+            if len(bots) >= size:
+                return Room(bots)
+        except:
+            print("Couldn't compile code for '{}' in '{}'".format(token, gamedb.get_school_for_token(token)))
+
+
+def create_room_for_school(gamedb, stoken):
+    # TODO: write this.
+    raise Exception("Not Implemented!")
 
 
 def avg(scores):

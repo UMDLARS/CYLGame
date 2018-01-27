@@ -9,7 +9,9 @@ import shutil
 import flask_classful
 from flask import escape
 import flaskext.markdown as flask_markdown
-from Game import GameRunner
+
+from CYLGame.Comp import create_room
+from Game import GameRunner, Room
 from Game import GameLanguage
 from Game import average
 from Database import GameDB
@@ -151,9 +153,15 @@ class GameServer(flask_classful.FlaskView):
             prog = self.compiler.compile(code)
         except:
             return flask.jsonify(error="Code did not compile")
-        runner = GameRunner(self.game, prog)
+        room = Room([prog])
+        if self.game.MULTIPLAYER:
+            room = create_room(self.gamedb, prog, self.compiler, self.game.get_number_of_players())
+        runner = GameRunner(self.game, room)
         try:
-            result = ujson.dumps(runner.run_for_playback(seed=seed))
+            res = runner.run_for_playback(seed=seed)
+            res["screen"] = room.screen_cap
+            res["debug"] = room.debug_vars[prog]
+            result = ujson.dumps(res)
         except Exception as e:
             print(e)
             return flask.jsonify(error="Your bot ran into an error at runtime.\n"

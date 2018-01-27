@@ -71,6 +71,7 @@ class Game(object):
     GAME_TITLE = ""
     CHAR_SET = data_file("fonts/terminal8x8_gs_ro.png")
     TURN_BASED = False  # TODO: document
+    MULTIPLAYER = False  # TODO: document
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -124,6 +125,14 @@ class Game(object):
                 ord("e"): "Northeast", ord("c"): "Southeast", ord("q"): "Northwest",
                 ord("z"): "Southwest"}
 
+    @staticmethod
+    def get_number_of_players():
+        """This method is only for multi-player games to implement.
+        Returns:
+            int: The number of players needed to play the game.
+        """
+        raise Exception("Not implemented!")
+
 
 class Room(object):
     def __init__(self, bots=None):
@@ -176,16 +185,16 @@ class GameRunner(object):
             self.current_player = 0
         vars = {}
         while game.is_running():
-            screen = self.__run_bot_turn(framebuffer, game, vars, capture_screen=playback)
+            screen = self.__run_next_turn(framebuffer, game, playback=playback)
             if screen and playback:
                 screen_cap += [screen]
-                self.room.set_playback(screen_cap)
-                for player in self.players:
-                    self.room.set_bot_debug(player.bot, player.debug_vars)
             else:
                 break
 
         if playback:
+            self.room.set_playback(screen_cap)
+            for player in self.players:
+                self.room.set_bot_debug(player.prog, player.debug_vars)
             return {"seed": int2base(seed, 36)}
         else:  # if score
             return game.get_score()
@@ -283,6 +292,9 @@ class GameRunner(object):
                     else:
                         human_vars[name] = val
                 player.debug_vars += [human_vars]
+
+        game.update()
+
         return screen_cap
 
 
