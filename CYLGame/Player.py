@@ -4,8 +4,11 @@ import traceback
 
 # A template class for the Prog for the Player.
 class Prog(object):
-    # The `options` attribute is reserved for the GameRunner
-    def run(self, static_vars=None, max_op_count=-1):
+    def __init__(self):
+        # The `options` attribute is reserved for the GameRunner
+        self.options = {}
+
+    def run(self, state=None, max_op_count=-1):
         pass
 
 
@@ -15,7 +18,7 @@ class UserProg(Prog):
         self.options = {}
 
     def run(self, *args, **kwargs):
-        return {"move": self.key}
+        return {"move": ord(self.key)}
 
 
 class Player(object):
@@ -61,7 +64,7 @@ class DefaultGridPlayer(Player):
     def update_state(self, state):
         # remove consts
         for key in self.bot_consts:
-            state.pop(key)
+            state.pop(key, None)
 
         if self.debugging:
             human_vars = {}

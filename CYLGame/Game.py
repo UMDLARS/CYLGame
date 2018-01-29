@@ -106,12 +106,28 @@ class Game(object):
         raise Exception("Not implemented!")
 
     @staticmethod
+    def default_prog_for_computer():
+        """This method is only for multi-player games to implement.
+        Returns:
+            type[Prog]
+        """
+        raise Exception("Not implemented!")
+
+    @staticmethod
     def get_intro():
         raise Exception("Not implemented!")
 
     @staticmethod
     def get_move_consts():
         return ConstMapping()
+
+    @staticmethod
+    def get_number_of_players():
+        """This method is only for multi-player games to implement.
+        Returns:
+            int: The number of players needed to play the game.
+        """
+        raise Exception("Not implemented!")
 
 
 class NonGridGame(Game):
@@ -232,14 +248,6 @@ class GridGame(Game):
         return ConstMapping({"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
                 "northeast": ord("e"), "southeast": ord("c"), "northwest": ord("q"), "southwest": ord("z")})
 
-    @staticmethod
-    def get_number_of_players():
-        """This method is only for multi-player games to implement.
-        Returns:
-            int: The number of players needed to play the game.
-        """
-        raise Exception("Not implemented!")
-
 
 class GameRunner(object):
     def __init__(self, game_class, room=None):
@@ -250,9 +258,6 @@ class GameRunner(object):
         else:
             self.room = room  # type: Room
         self.players = []
-
-        # self.BOT_CONSTS = self.game_class.get_move_consts()
-        # self.CONST_NAMES = self.game_class.get_move_names()
 
     def __run_for(self, score=False, playback=False, seed=None):
         assert len(self.room.bots) > 0  # Make sure that we have a bot to run
@@ -272,7 +277,6 @@ class GameRunner(object):
                 bot.options["debug"] = True
 
             self.players += [game.create_new_player(bot)]
-
 
         screen_cap = []
         if game.TURN_BASED:
@@ -341,6 +345,11 @@ class GameRunner(object):
         frame_updated = True
 
         game.init_board()
+        players = []
+        if game.MULTIPLAYER:
+            computer_bot_class = game.default_prog_for_computer()
+            for _ in range(game.get_number_of_players() - 1):
+                players += [game.create_new_player(computer_bot_class())]
         player = game.create_new_player(UserProg())
 
         while game.is_running():
@@ -349,7 +358,9 @@ class GameRunner(object):
                 # TODO: fix
                 player.prog.key = key
                 player.run_turn()
-                game.update()
+                for comp_player in players:
+                    comp_player.run_turn()
+                game.do_turn()
                 frame_updated = True
 
             if frame_updated:
