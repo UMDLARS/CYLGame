@@ -184,7 +184,11 @@ class GameServer(flask_classful.FlaskView):
             return flask.jsonify(error="Code did not compile")
         room = Room([prog])
         if self.game.MULTIPLAYER:
-            room = create_room(self.gamedb, prog, self.compiler, self.game.get_number_of_players())
+            computer_bot_class = self.game.default_prog_for_computer()
+            players = []
+            for _ in range(self.game.get_number_of_players() - 1):
+                players += [computer_bot_class()]
+            room = Room([prog] + players)
         runner = GameRunner(self.game, room)
         try:
             res = runner.run_for_playback(seed=seed)
