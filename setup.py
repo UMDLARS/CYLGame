@@ -18,5 +18,10 @@ setup(name='CYLGame',
       author_email='123.jonathan@gmail.com',
       license='MIT',
       packages=['CYLGame'],
-      zip_safe=False
+      zip_safe=False,
+      classifiers=[
+            # Complete list of classifiers: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+            "Development Status :: 3 - Alpha",
+            "Programming Language :: Python :: 2.7",
+      ]
       )
