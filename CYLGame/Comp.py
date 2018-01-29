@@ -101,14 +101,23 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
 
 
 class Ranking(object):
-    pass
-
+    def __init__(self, bots):
+        bots.reverse()
+        self.ranks = dict(enumerate(bots))
 
 class MultiplayerComp(object):
+    RUN_FACTOR = 4
     def __init__(self, bots, room_size):
+        """
+
+        Args:
+            bots: (PROG) the players program to be executed and ranked
+            room_size: (INT) the size of the rooms
+        """
         self.room_size = room_size
         self.scores = {}  # Bots:scores
         self.rooms = {}  # Rooms:Rankings
+        self.cur_run = 0
         for bot in bots:
             self.scores[bot] = 0
 
@@ -116,15 +125,32 @@ class MultiplayerComp(object):
         return self
 
     def __setitem__(self, key, value):
+        """
+        ARGS:
+            key (Room): The room to set to ranking
+            value (Ranking): The returned ranking
+        """
         self.rooms[key] = value
+        for key in value.ranks:
+            self.scores[value.ranks[key]] = key
 
     def __next__(self):
         return self.next()
 
     def next(self):
+        if self.cur_run == self.RUN_FACTOR:
+            raise StopIteration()
+
         l = list(self.scores.keys())
         random.shuffle(l)
         p = l[:self.room_size + 1]
         room = Room(p)
         self.rooms[room] = None
+        self.cur_run += 1
         return room
+
+    @staticmethod
+    def sim_multiplayer(s_token, gamedb, game):
+        assert gamedb is not None
+        assert gamedb.is_school_token(s_token)
+        stokens = gamedb.get_school_tokens()
