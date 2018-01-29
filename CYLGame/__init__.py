@@ -1,4 +1,5 @@
-from .Game import Game
+from .Game import GridGame
+from .Game import NonGridGame
 from .Game import GameLanguage
 from .Game import GameRunner
 from .Game import run

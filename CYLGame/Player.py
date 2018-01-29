@@ -1,3 +1,5 @@
+import sys
+import traceback
 
 
 # A template class for the Prog for the Player.
@@ -10,6 +12,7 @@ class Prog(object):
 class UserProg(Prog):
     def __init__(self):
         self.key = None
+        self.options = {}
 
     def run(self, *args, **kwargs):
         return {"move": self.key}
@@ -19,15 +22,59 @@ class Player(object):
     def __init__(self, prog):
         self.prog = prog
         self.prev_vars = {}
-        self.debug_vars = None
+        self.debugging = prog.options.get("debug", False)
+        self.debug_vars = []  # TODO: Maybe make this into a class.
 
-    def make_move(self, state):
-        nxt_state = self.prog.run(state)
-        self.handle_move(dict(nxt_state))
-        return nxt_state
+    def run_turn(self):
+        try:
+            nxt_state = self.prog.run(self.get_state())
+            self.update_state(dict(nxt_state))
+            self.prev_vars = nxt_state
+        except:
+            traceback.print_exc(file=sys.stdout)
+            print("Player class had an error!")
+            self.update_state({})  # if the program had an error pass an empty state.
+            self.prev_vars = {}
 
-    def handle_move(self, state):
-        raise Exception("Not Implemented!")
+    def get_state(self):
+        raise Exception("Not implemented!")
+
+
+class DefaultGridPlayer(Player):
+    """Make sure that all bot_vars are updated in game.do_turn"""
+    def __init__(self, prog, bot_consts):
+        """
+        Args:
+             prog(Prog):
+             bot_consts(ConstMapping):
+        """
+        super(DefaultGridPlayer, self).__init__(prog)
+        self.bot_consts = bot_consts
+        self.bot_vars = {}
+
+    def get_state(self):
+        state = dict(self.prev_vars)
+        state.update(self.bot_consts)
+        state.update(self.bot_vars)
+        return state
+
+    def update_state(self, state):
+        # remove consts
+        for key in self.bot_consts:
+            state.pop(key)
+
+        if self.debugging:
+            human_vars = {}
+            for name, val in state.items():
+                if val in self.bot_consts:
+                    human_vars[name] = self.bot_consts[val] + " (" + str(val) + ")"
+                elif str(val) == str(True):
+                    human_vars[name] = 1
+                elif str(val) == str(False):
+                    human_vars[name] = 0
+                else:
+                    human_vars[name] = val
+            self.debug_vars += [human_vars]
 
 
 class Room(object):
@@ -106,3 +153,27 @@ class Room(object):
 #
 #     def get_debug_vars(self):
 #         return self.debug_vars
+
+
+# vars = dict(player.prev_vars)
+# vars.update(self.BOT_CONSTS)
+# vars.update(game.get_vars(player))
+# nxt_vars = player.make_move(vars)
+#
+# # remove consts
+# for key in self.BOT_CONSTS:
+#     nxt_vars.pop(key)
+#
+# player.prev_vars = nxt_vars
+# if playback:
+#     human_vars = {}
+#     for name, val in nxt_vars.items():
+#         if val in self.CONST_NAMES:
+#             human_vars[name] = self.CONST_NAMES[val] + " (" + str(val) + ")"
+#         elif str(val) == str(True):
+#             human_vars[name] = 1
+#         elif str(val) == str(False):
+#             human_vars[name] = 0
+#         else:
+#             human_vars[name] = val
+#     player.debug_vars += [human_vars]

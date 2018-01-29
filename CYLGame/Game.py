@@ -1,3 +1,4 @@
+from __future__ import division
 import os.path
 import random
 import string
@@ -24,7 +25,7 @@ def int2base(x, base):
 
     while x:
         digits.append(digs[x % base])
-        x /= base
+        x //= base
 
     if sign < 0:
         digits.append('-')
@@ -69,6 +70,8 @@ class Game(object):
     SCREEN_HEIGHT = 0
     GAME_TITLE = ""
     OPTIONS = None
+    MULTIPLAYER = False  # TODO: document
+    TURN_BASED = False  # TODO: document
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -78,11 +81,11 @@ class Game(object):
         """
         raise Exception("Not implemented!")
 
-    def create_new_player(self, prog, options=None):
-        """This creates a new oject that inherits from the Player class.
+    def create_new_player(self, prog):
+        """This creates n new objects that inherits from the Player class.
 
         Returns:
-            An object that inherets from the Player class with the given program.
+            n new objects that inherit from the Player class with the given program.
         """
         raise Exception("Not implemented!")
 
@@ -108,11 +111,7 @@ class Game(object):
 
     @staticmethod
     def get_move_consts():
-        return {}
-
-    @staticmethod
-    def get_move_names():
-        return {}
+        return ConstMapping()
 
 
 class NonGridGame(Game):
@@ -124,7 +123,48 @@ class NonGridGame(Game):
 
     def get_vars_for_bot(self):
         raise Exception("Not Implemented!")
-    
+
+
+class ConstMapping(dict):
+    def __init__(self, seq=None, **kwargs):
+        """
+        dict() -> new empty dictionary
+        dict(mapping) -> new dictionary initialized from a mapping object's
+            (key, value) pairs
+        dict(iterable) -> new dictionary initialized as if via:
+            d = {}
+            for k, v in iterable:
+                d[k] = v
+        dict(**kwargs) -> new dictionary initialized with the name=value pairs
+            in the keyword argument list.  For example:  dict(one=1, two=2)
+        # (copied from class doc)
+        """
+        super(ConstMapping, self).__init__()
+        if isinstance(seq, dict):
+            for v, k in seq.items():
+                self[v] = k
+        elif kwargs:
+            for v, k in kwargs:
+                self[v] = k
+        else:
+            for v, k in seq:
+                self[v] = k
+
+    def __setitem__(self, key, value):
+        if key in self:
+            del self[key]
+        if value in self:
+            del self[value]
+        dict.__setitem__(self, key, value)
+        dict.__setitem__(self, value, key)
+
+    def __delitem__(self, key):
+        dict.__delitem__(self, self[key])
+        dict.__delitem__(self, key)
+
+    def __len__(self):
+        return dict.__len__(self) // 2
+
 
 class GridGame(Game):
     WEBONLY = False
@@ -135,8 +175,6 @@ class GridGame(Game):
     CHAR_HEIGHT = 8
     GAME_TITLE = ""
     CHAR_SET = data_file("fonts/terminal8x8_gs_ro.png")
-    TURN_BASED = False  # TODO: document
-    MULTIPLAYER = False  # TODO: document
     __frame_buffer = None
 
     def is_running(self):
@@ -147,7 +185,7 @@ class GridGame(Game):
         """
         raise Exception("Not implemented!")
 
-    def get_new_player(self, prog):  # TODO: add option to create computer, user or bot players.
+    def create_new_player(self, prog):  # TODO: add option to create computer, user or bot players.
         """ TODO: write this
         """
         raise Exception("Not Implemented!")
@@ -191,14 +229,8 @@ class GridGame(Game):
 
     @staticmethod
     def get_move_consts():
-        return {"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
-                "northeast": ord("e"), "southeast": ord("c"), "northwest": ord("q"), "southwest": ord("z")}
-
-    @staticmethod
-    def get_move_names():
-        return {ord("w"): "North", ord("s"): "South", ord("a"): "West", ord("d"): "East",
-                ord("e"): "Northeast", ord("c"): "Southeast", ord("q"): "Northwest",
-                ord("z"): "Southwest"}
+        return ConstMapping({"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
+                "northeast": ord("e"), "southeast": ord("c"), "northwest": ord("q"), "southwest": ord("z")})
 
     @staticmethod
     def get_number_of_players():
@@ -219,8 +251,8 @@ class GameRunner(object):
             self.room = room  # type: Room
         self.players = []
 
-        self.BOT_CONSTS = self.game_class.get_move_consts()
-        self.CONST_NAMES = self.game_class.get_move_names()
+        # self.BOT_CONSTS = self.game_class.get_move_consts()
+        # self.CONST_NAMES = self.game_class.get_move_names()
 
     def __run_for(self, score=False, playback=False, seed=None):
         assert len(self.room.bots) > 0  # Make sure that we have a bot to run
@@ -230,24 +262,35 @@ class GameRunner(object):
             seed = random.randint(0, sys.maxsize)
         game = self.game_class(random.Random(seed))
 
+        game.init_board()
         self.players = []
         for bot in self.room.bots:
-            self.players += [game.get_new_player(bot)]
+            # TODO: This is a hack. Remove me sometime.
+            if not hasattr(bot, "options"):
+                bot.options = {}
+            if playback:
+                bot.options["debug"] = True
 
-        framebuffer = GridFrameBuffer(game.SCREEN_WIDTH, game.SCREEN_HEIGHT)
-        if playback:
-            screen_cap = []
-            for player in self.players:
-                player.debug_vars = []
+            self.players += [game.create_new_player(bot)]
+
+
+        screen_cap = []
         if game.TURN_BASED:
             self.current_player = 0
-        vars = {}
         while game.is_running():
-            screen = self.__run_next_turn(framebuffer, game, playback=playback)
-            if screen and playback:
-                screen_cap += [screen]
-            else:
-                break
+            if playback:
+                screen_cap += [game.get_frame()]
+
+            players = self.players
+            if game.TURN_BASED:
+                players = [self.players[self.current_player]]
+                self.current_player = (self.current_player + 1) % len(self.players)
+                # TODO: sync screen cap and debug vars.
+
+            for player in players:
+                player.run_turn()
+
+            game.do_turn()
 
         if playback:
             self.room.set_playback(screen_cap)
@@ -297,14 +340,15 @@ class GameRunner(object):
         frame_buffer = GridFrameBuffer(*charset.pix_size_to_char(display.get_size()), charset=charset)
         frame_updated = True
 
-        player = game.get_new_player(UserProg())
+        game.init_board()
+        player = game.create_new_player(UserProg())
 
         while game.is_running():
             clock.tick(FPS)
             for key in display.get_keys():
                 # TODO: fix
                 player.prog.key = key
-                player.make_move(None)
+                player.run_turn()
                 game.update()
                 frame_updated = True
 
@@ -312,49 +356,6 @@ class GameRunner(object):
                 game.draw_screen(frame_buffer)
                 display.update(frame_buffer)
                 frame_updated = False
-
-    def __run_next_turn(self, framebuffer, game, playback=True):
-        """run_bot will do a single bot turn"""
-        # if prev_vars is None:
-        #     prev_vars = dict()
-
-        screen_cap = None
-        if playback:
-            screen_cap = game.get_frame()
-
-        players = self.players
-        if game.TURN_BASED:
-            players = [self.players[self.current_player]]
-            self.current_player = (self.current_player + 1) % len(self.players)
-            # TODO: sync screen cap and debug vars.
-
-        for player in players:
-            vars = dict(player.prev_vars)
-            vars.update(self.BOT_CONSTS)
-            vars.update(game.get_vars(player))
-            nxt_vars = player.make_move(vars)
-
-            # remove consts
-            for key in self.BOT_CONSTS:
-                nxt_vars.pop(key)
-
-            player.prev_vars = nxt_vars
-            if playback:
-                human_vars = {}
-                for name, val in nxt_vars.items():
-                    if val in self.CONST_NAMES:
-                        human_vars[name] = self.CONST_NAMES[val] + " (" + str(val) + ")"
-                    elif str(val) == str(True):
-                        human_vars[name] = 1
-                    elif str(val) == str(False):
-                        human_vars[name] = 0
-                    else:
-                        human_vars[name] = val
-                player.debug_vars += [human_vars]
-
-        game.update()
-
-        return screen_cap
 
 
 def run(game_class, avg_game_func=average):

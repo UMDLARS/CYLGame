@@ -1,5 +1,6 @@
 from __future__ import print_function
-from Game import GameRunner, Room
+from .Game import GameRunner
+from .Player import Room
 from random import random, choice
 
 
@@ -9,12 +10,17 @@ def create_room(gamedb, bot, compiler, size):
     for stoken in stokens:
         pool += gamedb.get_tokens_for_school(stoken)
 
+    if len(pool) == 0:
+        from copy import deepcopy
+        return Room([bot] + [deepcopy(bot) for _ in range(size - 1)])
+
     bots = [bot]
     while True:
         token = choice(pool)
-        code = gamedb.get_code(token)
+        code, options = gamedb.get_code_and_options(token)
         try:
             prog = compiler.compile(code)
+            prog.options = options
             bots += [prog]
             if len(bots) >= size:
                 return Room(bots)

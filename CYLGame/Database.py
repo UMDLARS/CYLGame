@@ -256,7 +256,7 @@ class GameDB(object):
             fp.write(unicode(score))
 
     def get_code_and_options(self, token):
-        code, options = None, None
+        code, options = None, {}
         if os.path.exists(self.__get_dir_for_token(token, "code.lp")):
             with io.open(self.__get_dir_for_token(token, "code.lp"), "r", encoding="utf8") as fp:
                 code = fp.read()

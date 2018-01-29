@@ -12,7 +12,8 @@ from flask import escape
 import flaskext.markdown as flask_markdown
 
 from CYLGame.Comp import create_room
-from Game import GameRunner, Room
+from Game import GameRunner, GridGame
+from Player import Room
 from Game import GameLanguage
 from Game import average
 from Database import GameDB
@@ -141,7 +142,14 @@ class GameServer(flask_classful.FlaskView):
             prog = self.compiler.compile(code)
         except:
             return flask.jsonify(error="Code did not compile")
-        runner = GameRunner(self.game, prog, options)
+        if self.game.MULTIPLAYER:
+            self.gamedb.save_code(token, code, options)
+            name = find_name_from_code(code)
+            if name:
+                self.gamedb.save_name(token, name)
+            return flask.jsonify(score="still being computed. Check scoreboard later.")
+        room = Room([prog])
+        runner = GameRunner(self.game, room)
         try:
             score = runner.run_for_avg_score(times=self.avg_game_count, func=self._avg_game_func)
             self.gamedb.save_avg_score(token, score)
@@ -161,6 +169,8 @@ class GameServer(flask_classful.FlaskView):
         code = flask.request.get_json(silent=True).get('code', '')
         seed_str = flask.request.get_json(silent=True).get('seed', '')
         options = flask.request.get_json(silent=True).get('options', None)
+        if options is None:
+            options = {}
         seed = random.randint(0, sys.maxint)
         if seed_str:
             try:
@@ -181,7 +191,7 @@ class GameServer(flask_classful.FlaskView):
             res["screen"] = room.screen_cap
             res["debug"] = room.debug_vars[prog]
             result = ujson.dumps(res)
-        except Exception as e:
+        except Exception:
             traceback.print_exc(file=sys.stdout)
             return flask.jsonify(error="Your bot ran into an error at runtime.\n"
                                        "If you think that your bot is correct, please file a bug report!\n"
@@ -202,7 +212,7 @@ class GameServer(flask_classful.FlaskView):
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         else:
-            code, options = self.gamedb.get_code(token)
+            code, options = self.gamedb.get_code_and_options(token)
             return flask.jsonify(code=code, options=options)
 
     def index(self):

@@ -6,7 +6,7 @@ var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 
 var LPHighlightRules = function() {
     var keywords = (
-        "and|is|not|or|if|else"// + "|elif"
+        "and|is|not|or|if|else|elif|for|func"
     );
 
     var builtinConstants = (
@@ -39,17 +39,17 @@ var LPHighlightRules = function() {
     var strPre = "(?:r|u|ur|R|U|UR|Ur|uR)?";
 
     var decimalInteger = "(?:(?:[1-9]\\d*)|(?:0))";
-    var octInteger = "(?:0[oO]?[0-7]+)";
-    var hexInteger = "(?:0[xX][\\dA-Fa-f]+)";
-    var binInteger = "(?:0[bB][01]+)";
-    var integer = "(?:" + decimalInteger + "|" + octInteger + "|" + hexInteger + "|" + binInteger + ")";
+    // var octInteger = "(?:0[oO]?[0-7]+)";
+    // var hexInteger = "(?:0[xX][\\dA-Fa-f]+)";
+    // var binInteger = "(?:0[bB][01]+)";
+    var integer = "(?:" + decimalInteger  + ")"; // + "|" + octInteger + "|" + hexInteger + "|" + binInteger
 
-    var exponent = "(?:[eE][+-]?\\d+)";
-    var fraction = "(?:\\.\\d+)";
-    var intPart = "(?:\\d+)";
-    var pointFloat = "(?:(?:" + intPart + "?" + fraction + ")|(?:" + intPart + "\\.))";
-    var exponentFloat = "(?:(?:" + pointFloat + "|" +  intPart + ")" + exponent + ")";
-    var floatNumber = "(?:" + exponentFloat + "|" + pointFloat + ")";
+    //var exponent = "(?:[eE][+-]?\\d+)";
+    //var fraction = "(?:\\.\\d+)";
+    //var intPart = "(?:\\d+)";
+    //var pointFloat = "(?:(?:" + intPart + "?" + fraction + ")|(?:" + intPart + "\\.))";
+    //var exponentFloat = "(?:(?:" + pointFloat + "|" +  intPart + ")" + exponent + ")";
+    //var floatNumber = "(?:" + exponentFloat + "|" + pointFloat + ")";
 
     var stringEscape =  "\\\\(x[0-9A-Fa-f]{2}|[0-7]{3}|[\\\\abfnrtv'\"]|U[0-9A-Fa-f]{8}|u[0-9A-Fa-f]{4})";
 

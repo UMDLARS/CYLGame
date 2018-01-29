@@ -1,6 +1,6 @@
 from CYLGame.Game import NonGridGame
-from CYLGame.Game import Player
-from CYLGame.Game import GameFrame
+from CYLGame.Player import Player
+from CYLGame.Frame import GameFrame
 from CYLGame import GameLanguage
 import math
 import random
@@ -29,26 +29,26 @@ def rotate_point(angle, point):
 
     return newp
 
-def compute_vector(start, end):
+def compute_vector(start, end, screen_width, screen_height):
     """
-    Computes the vector and distance between two objects, start and end. 
+    Computes the vector and distance between two objects, start and end.
     start and end must have a position attribute which is a list/tuple
     of the x and y coord.
     """
     vector = []
-    half_width = float(TanksGame.SCREEN_WIDTH) / 2.0
+    half_width = float(screen_width) / 2.0
     vector.append(end.position[0] - start.position[0])
     if vector[0] > half_width:
-        vector[0] -= TanksGame.SCREEN_WIDTH
+        vector[0] -= screen_width
     elif vector[0] < -half_width:
-        vector[0] += TanksGame.SCREEN_WIDTH
+        vector[0] += screen_width
 
-    half_height = float(TanksGame.SCREEN_HEIGHT) / 2.0
+    half_height = float(screen_height) / 2.0
     vector.append(end.position[1] - start.position[1])
     if vector[1] > half_height:
-        vector[1] -= TanksGame.SCREEN_HEIGHT
+        vector[1] -= screen_height
     elif vector[1] < -half_height:
-        vector[1] += TanksGame.SCREEN_HEIGHT
+        vector[1] += screen_height
 
     return vector[0]**2 + vector[1]**2, vector
 
@@ -122,7 +122,7 @@ class SensorPlayer(Player):
         sensor["triggered"] = 0
         self.sensors.append(sensor)
 
-    def sensor_calc(self, other, dist_sq, vector):
+    def sensor_calc(self, other, dist_sq, vector, tank_sensor_range):
         """
         See if other is in any of our sensors.
         """
@@ -130,7 +130,7 @@ class SensorPlayer(Player):
             return
 
         # check if they are in our max sensor range
-        if dist_sq > (TanksGame.TANK_SENSOR_RANGE + other.radius)**2:
+        if dist_sq > (tank_sensor_range + other.radius)**2:
             return
         #print("sensor_calc")
         #print(dist_sq, vector, self.angle)
@@ -197,10 +197,10 @@ class SensorGame(NonGridGame):
             for j in range(i + 1, len(players)):
                 if players[j].killer:
                     continue
-                dist_sq, vector = compute_vector(players[i], players[j])
-                players[i].sensor_calc(players[j], dist_sq, vector)
+                dist_sq, vector = compute_vector(players[i], players[j], self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+                players[i].sensor_calc(players[j], dist_sq, vector, self.MAX_SENSOR_RANGE)
                 vector[0] = -vector[0];
                 vector[1] = -vector[1];
-                players[j].sensor_calc(players[i], dist_sq, vector)
+                players[j].sensor_calc(players[i], dist_sq, vector, self.MAX_SENSOR_RANGE)
 
 

@@ -58,6 +58,7 @@ class GridFrameBuffer(FrameBuffer):
         return list(map(copy, self.arr))
 
 
+# TODO: given this class a better name.
 class GameFrame(FrameBuffer):
     def __init__(self):
         self.objs = []
