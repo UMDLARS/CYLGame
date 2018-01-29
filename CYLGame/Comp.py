@@ -41,7 +41,7 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
     assert gamedb is not None
     assert gamedb.is_comp_token(token)
 
-    seeds = [random() for _ in xrange(2*runs+5)]
+    seeds = [random() for _ in xrange(2 * runs + 5)]
 
     for school in gamedb.get_schools_in_comp(token):
         if debug:
@@ -98,3 +98,33 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
         gamedb.set_comp_school_code(token, school, max_code)
     if debug:
         print("All done :)")
+
+
+class Ranking(object):
+    pass
+
+
+class MultiplayerComp(object):
+    def __init__(self, bots, room_size):
+        self.room_size = room_size
+        self.scores = {}  # Bots:scores
+        self.rooms = {}  # Rooms:Rankings
+        for bot in bots:
+            self.scores[bot] = 0
+
+    def __iter__(self):
+        return self
+
+    def __setitem__(self, key, value):
+        self.rooms[key] = value
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        l = list(self.scores.keys())
+        random.shuffle(l)
+        p = l[:self.room_size + 1]
+        room = Room(p)
+        self.rooms[room] = None
+        return room
