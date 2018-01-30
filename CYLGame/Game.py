@@ -317,6 +317,7 @@ class GameRunner(object):
         # TODO: make this able to run in a pool of threads (So it can be run on multiple CPUs)
         for t in range(times):
             scores += [self.__run_for(score=True, seed=seed)]
+            print("TIMES {}".format(t))
         return func(scores)
 
     def run_for_playback(self, seed=None):

@@ -3,7 +3,7 @@ from .Game import NonGridGame
 from .Game import GameLanguage
 from .Game import GameRunner
 from .Game import run
-
+from .Comp import Ranking
 from .Panels import Map
 from .Panels import Panel
 from .Panels import MapPanel

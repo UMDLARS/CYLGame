@@ -117,6 +117,14 @@ class Ranking(object):
             new_rank[k] = self.ranks[k] + other[k]
         return new_rank
 
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        new_rank = {}
+        for k in self.ranks:
+            new_rank[k] = self.ranks[k] + other[k]
+        return new_rank
+
     def add_rank(self, standing, bot):
         self.ranks[bot] += standing
 
@@ -148,10 +156,12 @@ class MultiplayerComp(object):
             value (Ranking): The returned ranking
         """
         self.rooms[key] = value
-        for key in value.ranks:
-            self.scores[value.ranks[key]] = key
-        for bot in key.bots:
-            self.scores[bot] += value.ranks[bot]
+        for k in value.ranks:
+            if k in self.scores:
+                self.scores[k] += value.ranks[k]
+        # for bot in key.bots
+        #     if bot in self.scores:
+        #         self.scores[bot] += value.ranks[bot]
 
 
     def __next__(self):
@@ -197,8 +207,13 @@ class MultiplayerComp(object):
                 print("Couldn't compile code for '{}' in '{}'".format(s, gamedb.get_school_for_token(s_token)))
         tourney = MultiplayerComp(bots, 4, game.default_prog_for_computer())
         for room in tourney:
+            print("Room: " + str(room))
             gamerunner = GameRunner(game, room)
             print(type(gamerunner))
-            MultiplayerComp[room] = gamerunner.run_for_avg_score(times=1, func=(lambda x: sum(x)))
+            def add(x):
+                return sum(x)
+            tourney[room] = gamerunner.run_for_avg_score(times=1, func=add)
 
-        return MultiplayerComp.scores
+        for i in tourney.scores:
+            print("Score {} for Bike: {}".format(tourney.scores[i], str(i)))
+        return tourney.scores
