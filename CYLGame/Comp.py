@@ -1,7 +1,7 @@
 from __future__ import print_function
 from .Game import GameRunner
 from .Player import Room
-from random import random, choice
+from random import random, choice, shuffle
 
 
 def create_room(gamedb, bot, compiler, size):
@@ -50,28 +50,28 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
         max_code = ""
         for student in gamedb.get_tokens_for_school(school):
             if debug:
-                print("Got student '" + student + "'")
+                print("got student '" + student + "'")
             code = gamedb.get_code(student)
             if not code:
                 continue
             if debug:
-                print("Compiling code...")
+                print("compiling code...")
             prog = compiler.compile(code.split("\n"))
             if debug:
-                print("Setting up game runner...")
-            runner = GameRunner(game, prog)
+                print("setting up game runner...")
+            runner = gamerunner(game, prog)
             if debug:
-                print("Simulating...")
-            score = None
+                print("simulating...")
+            score = none
 
             scores = []
             count = 0
             seed = 0
-            # TODO: make this able to run in a pool of threads (So it can be run on multiple CPUs)
+            # todo: make this able to run in a pool of threads (so it can be run on multiple cpus)
             while count < runs:
                 try:
                     if seed >= len(seeds):
-                        print("Ran out of seeds")
+                        print("ran out of seeds")
                         break
                     scores += [runner.run_for_avg_score(times=1, seed=seeds[seed])]
                     # print(scores[-1])
@@ -79,8 +79,8 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
                     # sys.stdout.flush()
                     count += 1
                     seed += 1
-                except Exception as e:
-                    print("There was an error simulating the game (Moving to next seed):", e)
+                except exception as e:
+                    print("there was an error simulating the game (moving to next seed):", e)
                     seed += 1
             score = score_func(scores)
             # score = runner.run_for_avg_score(times=runs)
@@ -102,18 +102,35 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
 
 class Ranking(object):
     def __init__(self, bots):
-        bots.reverse()
-        self.ranks = dict(enumerate(bots))
+        """
+
+        Args:
+            bots: Tuple containing standing and bot id
+        """
+        self.ranks = {}
+        for i in range(0, len(bots)):
+            self.ranks[bots[i]] = i #Key: BOTS Value: RANK
+
+    def __add__(self, other):
+        new_rank = {}
+        for k in self.ranks:
+            new_rank[k] = self.ranks[k] + other[k]
+        return new_rank
+
+    def add_rank(self, standing, bot):
+        self.ranks[bot] += standing
 
 class MultiplayerComp(object):
     RUN_FACTOR = 4
-    def __init__(self, bots, room_size):
+
+    def __init__(self, bots, room_size, default_bot_class):
         """
 
         Args:
             bots: (PROG) the players program to be executed and ranked
             room_size: (INT) the size of the rooms
         """
+        self.default_bot_class = default_bot_class
         self.room_size = room_size
         self.scores = {}  # Bots:scores
         self.rooms = {}  # Rooms:Rankings
@@ -133,6 +150,9 @@ class MultiplayerComp(object):
         self.rooms[key] = value
         for key in value.ranks:
             self.scores[value.ranks[key]] = key
+        for bot in key.bots:
+            self.scores[bot] += value.ranks[bot]
+
 
     def __next__(self):
         return self.next()
@@ -142,15 +162,43 @@ class MultiplayerComp(object):
             raise StopIteration()
 
         l = list(self.scores.keys())
-        random.shuffle(l)
+        shuffle(l)
         p = l[:self.room_size + 1]
+        while len(p) < self.room_size:
+            p += [self.default_bot_class()]
         room = Room(p)
         self.rooms[room] = None
         self.cur_run += 1
         return room
 
     @staticmethod
-    def sim_multiplayer(s_token, gamedb, game):
+    def sim_multiplayer(s_token, gamedb, game, compiler, debug=False):
         assert gamedb is not None
         assert gamedb.is_school_token(s_token)
-        stokens = gamedb.get_school_tokens()
+        students = gamedb.get_tokens_for_school(s_token) #Only getting one school token
+        bots = []
+        for s in students:
+            try:
+                if debug:
+                    print("got student '" + s +  "'")
+                code = gamedb.get_code(s)
+                if not code:
+                    continue
+                if debug:
+                    print("compiling code...")
+                prog = compiler.compile(code.split("\n"))
+                if debug:
+                    print("setting up game runner...")
+                # runner = gamerunner(game, prog)
+                if debug:
+                    print("simulating...")
+                bots += [prog]
+            except:
+                print("Couldn't compile code for '{}' in '{}'".format(s, gamedb.get_school_for_token(s_token)))
+        tourney = MultiplayerComp(bots, 4, game.default_prog_for_computer())
+        for room in tourney:
+            gamerunner = GameRunner(game, room)
+            print(type(gamerunner))
+            MultiplayerComp[room] = gamerunner.run_for_avg_score(times=1, func=(lambda x: sum(x)))
+
+        return MultiplayerComp.scores
