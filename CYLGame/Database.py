@@ -8,44 +8,31 @@ import random
 class GameDB(object):
     TOKEN_LEN = 8
 
-    def __init__(self, game_dir):
-        self.game_dir = game_dir
-        self.data_dir = os.path.join(self.game_dir, "data")
-        self.schools_dir = os.path.join(self.game_dir, "schools")
-        self.competitions_dir = os.path.join(self.game_dir, "competitions")
+    def __init__(self, root_dir):
+        self.root_dir = root_dir
+        self.data_dir = os.path.join(self.root_dir, "data")
+        self.game_dir = os.path.join(self.root_dir, "games")
+        self.schools_dir = os.path.join(self.root_dir, "schools")
+        self.competitions_dir = os.path.join(self.root_dir, "competitions")
         self.__load()
 
     def __load(self):
-        # is_new = False
+        if not os.path.exists(self.root_dir):
+            os.mkdir(self.root_dir)
         if not os.path.exists(self.game_dir):
-            # is_new = True
             os.mkdir(self.game_dir)
         if not os.path.exists(self.data_dir):
-            # is_new = True
             os.mkdir(self.data_dir)
         if not os.path.exists(self.schools_dir):
-            # is_new = True
             os.mkdir(self.schools_dir)
         if not os.path.exists(self.competitions_dir):
             os.mkdir(self.competitions_dir)
 
-        # if is_new:
-        #
-        #     # self.schools = {}
-        #     # self.tokens = {}
-        #     # self.__save()
-        # else:
-        #     obj = ujson.load(open(self.meta_fn, "r"))
-        #     assert "schools" in obj
-        #     assert "tokens" in obj
-        #     self.schools = obj["schools"]
-        #     self.tokens = obj["tokens"]
-
-    # def __save(self):
-    #     ujson.dump({"schools": self.schools, "tokens": self.tokens}, open(self.meta_fn, "w"))
-
     def __get_user_tokens(self):
         return os.listdir(self.data_dir)
+
+    def __get_game_tokens(self):
+        return os.listdir(self.game_dir)
 
     def __get_school_tokens(self):
         return os.listdir(self.schools_dir)
@@ -56,6 +43,11 @@ class GameDB(object):
     def __get_school_user_tokens(self, school_tk):
         if self.is_school_token(school_tk):
             return os.listdir(self.__get_dir_for_token(school_tk, "tokens"))
+        return []
+
+    def __get_user_game_tokens(self, token):
+        if self.is_user_token(token):
+            return os.listdir(self.__get_dir_for_token(token, "games"))
         return []
 
     def __get_new_token(self, tokens=None, prefix=""):
@@ -82,6 +74,8 @@ class GameDB(object):
             assert isinstance(fns, list)
         if self.is_user_token(token):
             return os.path.join(self.data_dir, token, *fns)
+        elif self.is_game_token(token):
+            return os.path.join(self.game_dir, token, *fns)
         elif self.is_school_token(token):
             return os.path.join(self.schools_dir, token, *fns)
         elif self.is_comp_token(token):
@@ -109,6 +103,10 @@ class GameDB(object):
     def is_user_token(self, token):
         return token in self.__get_user_tokens()
 
+    def is_game_token(self, gtoken):
+        gtks = self.__get_game_tokens()
+        return gtoken in gtks
+
     def get_new_token(self, school_tk):
         # Is name needed?
         assert self.is_school_token(school_tk)
@@ -120,6 +118,7 @@ class GameDB(object):
 
         # Create token dir
         os.mkdir(os.path.join(self.data_dir, token))
+        os.mkdir(os.path.join(self.data_dir, token, "games"))
         return token
 
     def add_new_school(self, name=""):
@@ -141,6 +140,20 @@ class GameDB(object):
 
         with io.open(os.path.join(self.competitions_dir, token, "name"), "w", encoding="utf8") as fp:
             fp.write(unicode(name))
+
+        return token
+
+    def add_new_game(self, frames=None, player_tokens=None):
+        token = self.__get_new_token(self.__get_game_tokens(), prefix="G")
+
+        os.mkdir(os.path.join(self.game_dir, token))
+        os.mkdir(os.path.join(self.game_dir, token, "players"))
+
+        if frames is not None:
+            self.save_game_frames(token, frames)
+
+        if player_tokens is not None:
+            self.set_game_players(token, player_tokens)
 
         return token
 
@@ -254,6 +267,31 @@ class GameDB(object):
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "avg_score"), "w", encoding="utf8") as fp:
             fp.write(unicode(score))
+
+    def save_game_frames(self, gtoken, frames):
+        assert os.path.exists(self.__get_dir_for_token(gtoken))
+        with open(self.__get_dir_for_token(gtoken, "frames.json"), "w") as fp:
+            ujson.dump(frames, fp)
+
+    def set_game_players(self, gtoken, player_tokens):
+        assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
+        for token in player_tokens:
+            assert self.is_user_token(token)
+            assert os.path.exists(self.__get_dir_for_token(token, "games"))
+
+            with open(self.__get_dir_for_token(gtoken, ["players", token]), "w") as fp:
+                pass
+
+            with open(self.__get_dir_for_token(token, ["games", gtoken]), "w") as fp:
+                pass
+
+    def get_game_frames(self, gtoken):
+        if os.path.exists(self.__get_dir_for_token(gtoken, "frames.json")):
+            with io.open(self.__get_dir_for_token(gtoken, "frames.json"), "r", encoding="utf8") as fp:
+                return ujson.load(fp)
+
+    def get_games_for_token(self, token):
+        return self.__get_user_game_tokens(token)
 
     def get_code_and_options(self, token):
         code, options = None, {}
