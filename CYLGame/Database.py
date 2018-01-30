@@ -143,7 +143,12 @@ class GameDB(object):
 
         return token
 
-    def add_new_game(self, frames=None, player_tokens=None):
+    def add_new_game(self, frames=None, per_player_data=None, player_tokens=None):
+        if per_player_data is not None:
+            assert player_tokens is None
+        if player_tokens is not None:
+            assert per_player_data is None
+
         token = self.__get_new_token(self.__get_game_tokens(), prefix="G")
 
         os.mkdir(os.path.join(self.game_dir, token))
@@ -153,7 +158,11 @@ class GameDB(object):
             self.save_game_frames(token, frames)
 
         if player_tokens is not None:
-            self.set_game_players(token, player_tokens)
+            for player in player_tokens:
+                self.set_game_player(token, player)
+        elif per_player_data is not None:
+            for player, data in per_player_data.items():
+                self.set_game_player(token, player, data)
 
         return token
 
@@ -273,21 +282,27 @@ class GameDB(object):
         with open(self.__get_dir_for_token(gtoken, "frames.json"), "w") as fp:
             ujson.dump(frames, fp)
 
-    def set_game_players(self, gtoken, player_tokens):
+    def set_game_player(self, gtoken, token, data=None):
         assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
-        for token in player_tokens:
-            assert self.is_user_token(token)
-            assert os.path.exists(self.__get_dir_for_token(token, "games"))
+        assert self.is_user_token(token)
+        assert os.path.exists(self.__get_dir_for_token(token, "games"))
 
-            with open(self.__get_dir_for_token(gtoken, ["players", token]), "w") as fp:
-                pass
+        os.mkdir(self.__get_dir_for_token(gtoken, ["players", token]))
 
-            with open(self.__get_dir_for_token(token, ["games", gtoken]), "w") as fp:
-                pass
+        with open(self.__get_dir_for_token(gtoken, ["players", token, "data.json"]), "w") as fp:
+            ujson.dump(data, fp)
+
+        with open(self.__get_dir_for_token(token, ["games", gtoken]), "w"):
+            pass
 
     def get_game_frames(self, gtoken):
         if os.path.exists(self.__get_dir_for_token(gtoken, "frames.json")):
             with io.open(self.__get_dir_for_token(gtoken, "frames.json"), "r", encoding="utf8") as fp:
+                return ujson.load(fp)
+
+    def get_player_game_data(self, gtoken, token):
+        if os.path.exists(self.__get_dir_for_token(gtoken, ["players", token, "data.json"])):
+            with io.open(self.__get_dir_for_token(gtoken, ["players", token, "data.json"]), "r", encoding="utf8") as fp:
                 return ujson.load(fp)
 
     def get_games_for_token(self, token):
