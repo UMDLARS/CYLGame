@@ -117,12 +117,14 @@ LP supports loops in the form of `for` loops, which are loops that have a dedica
 The for loop is declared with the `for` operator. Following that are three statements that are separated by a semicolon.
 
  * The first statement initializes the loop counting variable (here, `i`). While `0` is a common starting variable, it can be set to any numeric value.
- * The second statement is the *conditional* that determines when the `for` loop will run. Here, the loop will execute *as long as i is less than 10*
- * The third statement is the *incrementor*, which says how to change the loop variable `i` after executing the loop. Here, `i` is incremented by 1.
+ * The second statement is the *conditional*. The `for` loop will run *as long as the conditional evaluates to true*. In the example above, the loop will execute *as long as i is less than 10*
+ * The third statement is the *incrementor*, which says how to change the loop variable `i` after each execution of the loop. Here, `i` is incremented by 1.
  
- Following these three statements is the loop code, which is contained in curly braces (`{}`). Here, the loop code increments the value of `a` by 1, but the loop code could be arbitrarily long (it could do something interesting, for example).
+Following these three statements is the loop code, which is contained in curly braces (`{}`). Here, the loop code increments the value of `a` by 1. However, in practice the loop code could be arbitrarily long. 
 
-FIXME
+LP only supports `for` loops, but other loops (like `while` loops, for example) can be rewritten in the form of a `for` loop. To "`break`" out of a `for` loop, just set the iterator value to something that will evaluate to false for the next loop.
+
+Finally, your program will only execute a certain number of operations per turn before being terminated. In other words, if your program gets stuck in an infinite loop, it will be stopped.
 
 ### Functions
 #### Introduction
