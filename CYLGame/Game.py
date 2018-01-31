@@ -241,7 +241,7 @@ class GameRunner(object):
             read_bot_state(prev_vars)
         vars.update(self.BOT_CONSTS)
         vars.update(game.get_vars_for_bot())
-        nxt_vars = self.bot.run(vars)
+        nxt_vars = self.bot.run(vars, max_op_count=500000)
 
         # remove consts
         for key in self.BOT_CONSTS:
