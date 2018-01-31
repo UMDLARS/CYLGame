@@ -23,7 +23,7 @@ Assigning to a variable that exists *changes its value*. Assigning to a variable
 
 LP supports arrays -- a list of scalar variables stored under one name that are accessed by specifying the element of the list you want. Arrays are accessed using the notation `a[n]` where `a` is the "name" of the array variable, the brackets (`[]`) indicate that you are accesssing a specific element of the array, and the number `n` specifies which element you want. Arrays are *0-indexed* -- meaning that the first element of an array is the *0th* element. So, if an array `a` contained the scalar values *1, 2* and *3* (in that order), then `a[0]` would be `1`, `a[1]` would be `2` and `a[2]` would be `3`. 
 
-**Note:** You cannot create arrays yourself; you can only use an array if one is provided to you by the game. 
+**Note:** You cannot create arrays yourself; you can only use an array if one is provided to you by the game. These arrays (e.g., the map) are *read-only* in the sense that any changes you make to the array will be ignored during the next turn. In other words, you can't change the map state simply by attempting to modify the map array.
 
 ### Two-Dimensional Arrays
 
