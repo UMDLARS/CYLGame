@@ -3,6 +3,9 @@ import os
 import re
 import sys
 import ujson
+import multiprocessing
+from multiprocessing import Process
+
 import flask
 import random
 import shutil
@@ -10,6 +13,9 @@ import traceback
 import flask_classful
 from flask import escape
 import flaskext.markdown as flask_markdown
+from gevent.server import _tcp_listener
+from gevent.wsgi import WSGIServer
+
 from Game import GameRunner
 from Game import GameLanguage
 from Game import average
@@ -187,8 +193,8 @@ class GameServer(flask_classful.FlaskView):
                                 intro_text=intro)
 
     @classmethod
-    def serve(cls, game, host=None, port=None, compression=False, language=GameLanguage.LITTLEPY,
-              avg_game_count=10, game_data_path="temp_game", avg_game_func=average):
+    def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,
+              avg_game_count=10, num_of_threads=None, game_data_path="temp_game", avg_game_func=average):
         cls.game = game
         cls.host = host
         cls.port = port
@@ -213,14 +219,20 @@ class GameServer(flask_classful.FlaskView):
             flask_compress.Compress(cls.app)
         cls.register(cls.app)
         cls.__load_language()
-        if cls.host and cls.port:
-            cls.app.run(cls.host, cls.port)
-        elif cls.port:
-            cls.app.run(port=cls.port)
-        elif cls.host:
-            cls.app.run(cls.host)
-        else:
-            cls.app.run()
+
+        listener = _tcp_listener((cls.host, cls.port))
+
+        def serve_forever(listener):
+            WSGIServer(listener, cls.app).serve_forever()
+
+        if num_of_threads is None:
+            num_of_threads = multiprocessing.cpu_count()
+
+        for i in range(num_of_threads):
+            Process(target=serve_forever, args=(listener,)).start()
+
+        serve_forever(listener)
+
         print("Dying...")
         if os.path.exists(static_file(os.path.join("fonts", cls.charset))):
             print("Removing charset...")
