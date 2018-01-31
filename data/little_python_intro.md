@@ -107,20 +107,34 @@ Loops in a programming language allow a program to run a particular section of c
 
 LP supports loops in the form of `for` loops, which are loops that have a dedicated variable that counts each loop and a conditional statement that determines when the loop stops. LP's `for` loop syntax is very similar to other classic languages and looks like the following:
 
-`for i=0; i < 10; i = i + 1 
-{
-  a = a + 1
-}`
+     for i=0; i < 10; i = i + 1 
+     {
+           a = a + 1
+     }
 
 (Whitespace is not important in LP, so you could format this in any number of ways.)
 
-The for loop is declared with the `for` operator. Following that are three statements that are separated by a semicolon.
+The for loop is declared with the `for` operator. Following that are three statements separated by semicolons.
 
- * The first statement initializes the loop counting variable (here, `i`). While `0` is a common starting variable, it can be set to any numeric value.
+ * The first statement initializes the loop counting variable (here, `i = 0`, i.e., `i` is set to 0). While 0 is a common starting variable, it can be set to any numeric value.
  * The second statement is the *conditional*. The `for` loop will run *as long as the conditional evaluates to true*. In the example above, the loop will execute *as long as i is less than 10*
  * The third statement is the *incrementor*, which says how to change the loop variable `i` after each execution of the loop. Here, `i` is incremented by 1.
  
-Following these three statements is the loop code, which is contained in curly braces (`{}`). Here, the loop code increments the value of `a` by 1. However, in practice the loop code could be arbitrarily long. 
+Following these three statements is the loop code, which is contained in curly braces (`{}`). Here, the loop code increments the value of `a` by 1. However, in practice the loop code could be arbitrarily long.
+
+In our example above, we count from 0 up to 9 (the last value where `i < 10`), but we could have also counted down from 10 to 1 if we used the following loop:
+
+     for i=10; i > 0; i = i - 1 
+     {
+           a = a + 1
+     }
+
+We can also skip multiple values; `for` loops do not have to increment by one. For example:
+ 
+     for i=100; i > 0; i = i - 10 
+     {
+           a = a + 1
+     }
 
 LP only supports `for` loops, but other loops (like `while` loops, for example) can be rewritten in the form of a `for` loop. To "`break`" out of a `for` loop, just set the iterator value to something that will evaluate to false for the next loop.
 
