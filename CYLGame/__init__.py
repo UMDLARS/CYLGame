@@ -2,6 +2,7 @@ from .Game import Game
 from .Game import GameLanguage
 from .Game import GameRunner
 from .Game import run
+from .Frame import GridFrameBuffer
 
 from .Panels import Map
 from .Panels import Panel
