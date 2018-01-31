@@ -105,13 +105,39 @@ For example:
 
 Loops in a programming language allow a program to run a particular section of code a specified number of times. 
 
+LP supports loops in the form of `for` loops, which are loops that have a dedicated variable that counts each loop and a conditional statement that determines when the loop stops. LP's `for` loop syntax is very similar to other classic languages and looks like the following:
+
+`for i=0; i < 10; i = i + 1 
+{
+  a = a + 1
+}`
+
+(Whitespace is not important in LP, so you could format this in any number of ways.)
+
+The for loop is declared with the `for` operator. Following that are three statements that are separated by a semicolon.
+
+ * The first statement initializes the loop counting variable (here, `i`). While `0` is a common starting variable, it can be set to any numeric value.
+ * The second statement is the *conditional* that determines when the `for` loop will run. Here, the loop will execute *as long as i is less than 10*
+ * The third statement is the *incrementor*, which says how to change the loop variable `i` after executing the loop. Here, `i` is incremented by 1.
+ 
+ Following these three statements is the loop code, which is contained in curly braces (`{}`). Here, the loop code increments the value of `a` by 1, but the loop code could be arbitrarily long (it could do something interesting, for example).
+
 FIXME
 
 ### Functions
+#### Introduction
 
 Functions allow programmers to create a piece of code -- a method for doing something (also called an algorithm) -- and give it a name that can be referenced later for easy reuse. Functions can take arguments that customize it's behavior in some way -- that tell the function how to behave within the constraints of the algorithm. In other words, functions are basically named programs *inside* of programs.
 
 As an analogy, suppose you make omelets so frequently that you have it down to "a process" that you repeat every time you do it. That's sort of like a function in a program. Let's call your function `make_omelet`. But of course, you can make many different types of omelet, so `make_omelet` takes "arguments" (sometimes called "parameters") that change how the function operates. For example, you might be able call `make_omelet` in several ways, e.g., `make_omelet(veggie)`, `make_omelet(denver)` or `make_omelet(cheese)`. Inside your `make_omelet` "code" are rules for how to make each type of omelet. This is efficient, since most of the steps for making an omelet are the same, regardless of the type of omelet you're making.
+
+#### Declaring Functions 
+
+To declare a function without parameters, use the `func` keyword, followed by the function name. After this, put the code for the function between curly braces (`{}`). For example, the following function adds one to ... FIXME
+
+Return values are necessary!
+
+#### Declaring Functions With Parameters
 
 FIXME
 
