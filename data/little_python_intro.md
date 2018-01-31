@@ -131,15 +131,59 @@ Functions allow programmers to create a piece of code -- a method for doing some
 
 As an analogy, suppose you make omelets so frequently that you have it down to "a process" that you repeat every time you do it. That's sort of like a function in a program. Let's call your function `make_omelet`. But of course, you can make many different types of omelet, so `make_omelet` takes "arguments" (sometimes called "parameters") that change how the function operates. For example, you might be able call `make_omelet` in several ways, e.g., `make_omelet(veggie)`, `make_omelet(denver)` or `make_omelet(cheese)`. Inside your `make_omelet` "code" are rules for how to make each type of omelet. This is efficient, since most of the steps for making an omelet are the same, regardless of the type of omelet you're making.
 
-#### Declaring Functions 
+#### Declaring Functions Without Parameters
 
-To declare a function without parameters, use the `func` keyword, followed by the function name. After this, put the code for the function between curly braces (`{}`). For example, the following function adds one to ... FIXME
+Functions must be declared before using them. A function is defined by the operator `func` followed by the name of the function, which ends with a set of parentheses (e.g., `func test()`). Following the declaration, the code for the function is written between a set of curly braces (`{}`, e.g., `func test() { your_code_here }`). Finally, functions can return a value to the caller using the `return` operator. For example, here is a function that adds 1 and 2 together and returns the result:
 
-Return values are necessary!
+     func foo()
+     {
+          return 1 + 2
+     }
 
-#### Declaring Functions With Parameters
+     x = foo()
+     
+Here, we defined the function `foo()` and then we called it, storing the return value of `foo()` into the variable `x`. `x` will always contain the value 3 because `foo()` always adds 1 and 2 -- not very useful!
 
-FIXME
+#### Giving Functions Inputs (Parameters)
+
+Functions can be defined to take input parameters inside the parentheses. These parameters are given variable names when declared, and when the function is called the parameters take those names inside the function. For example, given the following code
+
+     func add(a, b)
+     {
+          return a + b
+     }
+     
+... the function `add(a, b)` returns the result of adding `a` to `b`. `add()` can be called with any two numbers -- pretty cool! To store a returned value, you can assign the result of a function to a variable. So, for example, given the following code:
+
+   x = add(1,2)
+   y = add(0,0)
+   z = add(17,25)
+   
+`x` would hold 3, `y` would hold 0, and `z` would hold 42.
+
+#### Modifying Global Variables
+
+Functions can acess and modify global variables if they already exist **before the function is called**. So, for example:
+
+     x = 0
+     func inc_x()
+     {
+          x = x + 1
+     }
+     
+.... will increment the value of `x` every time `inc_x()` is called. You can modify global state and return values with the same function, if you want to.
+
+##### Calling Functions and Storing Return Values
+
+Functions are called using their name, including the parentheses, which must include the parameters if the function expects parameters. For example:
+
+     `x = add(1, 2)`
+     
+or
+
+     `inc_x()`
+     
+The function `add(a,b)` expects two parameters and returns a value. The function `inc_x()` does not take parameters, but it will modify the value of the variable `x` (if it was already defined -- see above).
 
 ### Arithmetic
 
