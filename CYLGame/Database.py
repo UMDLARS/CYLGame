@@ -1,5 +1,6 @@
 import io
 import os
+import shutil
 import ujson
 import random
 
@@ -366,3 +367,14 @@ class GameDB(object):
 
     def get_school_tokens(self):
         return self.__get_school_tokens()
+
+    def get_players_for_game(self, gtoken):
+        # TODO: add a test for this method
+        return os.listdir(self.__get_dir_for_token(gtoken, "players"))
+
+    def delete_game(self, gtoken):
+        # TODO: add a test for this method
+        assert self.is_game_token(gtoken)
+        for player in self.get_players_for_game(gtoken):
+            os.remove(self.__get_dir_for_token(player, ["games", gtoken]))
+        shutil.rmtree(self.__get_dir_for_token(gtoken))

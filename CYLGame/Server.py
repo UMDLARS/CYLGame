@@ -19,6 +19,9 @@ from Game import average
 from Database import GameDB
 
 
+ANONYMOUS_SCHOOL = "S00000000"
+ANONYMOUS_USER   = "00000000"
+
 def static_file(filename):
     resource_path = os.path.join(os.path.split(__file__)[0], "static", filename)
     return resource_path
@@ -147,6 +150,9 @@ class GameServer(flask_classful.FlaskView):
         data = self.gamedb.get_game_frames(gtoken)
         data["player"] = self.gamedb.get_player_game_data(gtoken, token)
 
+        if token == ANONYMOUS_USER:
+            self.gamedb.delete_game(gtoken)
+
         return ujson.dumps(data)
 
     @flask_classful.route('/sim_avg', methods=['POST'])
@@ -272,10 +278,10 @@ class GameServer(flask_classful.FlaskView):
         cls._avg_game_func = avg_game_func
         cls.gamedb = GameDB(game_data_path)
         # setup anonymous school with an anonymous user
-        if not cls.gamedb.is_school_token("S00000000"):
-            cls.gamedb.add_new_school(_token="S00000000")
-        if not cls.gamedb.is_user_token("00000000"):
-            cls.gamedb.get_new_token("S00000000", _token="00000000")
+        if not cls.gamedb.is_school_token(ANONYMOUS_SCHOOL):
+            cls.gamedb.add_new_school(_token=ANONYMOUS_SCHOOL)
+        if not cls.gamedb.is_user_token(ANONYMOUS_USER):
+            cls.gamedb.get_new_token(ANONYMOUS_SCHOOL, _token=ANONYMOUS_USER)
 
         if issubclass(game, GridGame):
             cls.charset = cls.__copy_in_charset(game.CHAR_SET)
