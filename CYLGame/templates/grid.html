@@ -26,6 +26,7 @@
             window.replay_vars = [];
             window.replay_frames = [];
             window.canceled = false;
+            window.user_token = null;
 //            drawLoop();
             disable_btn_bar();
             window.charSetLayout = "col";
@@ -58,15 +59,15 @@
             document.getElementById("login").style.display = "";
         }
         function login() {
-            window.token = prompt("Enter your token:", "");
-            if (window.token == null) {
+            window.user_token = prompt("Enter your token:", "");
+            if (window.user_token == null) {
                 return false;
             }
             //check_token
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'check_token',
-                data: JSON.stringify({token: window.token}),
+                data: JSON.stringify({token: window.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -126,7 +127,7 @@
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'comp_scoreboards',
-                data: JSON.stringify({token: window.token}),
+                data: JSON.stringify({token: window.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -162,7 +163,48 @@
                         }
                         alert(data["error"]);
                     } else {
-                        drawFrames(data["screen"], data["debug"]);
+                        get_and_play_game(data["gtoken"]);
+                        {#drawFrames(data["screen"], data["debug"]);#}
+                        {#setSeed(data["seed"]);#}
+                        {#enable_btn_bar();#}
+                    }
+                },
+                failure: function(errMsg) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    alert(errMsg);
+                }
+            });
+            {#document.getElementById("loadingOverlay").style["display"] = "";#}
+            return false;
+        }
+        function get_and_play_game(gtoken) {
+            $("#debugTable").html("");
+            document.getElementById("loadingOverlay").style["display"] = "";
+            var player_token;
+            if (window.user_token == null) {
+                player_token = "00000000";
+            } else {
+                player_token = window.user_token;
+            }
+            $.ajax({
+                type: "GET",
+                url: $SCRIPT_ROOT + 'game/' + gtoken + "/" + player_token,
+                dataType: "json",
+                success: function(data) {
+                    if (window.canceled) {
+                        return;
+                    }
+                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    if (data["error"]) {
+                        if (data["error"] == "Invalid Seed") {
+                            window.seed = "";
+                        }
+                        alert(data["error"]);
+                    } else {
+                        drawFrames(data["screen"], data["player"]);
                         setSeed(data["seed"]);
                         enable_btn_bar();
                     }
@@ -175,24 +217,23 @@
                     alert(errMsg);
                 }
             });
-            document.getElementById("loadingOverlay").style["display"] = "";
             return false;
         }
         function submitCode() {
-            if (!window.token) {
+            if (!window.user_token) {
                 login();
             }
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim_avg',
-                data: JSON.stringify({code: editor.getValue(), token: window.token}),
+                data: JSON.stringify({code: editor.getValue(), token: window.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
                     if (data.hasOwnProperty("error")) {
                         if (data["error"] == "Invalid Token") {
                             logout();
-//                            window.token = "";
+//                            window.user_token = "";
 //                            document.getElementById("scoreSelector").style.display = "None";
                         } else {
                             alert(data["error"]);
@@ -226,13 +267,13 @@
             }
         }
         function loadCode() {
-            if (!window.token) {
+            if (!window.user_token) {
                 login();
             }
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'load_code',
-                data: JSON.stringify({token: window.token}),
+                data: JSON.stringify({token: window.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -261,7 +302,7 @@
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'scoreboard',
-                data: JSON.stringify({token: window.token}),
+                data: JSON.stringify({token: window.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -295,7 +336,7 @@
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'comp_scoreboards',
-                data: JSON.stringify({token: window.token}),
+                data: JSON.stringify({token: window.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {

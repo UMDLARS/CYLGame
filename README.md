@@ -15,7 +15,7 @@
 Add ```sudo -H``` to this command if needed.
 Python:
 ```
-pip install -U flask flask-compress flask_classful Flask-Markdown ujson littlepython gevent
+pip install -U flask flask-compress flask_classful Flask-Markdown ujson littlepython msgpack gevent
 ```
 
 ## Setup

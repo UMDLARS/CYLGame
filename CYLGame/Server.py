@@ -17,12 +17,15 @@ from gevent.server import _tcp_listener
 from gevent.wsgi import WSGIServer
 
 from CYLGame.Comp import create_room
-from Game import GameRunner, GridGame
+from Game import GameRunner, GridGame, int2base
 from Player import Room
 from Game import GameLanguage
 from Game import average
 from Database import GameDB
 
+
+ANONYMOUS_SCHOOL = "S00000000"
+ANONYMOUS_USER   = "00000000"
 
 def static_file(filename):
     resource_path = os.path.join(os.path.split(__file__)[0], "static", filename)
@@ -135,6 +138,28 @@ class GameServer(flask_classful.FlaskView):
 
         return flask.jsonify(message="success")
 
+    @flask_classful.route('/game/<gtoken>')
+    def get_game_data(self, gtoken):
+        if not self.gamedb.is_game_token(gtoken):
+            return flask.jsonify(error="Invalid Game Token")
+
+        return ujson.dumps(self.gamedb.get_game_frames(gtoken))
+
+    @flask_classful.route('/game/<gtoken>/<token>')
+    def get_player_game_data(self, gtoken, token):
+        if not self.gamedb.is_game_token(gtoken):
+            return flask.jsonify(error="Invalid Game Token")
+        if not self.gamedb.is_user_token(token):
+            return flask.jsonify(error="Invalid User Token")
+
+        data = self.gamedb.get_game_frames(gtoken)
+        data["player"] = self.gamedb.get_player_game_data(gtoken, token)
+
+        if token == ANONYMOUS_USER:
+            self.gamedb.delete_game(gtoken)
+
+        return ujson.dumps(data)
+
     @flask_classful.route('/sim_avg', methods=['POST'])
     def sim_avg(self):
         # TODO: create this to run the game 100 times returning the average score to the user.
@@ -185,6 +210,7 @@ class GameServer(flask_classful.FlaskView):
         try:
             prog = self.compiler.compile(code)
             prog.options = options
+            prog.token = "00000000"  # anonymous user
         except:
             return flask.jsonify(error="Code did not compile")
         room = Room([prog])
@@ -196,10 +222,16 @@ class GameServer(flask_classful.FlaskView):
             room = Room([prog] + players)
         runner = GameRunner(self.game, room)
         try:
-            res = runner.run_for_playback(seed=seed)
-            res["screen"] = room.screen_cap
-            res["debug"] = room.debug_vars[prog]
-            result = ujson.dumps(res)
+            runner.run_for_playback(seed=seed)
+            game_data = {"screen": room.screen_cap,
+                         "seed": int2base(seed, 36)}
+            player_data = {}
+            for player in room.bots:
+                if hasattr(player, "token"):
+                    player_data[player.token] = room.debug_vars[player]
+            gtoken = self.gamedb.add_new_game(game_data, per_player_data=player_data)
+            result = ujson.dumps({"gtoken": gtoken})
+            # result = ujson.dumps(res)
         except Exception:
             traceback.print_exc(file=sys.stdout)
             return flask.jsonify(error="Your bot ran into an error at runtime.\n"
@@ -250,6 +282,12 @@ class GameServer(flask_classful.FlaskView):
         cls.avg_game_count = avg_game_count
         cls._avg_game_func = avg_game_func
         cls.gamedb = GameDB(game_data_path)
+        # setup anonymous school with an anonymous user
+        if not cls.gamedb.is_school_token(ANONYMOUS_SCHOOL):
+            cls.gamedb.add_new_school(_token=ANONYMOUS_SCHOOL)
+        if not cls.gamedb.is_user_token(ANONYMOUS_USER):
+            cls.gamedb.get_new_token(ANONYMOUS_SCHOOL, _token=ANONYMOUS_USER)
+
         if issubclass(game, GridGame):
             cls.charset = cls.__copy_in_charset(game.CHAR_SET)
 
