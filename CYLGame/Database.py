@@ -1,14 +1,23 @@
+import gzip
 import io
 import os
 import shutil
-import ujson
 import random
+import time
+import msgpack
+
+
+def write_json(o, filename):
+    with gzip.open(filename, "wb") as fp:
+        msgpack.dump(o, fp)
+
+
+def read_json(filename):
+    with gzip.open(filename, "rb") as fp:
+        return msgpack.load(fp)
 
 
 # TODO(derpferd): Use the move function to prevent RACE on files
-import time
-
-
 class GameDB(object):
     TOKEN_LEN = 8
 
@@ -263,8 +272,7 @@ class GameDB(object):
         with io.open(self.__get_dir_for_token(token, "code.lp"), "w", encoding="utf8") as fp:
             fp.write(unicode(code))
         if options:
-            with io.open(self.__get_dir_for_token(token, "options.json"), "w", encoding="utf8") as fp:
-                fp.write(unicode(ujson.dumps(options)))
+            write_json(options, self.__get_dir_for_token(token, "options.mp.gz"))
 
     def save_name(self, token, name):
         """Save a user's name under their token.
@@ -290,8 +298,7 @@ class GameDB(object):
 
     def save_game_frames(self, gtoken, frames):
         assert os.path.exists(self.__get_dir_for_token(gtoken))
-        with open(self.__get_dir_for_token(gtoken, "frames.json"), "w") as fp:
-            ujson.dump(frames, fp)
+        write_json(frames, self.__get_dir_for_token(gtoken, "frames.mp.gz"))
 
     def set_game_player(self, gtoken, token, data=None):
         assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
@@ -300,21 +307,18 @@ class GameDB(object):
 
         os.mkdir(self.__get_dir_for_token(gtoken, ["players", token]))
 
-        with open(self.__get_dir_for_token(gtoken, ["players", token, "data.json"]), "w") as fp:
-            ujson.dump(data, fp)
+        write_json(data, self.__get_dir_for_token(gtoken, ["players", token, "data.mp.gz"]))
 
         with open(self.__get_dir_for_token(token, ["games", gtoken]), "w"):
             pass
 
     def get_game_frames(self, gtoken):
-        if os.path.exists(self.__get_dir_for_token(gtoken, "frames.json")):
-            with io.open(self.__get_dir_for_token(gtoken, "frames.json"), "r", encoding="utf8") as fp:
-                return ujson.load(fp)
+        if os.path.exists(self.__get_dir_for_token(gtoken, "frames.mp.gz")):
+            return read_json(self.__get_dir_for_token(gtoken, "frames.mp.gz"))
 
     def get_player_game_data(self, gtoken, token):
-        if os.path.exists(self.__get_dir_for_token(gtoken, ["players", token, "data.json"])):
-            with io.open(self.__get_dir_for_token(gtoken, ["players", token, "data.json"]), "r", encoding="utf8") as fp:
-                return ujson.load(fp)
+        if os.path.exists(self.__get_dir_for_token(gtoken, ["players", token, "data.mp.gz"])):
+            return read_json(self.__get_dir_for_token(gtoken, ["players", token, "data.mp.gz"]))
 
     def get_games_for_token(self, token):
         return self.__get_user_game_tokens(token)
@@ -324,9 +328,8 @@ class GameDB(object):
         if os.path.exists(self.__get_dir_for_token(token, "code.lp")):
             with io.open(self.__get_dir_for_token(token, "code.lp"), "r", encoding="utf8") as fp:
                 code = fp.read()
-        if os.path.exists(self.__get_dir_for_token(token, "options.json")):
-            with io.open(self.__get_dir_for_token(token, "options.json"), "r", encoding="utf8") as fp:
-                options = ujson.load(fp)
+        if os.path.exists(self.__get_dir_for_token(token, "options.mp.gz")):
+            options = read_json(self.__get_dir_for_token(token, "options.mp.gz"))
         return code, options
 
     def get_name(self, token):
@@ -347,13 +350,6 @@ class GameDB(object):
                     return None
         else:
             return None
-
-    # def get_name(self, token):
-    #     if self.is_user_token(token):
-    #         return self.
-    #         return self.tokens[token]["name"]
-    #     elif self.is_school_token(token):
-    #         return self.schools[token]["name"]
 
     def get_school_for_token(self, token):
         for school in self.__get_school_tokens():
