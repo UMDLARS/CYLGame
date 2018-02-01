@@ -5,6 +5,9 @@ import random
 
 
 # TODO(derpferd): Use the move function to prevent RACE on files
+import time
+
+
 class GameDB(object):
     TOKEN_LEN = 8
 
@@ -107,10 +110,12 @@ class GameDB(object):
         gtks = self.__get_game_tokens()
         return gtoken in gtks
 
-    def get_new_token(self, school_tk):
+    def get_new_token(self, school_tk, _token=None):  # Don't use `_token` unless you know what you are doing.
         # Is name needed?
         assert self.is_school_token(school_tk)
-        token = self.__get_new_token()
+        token = _token
+        if _token is None:
+            token = self.__get_new_token()
 
         # Touch the file
         with open(self.__get_dir_for_token(school_tk, ["tokens", token]), "w") as fp:
@@ -121,8 +126,10 @@ class GameDB(object):
         os.mkdir(os.path.join(self.data_dir, token, "games"))
         return token
 
-    def add_new_school(self, name=""):
-        token = self.__get_new_token(self.__get_school_tokens(), prefix="S")
+    def add_new_school(self, name="", _token=None):  # Don't use `_token` unless you know what you are doing.
+        token = _token
+        if _token is None:
+            token = self.__get_new_token(self.__get_school_tokens(), prefix="S")
 
         os.mkdir(os.path.join(self.schools_dir, token))
         os.mkdir(os.path.join(self.schools_dir, token, "tokens"))
@@ -163,6 +170,9 @@ class GameDB(object):
         elif per_player_data is not None:
             for player, data in per_player_data.items():
                 self.set_game_player(token, player, data)
+
+        with open(os.path.join(self.game_dir, token, "ctime"), "w") as fp:
+            fp.write(str(time.time()))
 
         return token
 
