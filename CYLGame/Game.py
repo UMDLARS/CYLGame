@@ -51,7 +51,7 @@ def average(scores):
 
 
 def data_file(filename):
-    resource_path = os.path.join(os.path.split(__file__)[0], os.path.pardir, "data", filename)
+    resource_path = os.path.join(os.path.split(__file__)[0], "data", filename)
     return resource_path
 
 
