@@ -20,7 +20,8 @@ setup(name='CYLGame',
       packages=['CYLGame'],
       package_dir={'CYLGame': 'CYLGame'},
       package_data={'CYLGame': ['static/*', 'templates/*', 'data/*', 'static/ace/*']},
-      install_requires=['flask',
+      install_requires=['future',
+                        'flask',
                         'flask-compress',
                         'flask_classful',
                         'Flask-Markdown',
@@ -35,5 +36,8 @@ setup(name='CYLGame',
             # Complete list of classifiers: http://pypi.python.org/pypi?%3Aaction=list_classifiers
             "Development Status :: 3 - Alpha",
             "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.5",
+            "Programming Language :: Python :: 3.6",
       ]
       )

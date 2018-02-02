@@ -5,16 +5,17 @@ import shutil
 import random
 import time
 import msgpack
+from builtins import str as text
 
 
 def write_json(o, filename):
-    with gzip.open(filename, "wb") as fp:
-        msgpack.dump(o, fp)
+    with gzip.open(filename, "w") as fp:
+        msgpack.dump(o, fp, encoding='utf-8')
 
 
 def read_json(filename):
-    with gzip.open(filename, "rb") as fp:
-        return msgpack.load(fp)
+    with gzip.open(filename, "r") as fp:
+        return msgpack.load(fp, encoding='utf-8')
 
 
 # TODO(derpferd): Use the move function to prevent RACE on files
@@ -145,7 +146,7 @@ class GameDB(object):
         os.mkdir(os.path.join(self.schools_dir, token, "tokens"))
 
         with io.open(os.path.join(self.schools_dir, token, "name"), "w", encoding="utf8") as fp:
-            fp.write(unicode(name))
+            fp.write(text(name))
 
         return token
 
@@ -156,7 +157,7 @@ class GameDB(object):
         os.mkdir(os.path.join(self.competitions_dir, token, "schools"))
 
         with io.open(os.path.join(self.competitions_dir, token, "name"), "w", encoding="utf8") as fp:
-            fp.write(unicode(name))
+            fp.write(text(name))
 
         return token
 
@@ -182,7 +183,7 @@ class GameDB(object):
                 self.set_game_player(token, player, data)
 
         with open(os.path.join(self.game_dir, token, "ctime"), "w") as fp:
-            fp.write(str(time.time()))
+            fp.write(text(time.time()))
 
         return token
 
@@ -205,7 +206,7 @@ class GameDB(object):
             os.mkdir(school_dir)
 
         with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
-            fp.write(unicode(code))
+            fp.write(text(code))
 
     # def set_token_for_comp(self, ctoken, utoken, stoken):
     #     assert self.is_comp_token(ctoken)
@@ -250,7 +251,7 @@ class GameDB(object):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         assert school_dir is not None
         with io.open(os.path.join(school_dir, "avg_score"), "w", encoding="utf8") as fp:
-            fp.write(unicode(score))
+            fp.write(text(score))
 
     def get_comp_avg_score(self, ctoken, stoken):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
@@ -270,7 +271,7 @@ class GameDB(object):
         """
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "code.lp"), "w", encoding="utf8") as fp:
-            fp.write(unicode(code))
+            fp.write(text(code))
         if options:
             write_json(options, self.__get_dir_for_token(token, "options.mp.gz"))
 
@@ -283,7 +284,7 @@ class GameDB(object):
         """
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "name"), "w", encoding="utf8") as fp:
-            fp.write(unicode(name))
+            fp.write(text(name))
 
     def save_avg_score(self, token, score):
         """Save a user's average score.
@@ -294,7 +295,7 @@ class GameDB(object):
         """
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "avg_score"), "w", encoding="utf8") as fp:
-            fp.write(unicode(score))
+            fp.write(text(score))
 
     def save_game_frames(self, gtoken, frames):
         assert os.path.exists(self.__get_dir_for_token(gtoken))

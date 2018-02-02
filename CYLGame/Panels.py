@@ -60,7 +60,7 @@ class Map(object):
 
     # checks if pos is in bound of the map
     def in_bounds(self, pos):
-        assert is_coord(pos)
+        assert is_coord(pos), "pos: '{}', isn't a coord".format(pos)
         x, y = pos
         return 0 <= x < self.w and 0 <= y < self.h
 

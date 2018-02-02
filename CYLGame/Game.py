@@ -11,7 +11,7 @@ FPS = 30
 
 
 # From: http://stackoverflow.com/a/2267446/4441526
-digs = string.digits + string.letters
+digs = string.digits + string.ascii_letters
 def int2base(x, base):
     if x < 0:
         sign = -1

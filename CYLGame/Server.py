@@ -17,15 +17,16 @@ from gevent.server import _tcp_listener
 from gevent.wsgi import WSGIServer
 
 from CYLGame.Comp import create_room
-from Game import GameRunner, GridGame, int2base
-from Player import Room
-from Game import GameLanguage
-from Game import average
-from Database import GameDB
+from .Game import GameRunner, GridGame, int2base
+from .Player import Room
+from .Game import GameLanguage
+from .Game import average
+from .Database import GameDB
 
 
 ANONYMOUS_SCHOOL = "S00000000"
-ANONYMOUS_USER   = "00000000"
+ANONYMOUS_USER = "00000000"
+
 
 def static_file(filename):
     resource_path = os.path.join(os.path.split(__file__)[0], "static", filename)
@@ -201,7 +202,7 @@ class GameServer(flask_classful.FlaskView):
         options = flask.request.get_json(silent=True).get('options', None)
         if options is None:
             options = {}
-        seed = random.randint(0, sys.maxint)
+        seed = random.randint(0, sys.maxsize)
         if seed_str:
             try:
                 seed = int(seed_str, 36)
@@ -273,7 +274,8 @@ class GameServer(flask_classful.FlaskView):
 
     @classmethod
     def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,
-              avg_game_count=10, num_of_threads=None, game_data_path="temp_game", avg_game_func=average):
+              avg_game_count=10, num_of_threads=None, game_data_path="temp_game", avg_game_func=average,
+              debug=True):
         cls.game = game
         cls.host = host
         cls.port = port
@@ -307,18 +309,23 @@ class GameServer(flask_classful.FlaskView):
         cls.register(cls.app)
         cls.__load_language()
 
-        listener = _tcp_listener((cls.host, cls.port))
+        print("Starting server at {}:{}".format(cls.host, cls.port))
 
-        def serve_forever(listener):
-            WSGIServer(listener, cls.app).serve_forever()
+        if debug:
+            cls.app.run(cls.host, cls.port)
+        else:
+            listener = _tcp_listener((cls.host, cls.port))
 
-        if num_of_threads is None:
-            num_of_threads = multiprocessing.cpu_count()
+            def serve_forever(listener):
+                WSGIServer(listener, cls.app).serve_forever()
 
-        for i in range(num_of_threads):
-            Process(target=serve_forever, args=(listener,)).start()
+            if num_of_threads is None:
+                num_of_threads = multiprocessing.cpu_count()
 
-        serve_forever(listener)
+            for i in range(num_of_threads):
+                Process(target=serve_forever, args=(listener,)).start()
+
+            serve_forever(listener)
 
         print("Dying...")
         if cls.charset and os.path.exists(static_file(os.path.join("fonts", cls.charset))):
