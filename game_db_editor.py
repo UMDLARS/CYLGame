@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import sys
 from CYLGame.Database import GameDB
+from builtins import input
 
 gamedb = None
 cur_school = None
@@ -18,10 +19,10 @@ def pause(prompt="Enter any input: "):
 
 
 def get_input(prompt="", validator=lambda x: x, error_msg=""):
-    inp = raw_input(prompt)
+    inp = input(prompt)
     while not validator(inp):
         print(error_msg)
-        inp = raw_input(prompt)
+        inp = input(prompt)
     return inp
 
 
