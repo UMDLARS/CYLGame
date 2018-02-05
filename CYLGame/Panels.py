@@ -282,15 +282,15 @@ class Panel(Map):
         self.real_w = w
         self.real_h = h
         if PanelBorder.TOP in self.border:
-            self.y += 1
-            self.h -= 1
+            self.real_y -= 1
+            self.real_h += 1
         if PanelBorder.LEFT in self.border:
-            self.x += 1
-            self.w -= 1
+            self.real_x -= 1
+            self.real_w += 1
         if PanelBorder.BOTTOM in self.border:
-            self.h -= 1
+            self.real_h += 1
         if PanelBorder.RIGHT in self.border:
-            self.w -= 1
+            self.real_w += 1
         if PanelPadding.TOP in self.padding:
             self.y += self.padding[PanelPadding.TOP]
             self.h -= self.padding[PanelPadding.TOP]
@@ -309,37 +309,51 @@ class Panel(Map):
         frame_buffer.set(x, y, char)
 
     def redraw(self, frame_buffer):
-        if PanelBorder.TOP in self.border:
-            for i in range(self.real_w):
-                frame_buffer.set(self.real_x + i, self.real_y, self.border[PanelBorder.TOP])
-        if PanelBorder.LEFT in self.border:
-            for i in range(self.real_h):
-                frame_buffer.set(self.real_x, self.real_y + i, self.border[PanelBorder.LEFT])
-        if PanelBorder.BOTTOM in self.border:
-            for i in range(self.real_w):
-                frame_buffer.set(self.real_x + i, self.real_y + self.real_h - 1,
-                                 self.border[PanelBorder.BOTTOM])
-        if PanelBorder.RIGHT in self.border:
-            for i in range(self.real_h):
-                frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + i,
-                                 self.border[PanelBorder.RIGHT])
-        if PanelBorder.TOP in self.border and PanelBorder.LEFT in self.border:
-            frame_buffer.set(self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT])
-        if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
-            frame_buffer.set(self.real_x, self.real_y + self.real_h - 1,
-                             self.border[PanelBorder.BOTTOM | PanelBorder.LEFT])
-        if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
-            frame_buffer.set(self.real_x + self.real_w - 1, self.real_y,
-                             self.border[PanelBorder.TOP | PanelBorder.RIGHT])
-        if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
-            frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + self.real_h - 1,
-                             self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT])
+        try:
+            if PanelBorder.TOP in self.border:
+                for i in range(self.real_w):
+                    frame_buffer.set(self.real_x + i, self.real_y, self.border[PanelBorder.TOP])
+            if PanelBorder.LEFT in self.border:
+                for i in range(self.real_h):
+                    frame_buffer.set(self.real_x, self.real_y + i, self.border[PanelBorder.LEFT])
+            if PanelBorder.BOTTOM in self.border:
+                for i in range(self.real_w):
+                    frame_buffer.set(self.real_x + i, self.real_y + self.real_h - 1,
+                                     self.border[PanelBorder.BOTTOM])
+            if PanelBorder.RIGHT in self.border:
+                for i in range(self.real_h):
+                    frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + i,
+                                     self.border[PanelBorder.RIGHT])
+            if PanelBorder.TOP in self.border and PanelBorder.LEFT in self.border:
+                frame_buffer.set(self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT])
+            if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
+                frame_buffer.set(self.real_x, self.real_y + self.real_h - 1,
+                                 self.border[PanelBorder.BOTTOM | PanelBorder.LEFT])
+            if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
+                frame_buffer.set(self.real_x + self.real_w - 1, self.real_y,
+                                 self.border[PanelBorder.TOP | PanelBorder.RIGHT])
+            if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
+                frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + self.real_h - 1,
+                                 self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT])
+        except IndexError:
+            raise IndexError("Out of bounds while drawing border. This is normally caused by the forgetting that the"
+                             "x,y adn width, height of a Panel doesn't include the border.")
 
 
 class MapPanel(Panel):
     def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding()):
+        """
+
+        Args:
+            x: The x value of the position of top left corner (not including the border)
+            y: The y value of the position of top left corner (not including the border)
+            w: The width of the panel not including the border
+            h: The height of the panel not including the border
+            default_char:
+            border:
+            padding:
+        """
         super(MapPanel, self).__init__(x, y, w, h, default_char, border, padding)
-        # self.first_draw()
         self.is_first = True
 
     def first_draw(self, frame_buffer):

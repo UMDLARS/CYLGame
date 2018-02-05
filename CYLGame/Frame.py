@@ -10,7 +10,7 @@ class FrameBuffer(object):
 
 
 class GridFrameBuffer(FrameBuffer):
-    def __init__(self, width, height, charset=None, init_value=0):
+    def __init__(self, width, height, charset=None, init_value='\x00'):
         """
         Args:
             width(int):
@@ -25,7 +25,28 @@ class GridFrameBuffer(FrameBuffer):
         self.charset = charset
         self.arr = []
         for i in range(height):
-            self.arr += [[init_value]*width]
+            self.arr += [[ord(init_value)]*width]
+
+    @classmethod
+    def from_string_array(cls, frame):
+        assert len(frame), "Frame must contain something"
+        x, y = len(frame[0]), len(frame)
+        buf = cls(x, y)
+        for i in range(x):
+            for j in range(y):
+                buf.set(i, j, ord(frame[j][i]))
+        return buf
+
+    def __eq__(self, other):
+        if self.x != other.x or self.y != other.y:
+            return False
+        return self.arr == other.arr
+
+    def __str__(self):
+        return "\n".join(["".join(map(chr, x)) for x in self.arr])
+
+    def __repr__(self):
+        return "<GridFrameBuffer: '{}'".format(str(self).replace("\n", "\\n"))
 
     def set(self, x, y, char):
         """
@@ -38,6 +59,10 @@ class GridFrameBuffer(FrameBuffer):
         if isinstance(char, str):
             assert len(char) == 1
             char = ord(char)
+        if not (0 <= x < self.x):
+            raise IndexError("Trying to draw out of bounds at ({}, {})".format(x, y))
+        if not (0 <= y < self.y):
+            raise IndexError("Trying to draw out of bounds at ({}, {})".format(x, y))
         self.arr[y][x] = char
 
     def draw_to_surface(self, surface):
