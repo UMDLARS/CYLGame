@@ -1,7 +1,9 @@
 from __future__ import print_function
+
+from random import random, choice, shuffle
+
 from .Game import GameRunner
 from .Player import Room
-from random import random, choice, shuffle
 
 
 def create_room(gamedb, bot, compiler, size):
@@ -28,11 +30,6 @@ def create_room(gamedb, bot, compiler, size):
             print("Couldn't compile code for '{}' in '{}'".format(token, gamedb.get_school_for_token(token)))
 
 
-def create_room_for_school(gamedb, stoken):
-    # TODO: write this.
-    raise Exception("Not Implemented!")
-
-
 def avg(scores):
     return float((sum(scores) * 100) / len(scores)) / 100
 
@@ -50,28 +47,29 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
         max_code = ""
         for student in gamedb.get_tokens_for_school(school):
             if debug:
-                print("got student '" + student + "'")
-            code = gamedb.get_code(student)
+                print("Got student '" + student + "'")
+            code, options = gamedb.get_code_and_options(student)
             if not code:
                 continue
             if debug:
-                print("compiling code...")
-            prog = compiler.compile(code.split("\n"))
+                print("Compiling code...")
+            prog = compiler.compile(code)
+            prog.options = options
             if debug:
                 print("setting up game runner...")
-            runner = gamerunner(game, prog)
+            runner = GameRunner(game, Room([prog]))
             if debug:
-                print("simulating...")
-            score = none
+                print("Simulating...")
+            score = None
 
             scores = []
             count = 0
             seed = 0
-            # todo: make this able to run in a pool of threads (so it can be run on multiple cpus)
+            # TODO: make this able to run in a pool of threads (so it can be run on multiple CPUs)
             while count < runs:
                 try:
                     if seed >= len(seeds):
-                        print("ran out of seeds")
+                        print("Ran out of seeds")
                         break
                     scores += [runner.run_for_avg_score(times=1, seed=seeds[seed])]
                     # print(scores[-1])
@@ -79,8 +77,8 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
                     # sys.stdout.flush()
                     count += 1
                     seed += 1
-                except exception as e:
-                    print("there was an error simulating the game (moving to next seed):", e)
+                except Exception as e:
+                    print("There was an error simulating the game (Moving to next seed):", e)
                     seed += 1
             score = score_func(scores)
             # score = runner.run_for_avg_score(times=runs)
@@ -109,7 +107,7 @@ class Ranking(object):
         """
         self.ranks = {}
         for i in range(0, len(bots)):
-            self.ranks[bots[i]] = i #Key: BOTS Value: RANK
+            self.ranks[bots[i]] = i  # Key: BOTS Value: RANK
 
     def __add__(self, other):
         new_rank = {}
@@ -180,6 +178,7 @@ class MultiplayerComp(object):
 
     @staticmethod
     def sim_multiplayer(s_token, gamedb, game, compiler, debug=False):
+        assert game.MULTIPLAYER, "Game must be multi-player to do MultiplayerComp."
         assert gamedb is not None
         assert gamedb.is_school_token(s_token)
         students = gamedb.get_tokens_for_school(s_token)  # Only getting one school token
@@ -187,7 +186,7 @@ class MultiplayerComp(object):
         for s in students:
             try:
                 if debug:
-                    print("got student '" + s +  "'")
+                    print("got student '" + s + "'")
                 code, options = gamedb.get_code_and_options(s)
                 if not code:
                     continue
@@ -196,22 +195,19 @@ class MultiplayerComp(object):
                 prog = compiler.compile(code)
                 prog.options = options
                 prog.token = s
-                # if debug:
-                #     print("setting up game runner...")
-                # runner = gamerunner(game, prog)
                 if debug:
                     print("simulating...")
                 bots += [prog]
             except:
                 print("Couldn't compile code for '{}' in '{}'".format(s, gamedb.get_school_for_token(s)))
-        tourney = MultiplayerComp(bots, 4, game.default_prog_for_computer())
+        tourney = MultiplayerComp(bots, game.get_number_of_players(), game.default_prog_for_computer())
         for room in tourney:
-            print("Room: " + str(room))
+            if debug:
+                print("Room: " + str(room))
             gamerunner = GameRunner(game, room)
-            print(type(gamerunner))
             tourney[room] = gamerunner.run_for_avg_score(times=1, func=sum)
 
         for player, score in tourney.scores.items():
             gamedb.save_avg_score(player.token, score)
-            print("Score {} for Bike: {}".format(score, str(player.token)))
-        return tourney.scores
+            if debug:
+                print("Score {} for Bike: {}".format(score, str(player.token)))
