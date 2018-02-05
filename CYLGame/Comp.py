@@ -128,6 +128,7 @@ class Ranking(object):
     def add_rank(self, standing, bot):
         self.ranks[bot] += standing
 
+
 class MultiplayerComp(object):
     RUN_FACTOR = 4
 
@@ -140,7 +141,7 @@ class MultiplayerComp(object):
         """
         self.default_bot_class = default_bot_class
         self.room_size = room_size
-        self.scores = {}  # Bots:scores
+        self.scores = {}  # Prog:scores
         self.rooms = {}  # Rooms:Rankings
         self.cur_run = 0
         for bot in bots:
@@ -157,12 +158,8 @@ class MultiplayerComp(object):
         """
         self.rooms[key] = value
         for k in value.ranks:
-            if k in self.scores:
-                self.scores[k] += value.ranks[k]
-        # for bot in key.bots
-        #     if bot in self.scores:
-        #         self.scores[bot] += value.ranks[bot]
-
+            if k.prog in self.scores:
+                self.scores[k.prog] += value.ranks[k]
 
     def __next__(self):
         return self.next()
@@ -185,35 +182,36 @@ class MultiplayerComp(object):
     def sim_multiplayer(s_token, gamedb, game, compiler, debug=False):
         assert gamedb is not None
         assert gamedb.is_school_token(s_token)
-        students = gamedb.get_tokens_for_school(s_token) #Only getting one school token
+        students = gamedb.get_tokens_for_school(s_token)  # Only getting one school token
         bots = []
         for s in students:
             try:
                 if debug:
                     print("got student '" + s +  "'")
-                code = gamedb.get_code(s)
+                code, options = gamedb.get_code_and_options(s)
                 if not code:
                     continue
                 if debug:
                     print("compiling code...")
-                prog = compiler.compile(code.split("\n"))
-                if debug:
-                    print("setting up game runner...")
+                prog = compiler.compile(code)
+                prog.options = options
+                prog.token = s
+                # if debug:
+                #     print("setting up game runner...")
                 # runner = gamerunner(game, prog)
                 if debug:
                     print("simulating...")
                 bots += [prog]
             except:
-                print("Couldn't compile code for '{}' in '{}'".format(s, gamedb.get_school_for_token(s_token)))
+                print("Couldn't compile code for '{}' in '{}'".format(s, gamedb.get_school_for_token(s)))
         tourney = MultiplayerComp(bots, 4, game.default_prog_for_computer())
         for room in tourney:
             print("Room: " + str(room))
             gamerunner = GameRunner(game, room)
             print(type(gamerunner))
-            def add(x):
-                return sum(x)
-            tourney[room] = gamerunner.run_for_avg_score(times=1, func=add)
+            tourney[room] = gamerunner.run_for_avg_score(times=1, func=sum)
 
-        for i in tourney.scores:
-            print("Score {} for Bike: {}".format(tourney.scores[i], str(i)))
+        for player, score in tourney.scores.items():
+            gamedb.save_avg_score(player.token, score)
+            print("Score {} for Bike: {}".format(score, str(player.token)))
         return tourney.scores
