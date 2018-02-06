@@ -292,7 +292,7 @@ class GameRunner(object):
                 # TODO: sync screen cap and debug vars.
 
             for player in players:
-                player.run_turn()
+                player.run_turn(game.random)
 
             game.do_turn()
 

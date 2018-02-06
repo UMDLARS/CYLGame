@@ -28,9 +28,9 @@ class Player(object):
         self.debugging = prog.options.get("debug", False)
         self.debug_vars = []  # TODO: Maybe make this into a class.
 
-    def run_turn(self):
+    def run_turn(self, random, max_ops=1000000):
         try:
-            nxt_state = self.prog.run(self.get_state())
+            nxt_state = self.prog.run(self.get_state(), max_op_count=max_ops, random=random)
             self.update_state(dict(nxt_state))
             self.prev_vars = nxt_state
         except:
