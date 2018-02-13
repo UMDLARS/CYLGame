@@ -357,9 +357,9 @@ class GameRunner(object):
             for key in display.get_keys():
                 # TODO: fix
                 player.prog.key = key
-                player.run_turn()
+                player.run_turn(game.random)
                 for comp_player in players:
-                    comp_player.run_turn()
+                    comp_player.run_turn(game.random)
                 game.do_turn()
                 frame_updated = True
 
