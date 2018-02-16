@@ -72,7 +72,7 @@ class DefaultGridPlayer(Player):
         if self.debugging:
             human_vars = {}
             for name, val in state.items():
-                if val in self.bot_consts:
+                if isinstance(val, int) and val in self.bot_consts:
                     human_vars[name] = self.bot_consts[val] + " (" + str(val) + ")"
                 elif str(val) == str(True):
                     human_vars[name] = 1
