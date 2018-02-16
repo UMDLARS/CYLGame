@@ -101,6 +101,9 @@ class Game(object):
     def init_board(self):
         raise Exception("Not implemented!")
 
+    def start_game(self):
+        raise Exception("Not implemented!")
+
     @staticmethod
     def default_prog_for_bot(language):
         raise Exception("Not implemented!")
@@ -278,6 +281,8 @@ class GameRunner(object):
 
             self.players += [game.create_new_player(bot)]
 
+        game.start_game()
+
         screen_cap = []
         if game.TURN_BASED:
             self.current_player = 0
@@ -351,6 +356,8 @@ class GameRunner(object):
             for _ in range(game.get_number_of_players() - 1):
                 players += [game.create_new_player(computer_bot_class())]
         player = game.create_new_player(UserProg())
+
+        game.start_game()
 
         while game.is_running():
             clock.tick(FPS)
