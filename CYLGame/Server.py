@@ -293,7 +293,8 @@ class GameServer(flask_classful.FlaskView):
         if issubclass(game, GridGame):
             cls.charset = cls.__copy_in_charset(game.CHAR_SET)
 
-        cls.app = flask.Flask(__name__.split('.')[0])
+        cls.app = flask.Flask(__name__.split('.')[0],
+                              static_url_path='')
 
         @cls.app.template_filter('markdown')
         def markdown_filter(data):

@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>{{ game_title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="static/jquery.min.js"></script>
-    <link rel="stylesheet" href="static/bootstrap.min.css">
-    <link rel="stylesheet" href="static/dark.css">
-    <link rel="stylesheet" href="static/main.css">
-    <link rel="icon" href="static/icon.png">
-    <script src="static/bootstrap.min.js"></script>
-    <script>window.jQuery || document.write('<script src="static/jquery.min.js">\x3C/script>')</script>
-	<script src="static/draw_functions.js"></script>
+    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dark.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+	  <script src="{{ url_for('static', filename='draw_functions.js') }}"></script>
+    <script src="{{ url_for('static', filename='gui.js') }}"></script>
     <script type="text/javascript">
         $SCRIPT_ROOT = "";
         pause();
@@ -74,7 +74,7 @@
                     if (window.canceled) {
                         return;
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                     if (data["error"]) {
                         alert(data["error"]);
                     } else {
@@ -91,11 +91,11 @@
                     if (window.canceled) {
                         return;
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                     alert(errMsg);
                 }
             });
-            document.getElementById("loadingOverlay").style["display"] = "";
+            showLoading();
             return false;
         }
         function setPlaybackTimeout(timeout) {
@@ -156,11 +156,11 @@
                     if (window.canceled) {
                         return;
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
                     if (data["error"]) {
                         if (data["error"] == "Invalid Seed") {
                             window.seed = "";
                         }
+                        hideLoading();
                         alert(data["error"]);
                     } else {
                         get_and_play_game(data["gtoken"]);
@@ -173,16 +173,16 @@
                     if (window.canceled) {
                         return;
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                     alert(errMsg);
                 }
             });
-            {#document.getElementById("loadingOverlay").style["display"] = "";#}
+            showLoading();
             return false;
         }
         function get_and_play_game(gtoken) {
             $("#debugTable").html("");
-            document.getElementById("loadingOverlay").style["display"] = "";
+            showLoading();
             var player_token;
             if (window.user_token == null) {
                 player_token = "00000000";
@@ -197,7 +197,7 @@
                     if (window.canceled) {
                         return;
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                     if (data["error"]) {
                         if (data["error"] == "Invalid Seed") {
                             window.seed = "";
@@ -213,7 +213,7 @@
                     if (window.canceled) {
                         return;
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                     alert(errMsg);
                 }
             });
@@ -242,17 +242,17 @@
                         document.getElementById("scoreSelector").style.display = "";
                         alert("You average score is " + data["score"]);
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                 },
                 failure: function(errMsg) {
                     if (window.canceled) {
                         return;
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                     alert(errMsg);
                 }
             });
-            document.getElementById("loadingOverlay").style["display"] = "";
+            showLoading();
             return false;
         }
         function loadCodeWithCon() {
@@ -284,17 +284,17 @@
                     } else if (data["code"] != null) {
                         editor.setValue(data["code"], 1);
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                 },
                 failure: function(errMsg) {
                     if (window.canceled) {
                         return;
                     }
-                    document.getElementById("loadingOverlay").style["display"] = "none";
+                    hideLoading();
                     alert(errMsg);
                 }
             });
-            document.getElementById("loadingOverlay").style["display"] = "";
+            showLoading();
             return false;
         }
         function updateScoreboard() {
@@ -507,7 +507,7 @@
         }
         function cancelSubmit() {
             window.canceled = true;
-            document.getElementById("loadingOverlay").style["display"] = "none";
+            hideLoading();
             play();
         }
         function disable_btn_bar() {
@@ -578,7 +578,7 @@
       <div id="wrap">
         <div id="left_col">
 {#            <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">#}
-            <img id="chars" src="static/fonts/{{ char_set }}" style="display: none;">
+            <img id="chars" src="{{ url_for('static', filename='fonts/'+char_set) }}" style="display: none;">
             <canvas id="display" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
             <div>
                 <div class="progress">
@@ -612,8 +612,7 @@
         </div>
         <div id="right_col">
             <pre id="editor">{{ example_bot }}</pre>
-{#            <script src="static/ace/ace.js" type="text/javascript" charset="utf-8"></script>#}
-            <script src="static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+            <script src="{{ url_for('static', filename='ace/ace.js') }}" type="text/javascript" charset="utf-8"></script>
             <script>
                 var editor = ace.edit("editor");
                 editor.setTheme("ace/theme/twilight");
