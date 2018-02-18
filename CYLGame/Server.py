@@ -229,11 +229,10 @@ class GameServer(flask_classful.FlaskView):
                          "seed": int2base(seed, 36)}
             player_data = {}
             for player in room.bots:
-                if hasattr(player, "token"):
+                if hasattr(player, "token") and player.token is not None:
                     player_data[player.token] = room.debug_vars[player]
             gtoken = self.gamedb.add_new_game(game_data, per_player_data=player_data)
             result = ujson.dumps({"gtoken": gtoken})
-            # result = ujson.dumps(res)
         except Exception:
             traceback.print_exc(file=sys.stdout)
             return flask.jsonify(error="Your bot ran into an error at runtime.\n"

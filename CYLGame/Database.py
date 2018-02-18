@@ -303,7 +303,7 @@ class GameDB(object):
 
     def set_game_player(self, gtoken, token, data=None):
         assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
-        assert self.is_user_token(token)
+        assert self.is_user_token(token), "Token '{}' must be a user token".format(token)
         assert os.path.exists(self.__get_dir_for_token(token, "games"))
 
         os.mkdir(self.__get_dir_for_token(gtoken, ["players", token]))
