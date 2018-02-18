@@ -188,6 +188,7 @@ class MultiplayerComp(object):
                 if debug:
                     print("got student '" + s + "'")
                 code, options = gamedb.get_code_and_options(s)
+                name = gamedb.get_name(s)
                 if not code:
                     continue
                 if debug:
@@ -195,6 +196,7 @@ class MultiplayerComp(object):
                 prog = compiler.compile(code)
                 prog.options = options
                 prog.token = s
+                prog.name = name
                 if debug:
                     print("simulating...")
                 bots += [prog]

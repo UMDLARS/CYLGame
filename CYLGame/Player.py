@@ -5,8 +5,10 @@ import traceback
 # A template class for the Prog for the Player.
 class Prog(object):
     def __init__(self):
-        # The `options` attribute is reserved for the GameRunner
+        # The `options`, `token` and `name` attributes are reserved for the GameRunner
         self.options = {}
+        self.token = None
+        self.name = None
 
     def run(self, state=None, max_op_count=-1):
         pass
@@ -14,8 +16,9 @@ class Prog(object):
 
 class UserProg(Prog):
     def __init__(self):
+        super().__init__()
+        self.name = "You"
         self.key = None
-        self.options = {}
 
     def run(self, *args, **kwargs):
         return {"move": ord(self.key)}

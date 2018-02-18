@@ -212,6 +212,7 @@ class GameServer(flask_classful.FlaskView):
             prog = self.compiler.compile(code)
             prog.options = options
             prog.token = "00000000"  # anonymous user
+            prog.name = "Your bot"
         except:
             return flask.jsonify(error="Code did not compile")
         room = Room([prog])
