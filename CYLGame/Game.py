@@ -380,7 +380,8 @@ def run(game_class, avg_game_func=average):
     def serve(args):
         print("I am going to serve")
         from .Server import serve
-        serve(game_class, host=args.host, port=args.port, game_data_path=args.dbfile, avg_game_func=avg_game_func)
+        serve(game_class, host=args.host, port=args.port, game_data_path=args.dbfile, avg_game_func=avg_game_func,
+              debug=args.debug)
 
     def play(args):
         print("Playing...")
@@ -398,6 +399,7 @@ def run(game_class, avg_game_func=average):
     parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
     parser_serve.add_argument('-db', '--dbfile', nargs="?", type=str, help='The root path of the game database', default="temp_game")
     parser_serve.add_argument('--host', nargs="?", type=str, help='The mask to host to', default='127.0.0.1')
+    parser_serve.add_argument('--debug', action='store_true')
     parser_serve.set_defaults(func=serve)
 
     args = parser.parse_args()

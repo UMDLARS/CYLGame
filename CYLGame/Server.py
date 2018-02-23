@@ -275,7 +275,7 @@ class GameServer(flask_classful.FlaskView):
     @classmethod
     def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,
               avg_game_count=10, num_of_threads=None, game_data_path="temp_game", avg_game_func=average,
-              debug=True):
+              debug=False):
         cls.game = game
         cls.host = host
         cls.port = port
@@ -313,6 +313,7 @@ class GameServer(flask_classful.FlaskView):
         print("Starting server at {}:{}".format(cls.host, cls.port))
 
         if debug:
+            print("Debug Enabled.")
             cls.app.run(cls.host, cls.port)
         else:
             listener = _tcp_listener((cls.host, cls.port))
