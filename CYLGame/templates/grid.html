@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>{{ game_title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='dark.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
-    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-	  <script src="{{ url_for('static', filename='draw_functions.js') }}"></script>
-    <script src="{{ url_for('static', filename='gui.js') }}"></script>
+    <script src="jquery.min.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="dark.css">
+    <link rel="stylesheet" href="main.css">
+    <link rel="icon" href="icon.png">
+    <script src="bootstrap.min.js"></script>
+	  <script src="draw_functions.js"></script>
+    <script src="gui.js"></script>
     <script type="text/javascript">
         $SCRIPT_ROOT = "";
         pause();
@@ -577,8 +577,7 @@
       </div>
       <div id="wrap">
         <div id="left_col">
-{#            <img id="chars" src="{{url_for('static', filename='terminal.png') }}" style="display: none;">#}
-            <img id="chars" src="{{ url_for('static', filename='fonts/'+char_set) }}" style="display: none;">
+            <img id="chars" src="{{ 'fonts/'+char_set }}" style="display: none;">
             <canvas id="display" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
             <div>
                 <div class="progress">
@@ -612,7 +611,7 @@
         </div>
         <div id="right_col">
             <pre id="editor">{{ example_bot }}</pre>
-            <script src="{{ url_for('static', filename='ace/ace.js') }}" type="text/javascript" charset="utf-8"></script>
+            <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
             <script>
                 var editor = ace.edit("editor");
                 editor.setTheme("ace/theme/twilight");
