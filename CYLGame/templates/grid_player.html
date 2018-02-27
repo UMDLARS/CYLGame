@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Playback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="jquery.min.js"></script>
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <link rel="stylesheet" href="dark.css">
+  <link rel="stylesheet" href="main.css">
+  <link rel="icon" href="icon.png">
+  <script src="bootstrap.min.js"></script>
+  <script src="draw_functions.js"></script>
+  <script src="gui.js"></script>
+  <script src="player.js"></script>
+  <script>
+    window.onload = function() {
+            window.charSetLayout = "col";
+            var charSetName = document.getElementById("chars").src;
+            if (charSetName.indexOf("_ro.") != -1) {
+                window.charSetLayout = "row";
+            } else if (charSetName.indexOf("_tc.") != -1) {
+                window.charSetLayout = "tc";
+            }
+
+      let player_height = {{ screen_height * char_height }};
+      let player_width = {{ screen_width * char_width }};
+      window.main_player = new Player(document.getElementById("left_col"),player_height, player_width,
+                                      draw,
+                                      true, true);
+    }
+  </script>
+</head>
+<body>
+
+</body>
+</html>

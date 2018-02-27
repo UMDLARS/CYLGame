@@ -33,14 +33,14 @@ pre, code {
     background-color: #115215;
 }
 
-#debugTable th {
+.debugTable th {
     border-bottom: 1px solid #2a2;
 }
 
-#debugTable td {
+.debugTable td {
     width: 100px;
 }
 
-#debugTable tr th:first-child,td:first-child {
+.debugTable tr th:first-child,td:first-child {
     border-right: 1px solid #2a2;
 }

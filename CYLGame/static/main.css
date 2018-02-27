@@ -13,20 +13,24 @@ canvas {
    margin:0 auto;
 }
 
+.btnBar button {
+    margin-right: 4px
+}
+
 th, td {
     padding: 8px;
 }
 
-#playbackProgress.instant {
+.progress-bar.instant {
     transition: width 0s ease;
 }
-#playbackProgress.fast {
+.progress-bar.fast {
     transition: width 0.05s ease;
 }
-#playbackProgress.normal {
+.progress-bar.normal {
     transition: width 0.2s ease;
 }
-#playbackProgress.slow {
+.progress-bar.slow {
     transition: width 0.4s ease;
 }
 
