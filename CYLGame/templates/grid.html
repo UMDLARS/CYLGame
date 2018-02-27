@@ -50,7 +50,7 @@
             };
         };
         function logout() {
-            delete window.token;
+            delete window.user_token;
             document.getElementById("scoreSelector").style.display = "None";
             document.getElementById("compSelector").style.display = "None";
             document.getElementById("logout").style.display = "None";
@@ -164,9 +164,6 @@
                         alert(data["error"]);
                     } else {
                         get_and_play_game(data["gtoken"]);
-                        {#drawFrames(data["screen"], data["debug"]);#}
-                        {#setSeed(data["seed"]);#}
-                        {#enable_btn_bar();#}
                     }
                 },
                 failure: function(errMsg) {
@@ -183,12 +180,8 @@
         function get_and_play_game(gtoken) {
             $("#debugTable").html("");
             showLoading();
-            var player_token;
-            if (window.user_token == null) {
-                player_token = "00000000";
-            } else {
-                player_token = window.user_token;
-            }
+            // Always test code as a anonymous.
+            var player_token = "00000000";
             $.ajax({
                 type: "GET",
                 url: $SCRIPT_ROOT + 'game/' + gtoken + "/" + player_token,
