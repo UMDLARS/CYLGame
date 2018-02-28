@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 
 from random import random, choice, shuffle
 
@@ -6,6 +7,9 @@ from multiprocessing import Process, Event
 
 import time
 
+import math
+
+from CYLGame.Utils import OnlineMean
 from .Game import GameRunner
 from .Player import Room
 
@@ -132,22 +136,22 @@ class Ranking(object):
 
 
 class MultiplayerComp(object):
-    RUN_FACTOR = 4
-
-    def __init__(self, bots, room_size, default_bot_class):
+    def __init__(self, bots, room_size, default_bot_class, run_factor=10):
         """
 
         Args:
             bots: (PROG) the players program to be executed and ranked
             room_size: (INT) the size of the rooms
+            run_factor(int): The average number of games a bot gets to play.
         """
         self.default_bot_class = default_bot_class
         self.room_size = room_size
         self.scores = {}  # Prog:scores
         self.rooms = {}  # Rooms:Rankings
         self.cur_run = 0
+        self.total_runs = self.run_factor * math.ceil(len(bots) / 4.0)
         for bot in bots:
-            self.scores[bot] = 0
+            self.scores[bot] = OnlineMean()
 
     def __iter__(self):
         return self
@@ -161,13 +165,13 @@ class MultiplayerComp(object):
         self.rooms[key] = value
         for k in value.ranks:
             if k.prog in self.scores:
-                self.scores[k.prog] += value.ranks[k]
+                self.scores[k.prog] += value.ranks[k] * 10
 
     def __next__(self):
         return self.next()
 
     def next(self):
-        if self.cur_run == self.RUN_FACTOR:
+        if self.cur_run == self.total_runs:
             raise StopIteration()
 
         l = list(self.scores.keys())
@@ -218,13 +222,13 @@ class MultiplayerComp(object):
             tourney[room] = gamerunner.run_for_avg_score(times=1, func=sum)
 
         for player, score in tourney.scores.items():
-            gamedb.save_avg_score(player.token, score)
+            gamedb.save_avg_score(player.token, score.floored_mean)
             if debug:
-                print("Score {} for Bike: {}".format(score, str(player.token)))
+                print("Score {} for Bike: {}".format(score.mean, str(player.token)))
 
 
 class MultiplayerCompRunner(Process):
-    def __init__(self, interval, gamedb, game, compiler):
+    def __init__(self, interval, gamedb, game, compiler, debug=False):
         """
 
         Args:
@@ -241,6 +245,7 @@ class MultiplayerCompRunner(Process):
         self.compiler = compiler
         self.start_run = Event()
         self.end = Event()
+        self.debug = debug
 
     def stop(self):
         self.start_run.set()
@@ -248,14 +253,14 @@ class MultiplayerCompRunner(Process):
 
     def run(self):
         while not self.end.is_set():
-            self.start_run.wait(self.interval)
             if not self.start_run.is_set():
                 self.__run()
+            self.start_run.wait(self.interval)
 
     def __run(self):
         print("Scoring all Bots...")
         start_time = time.time()
         for s_token in self.gamedb.get_school_tokens():
-            MultiplayerComp.sim_multiplayer(s_token, self.gamedb, self.game, self.compiler)
+            MultiplayerComp.sim_multiplayer(s_token, self.gamedb, self.game, self.compiler, debug=self.debug)
         print("Finished scoring in {0:.2f} secs...".format(time.time() - start_time))
 

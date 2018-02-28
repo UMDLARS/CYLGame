@@ -274,8 +274,8 @@ class GameServer(flask_classful.FlaskView):
 
     @classmethod
     def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,
-              avg_game_count=10, num_of_threads=None, game_data_path="temp_game", avg_game_func=average,
-              debug=False):
+              avg_game_count=10, multiplayer_scoring_interval=60, num_of_threads=None, game_data_path="temp_game",
+              avg_game_func=average, debug=False):
         cls.game = game
         cls.host = host
         cls.port = port
@@ -315,7 +315,7 @@ class GameServer(flask_classful.FlaskView):
         if cls.game.MULTIPLAYER:
             if debug:
                 print("Starting scoring process...")
-            scoring_process = MultiplayerCompRunner(30, cls.gamedb, cls.game, cls.compiler)
+            scoring_process = MultiplayerCompRunner(multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug)
             scoring_process.start()
 
         if debug:

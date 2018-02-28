@@ -101,3 +101,6 @@ class Room(object):
 
     def set_playback(self, screen_cap):
         self.screen_cap = screen_cap
+
+    def __str__(self):
+        return "<Room with '{}'>".format("', '".join(map(lambda x: x.name, self.bots)))
