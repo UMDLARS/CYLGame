@@ -42,68 +42,69 @@ def avg(scores):
     return float((sum(scores) * 100) / len(scores)) / 100
 
 
-def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func=avg):
-    assert gamedb is not None
-    assert gamedb.is_comp_token(token)
-
-    seeds = [random() for _ in xrange(2 * runs + 5)]
-
-    for school in gamedb.get_schools_in_comp(token):
-        if debug:
-            print("Got school '" + school + "'")
-        max_score = 0
-        max_code = ""
-        for student in gamedb.get_tokens_for_school(school):
-            if debug:
-                print("Got student '" + student + "'")
-            code, options = gamedb.get_code_and_options(student)
-            if not code:
-                continue
-            if debug:
-                print("Compiling code...")
-            prog = compiler.compile(code)
-            prog.options = options
-            if debug:
-                print("setting up game runner...")
-            runner = GameRunner(game, Room([prog]))
-            if debug:
-                print("Simulating...")
-            score = None
-
-            scores = []
-            count = 0
-            seed = 0
-            # TODO: make this able to run in a pool of threads (so it can be run on multiple CPUs)
-            while count < runs:
-                try:
-                    if seed >= len(seeds):
-                        print("Ran out of seeds")
-                        break
-                    scores += [runner.run_for_avg_score(times=1, seed=seeds[seed])]
-                    # print(scores[-1])
-                    # import sys
-                    # sys.stdout.flush()
-                    count += 1
-                    seed += 1
-                except Exception as e:
-                    print("There was an error simulating the game (Moving to next seed):", e)
-                    seed += 1
-            score = score_func(scores)
-            # score = runner.run_for_avg_score(times=runs)
-
-            # while score is None:
-            #     try:
-            #     except Exception as e:
-            #         print("There was an error simulating the game:", e)
-            if score > max_score:
-                max_score = score
-                max_code = code
-        if debug:
-            print("Saving score...", max_score)
-        gamedb.set_comp_avg_score(token, school, max_score)
-        gamedb.set_comp_school_code(token, school, max_code)
-    if debug:
-        print("All done :)")
+# TODO: rewrite this function. It is very outdated!
+# def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func=avg):
+#     assert gamedb is not None
+#     assert gamedb.is_comp_token(token)
+#
+#     seeds = [random() for _ in xrange(2 * runs + 5)]
+#
+#     for school in gamedb.get_schools_in_comp(token):
+#         if debug:
+#             print("Got school '" + school + "'")
+#         max_score = 0
+#         max_code = ""
+#         for student in gamedb.get_tokens_for_school(school):
+#             if debug:
+#                 print("Got student '" + student + "'")
+#             code, options = gamedb.get_code_and_options(student)
+#             if not code:
+#                 continue
+#             if debug:
+#                 print("Compiling code...")
+#             prog = compiler.compile(code)
+#             prog.options = options
+#             if debug:
+#                 print("setting up game runner...")
+#             runner = GameRunner(game, Room([prog]))
+#             if debug:
+#                 print("Simulating...")
+#             score = None
+#
+#             scores = []
+#             count = 0
+#             seed = 0
+#             # TODO: make this able to run in a pool of threads (so it can be run on multiple CPUs)
+#             while count < runs:
+#                 try:
+#                     if seed >= len(seeds):
+#                         print("Ran out of seeds")
+#                         break
+#                     scores += [runner.run_for_avg_score(times=1, seed=seeds[seed])]
+#                     # print(scores[-1])
+#                     # import sys
+#                     # sys.stdout.flush()
+#                     count += 1
+#                     seed += 1
+#                 except Exception as e:
+#                     print("There was an error simulating the game (Moving to next seed):", e)
+#                     seed += 1
+#             score = score_func(scores)
+#             # score = runner.run_for_avg_score(times=runs)
+#
+#             # while score is None:
+#             #     try:
+#             #     except Exception as e:
+#             #         print("There was an error simulating the game:", e)
+#             if score > max_score:
+#                 max_score = score
+#                 max_code = code
+#         if debug:
+#             print("Saving score...", max_score)
+#         gamedb.set_comp_avg_score(token, school, max_score)
+#         gamedb.set_comp_school_code(token, school, max_code)
+#     if debug:
+#         print("All done :)")
 
 
 class Ranking(object):
@@ -185,12 +186,13 @@ class MultiplayerComp(object):
         return room
 
     @staticmethod
-    def sim_multiplayer(s_token, gamedb, game, compiler, debug=False):
+    def sim_multiplayer(s_token, gamedb, game, compiler, save_games=False, debug=False):
         assert game.MULTIPLAYER, "Game must be multi-player to do MultiplayerComp."
         assert gamedb is not None
         assert gamedb.is_school_token(s_token)
         students = gamedb.get_tokens_for_school(s_token)  # Only getting one school token
         bots = []
+        game_tokens = []
         for s in students:
             try:
                 if debug:
@@ -213,18 +215,22 @@ class MultiplayerComp(object):
         if len(bots) == 0:
             if debug:
                 print("School Token {} has no valid bots. :(".format(s_token))
-            return
+            return []
         tourney = MultiplayerComp(bots, game.get_number_of_players(), game.default_prog_for_computer())
         for room in tourney:
             if debug:
                 print("Room: " + str(room))
-            gamerunner = GameRunner(game, room)
-            tourney[room] = gamerunner.run_for_avg_score(times=1, func=sum)
+            gamerunner = GameRunner(game)
+            tourney[room] = gamerunner.run(room).score
+            if save_games:
+                game_tokens += [room.save(gamedb)]
 
         for player, score in tourney.scores.items():
             gamedb.save_avg_score(player.token, score.floored_mean)
             if debug:
                 print("Score {} for Bike: {}".format(score.mean, str(player.token)))
+
+        return game_tokens
 
 
 class MultiplayerCompRunner(Process):
@@ -260,7 +266,11 @@ class MultiplayerCompRunner(Process):
     def __run(self):
         print("Scoring all Bots...")
         start_time = time.time()
+        gtokens = []
         for s_token in self.gamedb.get_school_tokens():
-            MultiplayerComp.sim_multiplayer(s_token, self.gamedb, self.game, self.compiler, debug=self.debug)
+            gtokens += MultiplayerComp.sim_multiplayer(s_token, self.gamedb, self.game, self.compiler,
+                                                       save_games=True, debug=self.debug)
+        self.gamedb.replace_games_in_comp(ctoken="P00000000",  # TODO: un hardcode this.
+                                          new_gtokens=gtokens)
         print("Finished scoring in {0:.2f} secs...".format(time.time() - start_time))
 

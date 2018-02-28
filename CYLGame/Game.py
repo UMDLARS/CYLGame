@@ -1,38 +1,13 @@
 from __future__ import division
 import os.path
 import random
-import string
 import sys
 
 from CYLGame.Frame import GridFrameBuffer
 from CYLGame.Player import UserProg
+from CYLGame.Utils import int2base
 
 FPS = 30
-
-
-# From: http://stackoverflow.com/a/2267446/4441526
-digs = string.digits + string.ascii_letters
-def int2base(x, base):
-    if x < 0:
-        sign = -1
-    elif x == 0:
-        return digs[0]
-    else:
-        sign = 1
-
-    x *= sign
-    digits = []
-
-    while x:
-        digits.append(digs[x % base])
-        x //= base
-
-    if sign < 0:
-        digits.append('-')
-
-    digits.reverse()
-
-    return ''.join(digits)
 
 
 def scorer(func):
@@ -253,47 +228,47 @@ class GridGame(Game):
 
 
 class GameRunner(object):
-    def __init__(self, game_class, room=None):
+    def __init__(self, game_class):
         self.game_class = game_class  # type: Type[Game]
-        self.user_is_playing = False
-        if room is None:
-            self.user_is_playing = True
-        else:
-            self.room = room  # type: Room
-        self.players = []
 
-    def __run_for(self, score=False, playback=False, seed=None):
-        assert len(self.room.bots) > 0  # Make sure that we have a bot to run
-        assert score != playback
+    def run(self, room, playback=True):
+        """The the game.
 
-        if not seed:
-            seed = random.randint(0, sys.maxsize)
-        game = self.game_class(random.Random(seed))
+        Args:
+            room(Room): The room to play.
+            playback(bool): if True save the playback.
+
+        Returns:
+            Room:
+        """
+        assert len(room.bots) > 0  # Make sure that we have a bot to run
+
+        game = self.game_class(random.Random(room.seed))
 
         game.init_board()
-        self.players = []
-        for bot in self.room.bots:
+        players = []
+        for bot in room.bots:
             # TODO: This is a hack. Remove me sometime.
             if not hasattr(bot, "options"):
                 bot.options = {}
             if playback:
                 bot.options["debug"] = True
 
-            self.players += [game.create_new_player(bot)]
+            players += [game.create_new_player(bot)]
 
         game.start_game()
 
         screen_cap = []
         if game.TURN_BASED:
-            self.current_player = 0
+            current_player = 0
         while game.is_running():
             if playback:
                 screen_cap += [game.get_frame()]
 
-            players = self.players
+            players = players
             if game.TURN_BASED:
-                players = [self.players[self.current_player]]
-                self.current_player = (self.current_player + 1) % len(self.players)
+                players = [players[current_player]]
+                current_player = (current_player + 1) % len(players)
                 # TODO: sync screen cap and debug vars.
 
             for player in players:
@@ -301,15 +276,15 @@ class GameRunner(object):
 
             game.do_turn()
 
+        room.score = game.get_score()
         if playback:
-            self.room.set_playback(screen_cap)
-            for player in self.players:
-                self.room.set_bot_debug(player.prog, player.debug_vars)
-            return {"seed": int2base(seed, 36)}
-        else:  # if score
-            return game.get_score()
+            room.screen_cap = screen_cap
+            for player in players:
+                room.debug_vars[player.prog] = player.debug_vars
 
-    def run_for_avg_score(self, times=1, seed=None, func=average):
+        return room
+
+    def run_for_avg_score(self, room, times=1, func=average):
         """Runs the given game keeping only the scores.
 
         Args:
@@ -318,21 +293,13 @@ class GameRunner(object):
         Return:
             The return value the average score for the times runs.
         """
+        # TODO: replace this method with a better one.
         scores = []
-        # TODO: make this able to run in a pool of threads (So it can be run on multiple CPUs)
         for t in range(times):
-            scores += [self.__run_for(score=True, seed=seed)]
+            scores += [self.run(room.rand_seeded).score]
         return func(scores)
 
-    def run_for_playback(self, seed=None):
-        """Runs the given game saving the screen captures.
-
-        Return:
-            The return value is a 3-dimensional list the first dimension is time followed by y and x.
-        """
-        return self.__run_for(playback=True, seed=seed)
-
-    def run(self, seed=None):
+    def run_with_local_display(self, seed=None):
         """Will run the game for a user.
 
         Returns:
@@ -385,7 +352,7 @@ def run(game_class, avg_game_func=average):
 
     def play(args):
         print("Playing...")
-        GameRunner(game_class).run(int(args.seed, 36))
+        GameRunner(game_class).run_with_local_display(int(args.seed, 36))
 
     import argparse
 

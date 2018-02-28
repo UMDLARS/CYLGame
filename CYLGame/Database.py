@@ -64,6 +64,11 @@ class GameDB(object):
             return os.listdir(self.__get_dir_for_token(token, "games"))
         return []
 
+    def __get_comp_game_tokens(self, token):
+        if self.is_comp_token(token):
+            return os.listdir(self.__get_dir_for_token(token, "games"))
+        return []
+
     def __get_new_token(self, tokens=None, prefix=""):
 
         def new_token():
@@ -150,11 +155,14 @@ class GameDB(object):
 
         return token
 
-    def add_new_competition(self, name=""):
-        token = self.__get_new_token(self.__get_comp_tokens(), prefix="P")
+    def add_new_competition(self, name="", _token=None):
+        token = _token
+        if token is None:
+            token = self.__get_new_token(self.__get_comp_tokens(), prefix="P")
 
         os.mkdir(os.path.join(self.competitions_dir, token))
         os.mkdir(os.path.join(self.competitions_dir, token, "schools"))
+        os.mkdir(os.path.join(self.competitions_dir, token, "games"))
 
         with io.open(os.path.join(self.competitions_dir, token, "name"), "w", encoding="utf8") as fp:
             fp.write(text(name))
@@ -304,7 +312,7 @@ class GameDB(object):
     def set_game_player(self, gtoken, token, data=None):
         assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
         assert self.is_user_token(token), "Token '{}' must be a user token".format(token)
-        assert os.path.exists(self.__get_dir_for_token(token, "games"))
+        assert os.path.exists(self.__get_dir_for_token(token, "games")), "Player token must have a games directory."
 
         os.mkdir(self.__get_dir_for_token(gtoken, ["players", token]))
 
@@ -312,6 +320,34 @@ class GameDB(object):
 
         with open(self.__get_dir_for_token(token, ["games", gtoken]), "w"):
             pass
+
+    def add_game_to_comp(self, ctoken, gtoken):
+        with open(self.__get_dir_for_token(ctoken, ["games", gtoken]), "w"):
+            pass
+
+    def remove_game_from_comp(self, ctoken, gtoken):
+        os.remove(self.__get_dir_for_token(ctoken, ["games", gtoken]))
+
+    def replace_games_in_comp(self, ctoken, new_gtokens, cleanup=True):
+        os.mkdir(os.path.join(self.competitions_dir, ctoken, "new_games"))
+        for gtoken in new_gtokens:
+            with open(self.__get_dir_for_token(ctoken, ["new_games", gtoken]), "w"):
+                pass
+
+        cleanup_gtokens = []
+        if cleanup:
+            cleanup_gtokens = self.__get_comp_game_tokens(ctoken)
+
+        has_old_games = os.path.exists(os.path.join(self.competitions_dir, ctoken, "games"))
+        if has_old_games:
+            os.rename(os.path.join(self.competitions_dir, ctoken, "games"),
+                      os.path.join(self.competitions_dir, ctoken, "old_games"))
+        os.rename(os.path.join(self.competitions_dir, ctoken, "new_games"),
+                  os.path.join(self.competitions_dir, ctoken, "games"))
+        shutil.rmtree(os.path.join(self.competitions_dir, ctoken, "old_games"))
+
+        for gtoken in cleanup_gtokens:
+            self.delete_game(gtoken)
 
     def get_game_frames(self, gtoken):
         if os.path.exists(self.__get_dir_for_token(gtoken, "frames.mp.gz")):
@@ -322,7 +358,9 @@ class GameDB(object):
             return read_json(self.__get_dir_for_token(gtoken, ["players", token, "data.mp.gz"]))
 
     def get_games_for_token(self, token):
-        return self.__get_user_game_tokens(token)
+        if self.is_game_token(token):
+            return self.__get_user_game_tokens(token)
+        return self.__get_comp_game_tokens(token)
 
     def get_code_and_options(self, token):
         code, options = None, {}

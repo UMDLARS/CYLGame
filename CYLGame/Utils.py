@@ -1,5 +1,7 @@
 from __future__ import division
 
+import string
+
 
 class OnlineMean:
     def __init__(self, i=0, mean=0):
@@ -23,3 +25,28 @@ class OnlineMean:
     @property
     def floored_mean(self):
         return int(self.mean)
+
+
+# From: http://stackoverflow.com/a/2267446/4441526
+digs = string.digits + string.ascii_letters
+def int2base(x, base):
+    if x < 0:
+        sign = -1
+    elif x == 0:
+        return digs[0]
+    else:
+        sign = 1
+
+    x *= sign
+    digits = []
+
+    while x:
+        digits.append(digs[x % base])
+        x //= base
+
+    if sign < 0:
+        digits.append('-')
+
+    digits.reverse()
+
+    return ''.join(digits)

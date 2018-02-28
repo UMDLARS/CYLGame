@@ -24,6 +24,7 @@ from .Game import average
 from .Database import GameDB
 
 
+ANONYMOUS_COMP = "P00000000"
 ANONYMOUS_SCHOOL = "S00000000"
 ANONYMOUS_USER = "00000000"
 
@@ -187,9 +188,9 @@ class GameServer(flask_classful.FlaskView):
                 self.gamedb.save_name(token, name)
             return flask.jsonify(score="still being computed. Check scoreboard later.")
         room = Room([prog])
-        runner = GameRunner(self.game, room)
+        runner = GameRunner(self.game)
         try:
-            score = runner.run_for_avg_score(times=self.avg_game_count, func=self._avg_game_func)
+            score = runner.run_for_avg_score(room, times=self.avg_game_count, func=self._avg_game_func)
             self.gamedb.save_avg_score(token, score)
             self.gamedb.save_code(token, code, options)
             name = find_name_from_code(code)
@@ -222,23 +223,16 @@ class GameServer(flask_classful.FlaskView):
             prog.name = "Your bot"
         except:
             return flask.jsonify(error="Code did not compile")
-        room = Room([prog])
+        room = Room(bots=[prog], seed=seed)
         if self.game.MULTIPLAYER:
             computer_bot_class = self.game.default_prog_for_computer()
             players = []
             for _ in range(self.game.get_number_of_players() - 1):
                 players += [computer_bot_class()]
-            room = Room([prog] + players)
-        runner = GameRunner(self.game, room)
+            room = Room(bots=[prog] + players, seed=seed)
+        runner = GameRunner(self.game)
         try:
-            runner.run_for_playback(seed=seed)
-            game_data = {"screen": room.screen_cap,
-                         "seed": int2base(seed, 36)}
-            player_data = {}
-            for player in room.bots:
-                if hasattr(player, "token") and player.token is not None:
-                    player_data[player.token] = room.debug_vars[player]
-            gtoken = self.gamedb.add_new_game(game_data, per_player_data=player_data)
+            gtoken = runner.run(room, playback=True).save(self.gamedb)
             result = ujson.dumps({"gtoken": gtoken})
         except Exception:
             traceback.print_exc(file=sys.stdout)
@@ -296,6 +290,8 @@ class GameServer(flask_classful.FlaskView):
             cls.gamedb.add_new_school(_token=ANONYMOUS_SCHOOL)
         if not cls.gamedb.is_user_token(ANONYMOUS_USER):
             cls.gamedb.get_new_token(ANONYMOUS_SCHOOL, _token=ANONYMOUS_USER)
+        if not cls.gamedb.is_comp_token(ANONYMOUS_COMP):
+            cls.gamedb.add_new_competition(_token=ANONYMOUS_COMP)
 
         if issubclass(game, GridGame):
             cls.charset = cls.__copy_in_charset(game.CHAR_SET)

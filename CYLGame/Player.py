@@ -1,5 +1,7 @@
+import random
 import sys
 import traceback
+from CYLGame.Utils import int2base
 
 
 # A template class for the Prog for the Player.
@@ -87,20 +89,41 @@ class DefaultGridPlayer(Player):
 
 
 class Room(object):
-    def __init__(self, bots=None):
+    def __init__(self, bots=None, seed=None):
+        self.bots = bots
         if bots is None:
             self.bots = []
-        else:
-            self.bots = bots
+
+        self.seed = seed
+        if seed is None:
+            self.seed = random.randint(0, sys.maxsize)
 
         self.debug_vars = {}
         self.screen_cap = None
 
-    def set_bot_debug(self, bot, debug_vars):
-        self.debug_vars[bot] = debug_vars
+    def save(self, gamedb):
+        """The method saves the game data to a new game. Note: this room must be run before calling this function.
 
-    def set_playback(self, screen_cap):
-        self.screen_cap = screen_cap
+        Args:
+            gamedb (GameDB): The current game database.
+
+        Returns: The gtoken of the newly created game.
+
+        """
+        if self.screen_cap is None:
+            raise Exception("You must run this room before trying to save it.")
+        game_data = {"screen": self.screen_cap,
+                     "seed": int2base(self.seed, 36)}
+        player_data = {}
+        for player in self.bots:
+            if hasattr(player, "token") and player.token is not None:
+                player_data[player.token] = self.debug_vars[player]
+        return gamedb.add_new_game(game_data, per_player_data=player_data)
+
+    @property
+    def rand_seeded(self):
+        """A randomly seeded room with the same bots."""
+        return Room(self.bots)
 
     def __str__(self):
         return "<Room with '{}'>".format("', '".join(map(lambda x: x.name, self.bots)))
