@@ -1,6 +1,9 @@
 import random
 import sys
 import traceback
+
+from littlepython import Compiler
+
 from CYLGame.Utils import int2base
 
 
@@ -12,8 +15,18 @@ class Prog(object):
         self.token = None
         self.name = None
 
-    def run(self, state=None, max_op_count=-1):
+    def run(self, state=None, max_op_count=-1, random=None):
         pass
+
+
+class LittlePythonProg(Prog):
+    def __init__(self, prog, name="Computer"):
+        super().__init__()
+        self.prog = Compiler().compile(prog)
+        self.name = name
+
+    def run(self, *args, **kargs):
+        return self.prog.run(*args, **kargs)
 
 
 class UserProg(Prog):
