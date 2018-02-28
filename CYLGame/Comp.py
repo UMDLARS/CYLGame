@@ -2,6 +2,10 @@ from __future__ import print_function
 
 from random import random, choice, shuffle
 
+from multiprocessing import Process, Event
+
+import time
+
 from .Game import GameRunner
 from .Player import Room
 
@@ -202,6 +206,10 @@ class MultiplayerComp(object):
                 bots += [prog]
             except:
                 print("Couldn't compile code for '{}' in '{}'".format(s, gamedb.get_school_for_token(s)))
+        if len(bots) == 0:
+            if debug:
+                print("School Token {} has no valid bots. :(".format(s_token))
+            return
         tourney = MultiplayerComp(bots, game.get_number_of_players(), game.default_prog_for_computer())
         for room in tourney:
             if debug:
@@ -213,3 +221,41 @@ class MultiplayerComp(object):
             gamedb.save_avg_score(player.token, score)
             if debug:
                 print("Score {} for Bike: {}".format(score, str(player.token)))
+
+
+class MultiplayerCompRunner(Process):
+    def __init__(self, interval, gamedb, game, compiler):
+        """
+
+        Args:
+            interval(int): The number of seconds between simulating. This is the time between the start of one run and
+                the start of the next. Therefore a interval of 0 means when done running once start again.
+            gamedb:
+            game:
+            compiler:
+        """
+        super(MultiplayerCompRunner, self).__init__()
+        self.interval = interval
+        self.gamedb = gamedb
+        self.game = game
+        self.compiler = compiler
+        self.start_run = Event()
+        self.end = Event()
+
+    def stop(self):
+        self.start_run.set()
+        self.end.set()
+
+    def run(self):
+        while not self.end.is_set():
+            self.start_run.wait(self.interval)
+            if not self.start_run.is_set():
+                self.__run()
+
+    def __run(self):
+        print("Scoring all Bots...")
+        start_time = time.time()
+        for s_token in self.gamedb.get_school_tokens():
+            MultiplayerComp.sim_multiplayer(s_token, self.gamedb, self.game, self.compiler)
+        print("Finished scoring in {0:.2f} secs...".format(time.time() - start_time))
+

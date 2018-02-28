@@ -16,7 +16,7 @@ import flaskext.markdown as flask_markdown
 from gevent.server import _tcp_listener
 from gevent.wsgi import WSGIServer
 
-from CYLGame.Comp import create_room
+from CYLGame.Comp import create_room, MultiplayerCompRunner
 from .Game import GameRunner, GridGame, int2base
 from .Player import Room
 from .Game import GameLanguage
@@ -312,6 +312,12 @@ class GameServer(flask_classful.FlaskView):
 
         print("Starting server at {}:{}".format(cls.host, cls.port))
 
+        if cls.game.MULTIPLAYER:
+            if debug:
+                print("Starting scoring process...")
+            scoring_process = MultiplayerCompRunner(30, cls.gamedb, cls.game, cls.compiler)
+            scoring_process.start()
+
         if debug:
             print("Debug Enabled.")
             cls.app.run(cls.host, cls.port)
@@ -330,6 +336,8 @@ class GameServer(flask_classful.FlaskView):
             serve_forever(listener)
 
         print("Dying...")
+        if cls.game.MULTIPLAYER:
+            scoring_process.stop()
         if cls.charset and os.path.exists(static_file(os.path.join("fonts", cls.charset))):
             print("Removing charset...")
             os.remove(static_file(os.path.join("fonts", cls.charset)))
