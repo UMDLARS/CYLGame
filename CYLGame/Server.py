@@ -161,6 +161,13 @@ class GameServer(flask_classful.FlaskView):
 
         return ujson.dumps(data)
 
+    @flask_classful.route('/player')
+    def get_player(self):
+        if self.game.GRID:
+            return flask.render_template('grid_player.html', char_width=self.game.CHAR_WIDTH,
+                                    char_height=self.game.CHAR_HEIGHT, screen_width=self.game.SCREEN_WIDTH,
+                                    screen_height=self.game.SCREEN_HEIGHT, char_set=self.charset)
+
     @flask_classful.route('/sim_avg', methods=['POST'])
     def sim_avg(self):
         # TODO: create this to run the game 100 times returning the average score to the user.

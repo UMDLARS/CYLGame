@@ -14,24 +14,49 @@
   <script src="gui.js"></script>
   <script src="player.js"></script>
   <script>
+    $SCRIPT_ROOT = "";
     window.onload = function() {
-            window.charSetLayout = "col";
-            var charSetName = document.getElementById("chars").src;
-            if (charSetName.indexOf("_ro.") != -1) {
-                window.charSetLayout = "row";
-            } else if (charSetName.indexOf("_tc.") != -1) {
-                window.charSetLayout = "tc";
-            }
+      window.charSetLayout = "col";
+      var charSetName = document.getElementById("chars").src;
+      if (charSetName.indexOf("_ro.") != -1) {
+          window.charSetLayout = "row";
+      } else if (charSetName.indexOf("_tc.") != -1) {
+          window.charSetLayout = "tc";
+      }
 
       let player_height = {{ screen_height * char_height }};
       let player_width = {{ screen_width * char_width }};
-      window.main_player = new Player(document.getElementById("left_col"),player_height, player_width,
+      window.main_player = new Player(document.getElementById("container"), player_height, player_width,
                                       draw,
                                       true, true);
+      let tokens = location.hash.substr(1).split("_");
+      window.main_player.load_from_tokens(tokens[0], tokens[1], hideLoading, draw);
+    };
+
+    function draw(canvas, frame) {
+        var c=canvas;
+        var ctx=c.getContext("2d");
+        var img=document.getElementById("chars");
+        var char_height = {{ char_height }};
+        var char_width = {{ char_width }};
+
+        for (var i = 0; i < frame.length; i++) {
+            for (var j = 0; j < frame[i].length; j++) {
+                draw_functions["char"](c,ctx,[frame[i][j],j,i,char_height,char_width]);
+            }
+        }
     }
   </script>
 </head>
 <body>
-
+<img id="chars" src="{{ 'fonts/'+char_set }}" style="display: none;">
+<div id="loadingOverlay">
+    <div style="top: 50%; left: 50%; position: absolute;transform: translate3d(-50%,-50%, 0);text-align: center;">
+        <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
+        <br><br>
+        <span id="overlayCancel" onclick="cancelSubmit();">Cancel</span>
+    </div>
+</div>
+<div id="container"></div>
 </body>
 </html>

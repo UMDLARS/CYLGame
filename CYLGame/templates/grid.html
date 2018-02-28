@@ -142,7 +142,8 @@
                         hideLoading();
                         alert(data["error"]);
                     } else {
-                        get_and_play_game(data["gtoken"]);
+                      window.main_player.load_from_tokens(data["gtoken"], "00000000", hideLoading);
+                        // get_and_play_game(data["gtoken"]);
                     }
                 },
                 failure: function(errMsg) {
@@ -154,41 +155,6 @@
                 }
             });
             showLoading();
-            return false;
-        }
-        function get_and_play_game(gtoken) {
-            $("#debugTable").html("");
-            showLoading();
-            // Always test code as a anonymous.
-            var player_token = "00000000";
-            $.ajax({
-                type: "GET",
-                url: $SCRIPT_ROOT + 'game/' + gtoken + "/" + player_token,
-                dataType: "json",
-                success: function(data) {
-                    if (window.canceled) {
-                        return;
-                    }
-                    hideLoading();
-                    if (data["error"]) {
-                        if (data["error"] == "Invalid Seed") {
-                            window.seed = "";
-                        }
-                        alert(data["error"]);
-                    } else {
-                        drawFrames(data["screen"], data["player"]);
-                        setSeed(data["seed"]);
-                        enable_btn_bar();
-                    }
-                },
-                failure: function(errMsg) {
-                    if (window.canceled) {
-                        return;
-                    }
-                    hideLoading();
-                    alert(errMsg);
-                }
-            });
             return false;
         }
         function submitCode() {

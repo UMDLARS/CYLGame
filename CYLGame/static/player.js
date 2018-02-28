@@ -1,6 +1,6 @@
 'use strict';
 
-DEBUGGING = false;
+let DEBUGGING = false;
 
 class Player {
   constructor(parent_div, height, width, draw_func, show_btn_bar = false, show_debug_table = false) {
@@ -96,20 +96,22 @@ class Player {
         .click(() => {
           this.on_faster_click();
         }));
-      // Set seed and toggle debug table:
-      this.debug_toggle_btn = $("<button>")
-        .text("Show Debug Table")
-        .click(() => {
-          this.on_toggle_debug_table_click();
-        });
-      this.btn_bar.append($("<div>").css("float", "right")
-        .append($("<button>")
-          .text("Set Map Seed")
+      if (this.debug_table) {
+        // Set seed and toggle debug table:
+        this.debug_toggle_btn = $("<button>")
+          .text("Show Debug Table")
           .click(() => {
-            this.on_set_seed_click();
-          }))
-        .append(this.debug_toggle_btn
-        ));
+            this.on_toggle_debug_table_click();
+          });
+        this.btn_bar.append($("<div>").css("float", "right")
+          .append($("<button>")
+            .text("Set Map Seed")
+            .click(() => {
+              this.on_set_seed_click();
+            }))
+          .append(this.debug_toggle_btn
+          ));
+      }
       this.btn_bar.append($("<br>"));
       this.parent_div.append(this.btn_bar);
       this.disable_btn_bar();
@@ -162,7 +164,7 @@ class Player {
           this.enable_btn_bar();
         }
       },
-      failure: function (errMsg) {
+      failure: (errMsg) => {
         if (window.canceled) {
           return;
         }
@@ -341,7 +343,11 @@ class Player {
     if (this.cur_frame >= 0 && this.cur_frame < this.replay_frames.length) {
       this.playback_progress_bar.css("width", (this.cur_frame / (this.replay_frames.length - 1)) * 100 + "%");
       this.playback_progress_bar_text.html("Frame " + (this.cur_frame + 1) + " of " + (this.replay_frames.length));
-      this.draw_func(this.canvas[0], this.replay_frames[this.cur_frame], this.replay_vars[this.cur_frame]);
+      if (this.debug_table) {
+        this.draw_func(this.canvas[0], this.replay_frames[this.cur_frame], this.replay_vars[this.cur_frame]);
+      } else {
+        this.draw_func(this.canvas[0], this.replay_frames[this.cur_frame]);
+      }
     } else {
       console.log("Not drawing frame: " + this.cur_frame);
     }
