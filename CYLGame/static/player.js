@@ -20,14 +20,6 @@ class Player {
     this.replay_vars = [];
     this.replay_frames = [];
     this.reset_speed();
-//             disable_btn_bar();
-//             window.charSetLayout = "col";
-//             var charSetName = document.getElementById("chars").src;
-//             if (charSetName.indexOf("_ro.") != -1) {
-//                 window.charSetLayout = "row";
-//             } else if (charSetName.indexOf("_tc.") != -1) {
-//                 window.charSetLayout = "tc";
-//             }
 
     // Create canvas
     this.canvas = $("<canvas>");
@@ -96,7 +88,7 @@ class Player {
         .click(() => {
           this.on_faster_click();
         }));
-      if (this.debug_table) {
+      if (this.show_debug_table) {
         // Set seed and toggle debug table:
         this.debug_toggle_btn = $("<button>")
           .text("Show Debug Table")
@@ -343,10 +335,9 @@ class Player {
     if (this.cur_frame >= 0 && this.cur_frame < this.replay_frames.length) {
       this.playback_progress_bar.css("width", (this.cur_frame / (this.replay_frames.length - 1)) * 100 + "%");
       this.playback_progress_bar_text.html("Frame " + (this.cur_frame + 1) + " of " + (this.replay_frames.length));
-      if (this.debug_table) {
-        this.draw_func(this.canvas[0], this.replay_frames[this.cur_frame], this.replay_vars[this.cur_frame]);
-      } else {
-        this.draw_func(this.canvas[0], this.replay_frames[this.cur_frame]);
+      this.draw_func(this.canvas[0], this.replay_frames[this.cur_frame]);
+      if (this.show_debug_table) {
+        this.create_var_table(this.replay_vars[this.cur_frame]);
       }
     } else {
       console.log("Not drawing frame: " + this.cur_frame);
@@ -355,5 +346,17 @@ class Player {
 
   setSeed(seed) {
     this.seed_text.html("Map: " + seed);
+  }
+
+  create_var_table(vars) {
+    let keys = Object.keys(vars);
+    keys.sort();
+
+    let row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Value"));
+    this.debug_table.html("").append(row);
+    keys.forEach((item, index) => {
+        let row = $("<tr>").append($("<td>").html(item)).append($("<td>").html(vars[item]));
+        this.debug_table.append(row);
+    });
   }
 }

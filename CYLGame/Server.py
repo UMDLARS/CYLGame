@@ -107,6 +107,17 @@ class GameServer(flask_classful.FlaskView):
             score = self.gamedb.get_avg_score(user_tk)
             if score is not None:
                 obj["scores"] += [{"name": escape(self.gamedb.get_name(user_tk)), "score": self.gamedb.get_avg_score(user_tk)}]
+        if self.game.MULTIPLAYER:
+            def get_game_name(gtoken):
+                bot_names = []
+                for token in self.gamedb.get_players_for_game(gtoken):
+                    bot_names += [self.gamedb.get_name(token)]
+                return "{} - '{}'".format(gtoken, "' vs '".join(bot_names))
+            gtokens = []
+            for gtoken in self.gamedb.get_games_for_token(ANONYMOUS_COMP):
+                if token in self.gamedb.get_players_for_game(gtoken):
+                    gtokens += [{"token": gtoken, "text": get_game_name(gtoken)}]
+            obj["games"] = gtokens
         return ujson.dumps(obj)
 
     @flask_classful.route('/comp_scoreboards', methods=["POST"])

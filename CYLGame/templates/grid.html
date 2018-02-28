@@ -26,7 +26,7 @@
             // window.replay_vars = [];
             // window.replay_frames = [];
             window.canceled = false;
-            window.user_token = null;
+            // localStorage.user_token = null;
 //             disable_btn_bar();
             window.charSetLayout = "col";
             var charSetName = document.getElementById("chars").src;
@@ -45,16 +45,22 @@
                 logout();
             };
             document.getElementById("login").onclick = function() {
-                login();
+                login_prompt();
             };
             let player_height = {{ screen_height * char_height }};
             let player_width = {{ screen_width * char_width }};
             window.main_player = new Player(document.getElementById("left_col"),player_height, player_width,
                                             draw,
                                             true, true);
+            if (localStorage.user_token != null) {
+              login();
+            }
         };
+        function hasKey(obj, key) {
+            return obj.hasOwnProperty(key);
+        }
         function logout() {
-            delete window.user_token;
+            delete localStorage.user_token;
             document.getElementById("scoreSelector").style.display = "None";
             document.getElementById("compSelector").style.display = "None";
             document.getElementById("logout").style.display = "None";
@@ -62,16 +68,20 @@
             document.getElementById("loadCode").style.display = "None";
             document.getElementById("login").style.display = "";
         }
-        function login() {
-            window.user_token = prompt("Enter your token:", "");
-            if (window.user_token == null) {
+        function login_prompt() {
+            localStorage.user_token = prompt("Enter your token:", "");
+            if (localStorage.user_token == null) {
                 return false;
             }
+            login();
+            return false;
+        }
+        function login() {
             //check_token
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'check_token',
-                data: JSON.stringify({token: window.user_token}),
+                data: JSON.stringify({token: localStorage.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -100,13 +110,12 @@
                 }
             });
             showLoading();
-            return false;
         }
         function checkComps() {
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'comp_scoreboards',
-                data: JSON.stringify({token: window.user_token}),
+                data: JSON.stringify({token: localStorage.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -158,20 +167,20 @@
             return false;
         }
         function submitCode() {
-            if (!window.user_token) {
-                login();
+            if (!localStorage.user_token) {
+                login_prompt();
             }
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim_avg',
-                data: JSON.stringify({code: editor.getValue(), token: window.user_token}),
+                data: JSON.stringify({code: editor.getValue(), token: localStorage.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
                     if (data.hasOwnProperty("error")) {
                         if (data["error"] == "Invalid Token") {
                             logout();
-//                            window.user_token = "";
+//                            localStorage.user_token = "";
 //                            document.getElementById("scoreSelector").style.display = "None";
                         } else {
                             alert(data["error"]);
@@ -205,13 +214,13 @@
             }
         }
         function loadCode() {
-            if (!window.user_token) {
-                login();
+            if (!localStorage.user_token) {
+                login_prompt();
             }
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'load_code',
-                data: JSON.stringify({token: window.user_token}),
+                data: JSON.stringify({token: localStorage.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -237,10 +246,11 @@
         }
         function updateScoreboard() {
             $("#scoreTable").html("");
+            $("#games").html("");
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'scoreboard',
-                data: JSON.stringify({token: window.user_token}),
+                data: JSON.stringify({token: localStorage.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -262,6 +272,18 @@
                         var row = $("<tr>").append($("<td>").text(item["name"])).append($("<td>").text(item["score"]));
                         $("#scoreTable").append(row);
                     });
+
+                    if ("games" in data) {
+                      // TODO: create list of games.
+                      $("#games").html("");
+                      data["games"].forEach(function myFunction(item, index) {
+                        var row = $("<li>").append($("<a>").attr("href", "player#"+item["token"]+"_"+localStorage.user_token)
+                          .attr("target", "_blank").text(item["text"]));
+                          // var row = $("<tr>").append($("<td>").text(item["name"])).append($("<td>").text(item["score"]));
+                        $("#games").append(row);
+                      });
+                    }
+
                     document.getElementById("scoreSchool").innerHTML = data["school"];
                 },
                 failure: function(errMsg) {
@@ -274,7 +296,7 @@
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'comp_scoreboards',
-                data: JSON.stringify({token: window.user_token}),
+                data: JSON.stringify({token: localStorage.user_token}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -309,7 +331,7 @@
             });
         }
 
-        function draw(canvas, frame, cur_vars) {
+        function draw(canvas, frame) {
             var c=canvas;
             var ctx=c.getContext("2d");
             var img=document.getElementById("chars");
@@ -321,22 +343,6 @@
                     draw_functions["char"](c,ctx,[frame[i][j],j,i,char_height,char_width]);
                 }
             }
-            create_var_table(cur_vars);
-        }
-
-        function create_var_table(vars) {
-            var keys = Object.keys(vars);
-            keys.sort();
-
-//            var scores = data["scores"];
-//            scores.sort(compare);
-
-            var row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Value"));
-            $("#debugTable").html("").append(row);
-            keys.forEach(function myFunction(item, index) {
-                var row = $("<tr>").append($("<td>").html(item)).append($("<td>").html(vars[item]));
-                $("#debugTable").append(row);
-            });
         }
         function cancelSubmit() {
             // window.canceled = true;
@@ -453,6 +459,10 @@
               <th>Average Score</th>
           </tr>
       </table>
+      <br/><br/>
+      <h3>Games your bot played in:</h3>
+      <ul id="games">
+      </ul>
   </div>
   <div id="Comp" class="tab-pane fade">
       <!--<h3>Scoreboard for <span id="scoreSchool"></span></h3>-->
