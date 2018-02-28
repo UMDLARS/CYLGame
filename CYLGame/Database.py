@@ -358,9 +358,11 @@ class GameDB(object):
             return read_json(self.__get_dir_for_token(gtoken, ["players", token, "data.mp.gz"]))
 
     def get_games_for_token(self, token):
-        if self.is_game_token(token):
+        if self.is_user_token(token):
             return self.__get_user_game_tokens(token)
-        return self.__get_comp_game_tokens(token)
+        elif self.is_comp_token(token):
+            return self.__get_comp_game_tokens(token)
+        raise ValueError("Invalid token")
 
     def get_code_and_options(self, token):
         code, options = None, {}
