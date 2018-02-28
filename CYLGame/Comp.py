@@ -149,7 +149,7 @@ class MultiplayerComp(object):
         self.scores = {}  # Prog:scores
         self.rooms = {}  # Rooms:Rankings
         self.cur_run = 0
-        self.total_runs = self.run_factor * math.ceil(len(bots) / 4.0)
+        self.total_runs = run_factor * math.ceil(len(bots) / 4.0)
         for bot in bots:
             self.scores[bot] = OnlineMean()
 
