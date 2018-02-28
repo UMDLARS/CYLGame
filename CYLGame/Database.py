@@ -313,7 +313,7 @@ class GameDB(object):
         assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
         assert self.is_user_token(token), "Token '{}' must be a user token".format(token)
         if not os.path.exists(self.__get_dir_for_token(token, "games")):
-            os.mkdir(os.path.exists(self.__get_dir_for_token(token, "games")))
+            os.mkdir(self.__get_dir_for_token(token, "games"))
         assert os.path.exists(self.__get_dir_for_token(token, "games")), "Player token must have a games directory."
 
         os.mkdir(self.__get_dir_for_token(gtoken, ["players", token]))
