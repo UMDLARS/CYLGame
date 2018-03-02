@@ -218,6 +218,7 @@ class GameServer(flask_classful.FlaskView):
     def sim(self):
         code = flask.request.get_json(silent=True).get('code', '')
         seed_str = flask.request.get_json(silent=True).get('seed', '')
+        opponents = flask.request.get_json(silent=True).get('opponents', None)
         options = flask.request.get_json(silent=True).get('options', None)
         if options is None:
             options = {}
@@ -230,16 +231,27 @@ class GameServer(flask_classful.FlaskView):
         try:
             prog = self.compiler.compile(code)
             prog.options = options
-            prog.token = "00000000"  # anonymous user
+            prog.token = ANONYMOUS_USER  # anonymous user
             prog.name = "Your bot"
         except:
             return flask.jsonify(error="Code did not compile")
         room = Room(bots=[prog], seed=seed)
         if self.game.MULTIPLAYER:
-            computer_bot_class = self.game.default_prog_for_computer()
             players = []
-            for _ in range(self.game.get_number_of_players() - 1):
-                players += [computer_bot_class()]
+            if opponents is None:
+                computer_bot_class = self.game.default_prog_for_computer()
+                for _ in range(self.game.get_number_of_players() - 1):
+                    players += [computer_bot_class()]
+            else:
+                for opponent in opponents:
+                    if opponent == ANONYMOUS_USER:
+                        opponent_prog = self.compiler.compile(code)
+                        opponent_prog.options = options
+                        opponent_prog.name = "Your other bot"
+                        players += [opponent_prog]
+                    else:
+                        return flask.jsonify(error="Not implemented yet :(")
+
             room = Room(bots=[prog] + players, seed=seed)
         runner = GameRunner(self.game)
         try:
@@ -276,13 +288,13 @@ class GameServer(flask_classful.FlaskView):
                                     example_bot=self.game.default_prog_for_bot(self.language), char_width=self.game.CHAR_WIDTH,
                                     char_height=self.game.CHAR_HEIGHT, screen_width=self.game.SCREEN_WIDTH,
                                     screen_height=self.game.SCREEN_HEIGHT, char_set=self.charset,
-                                    intro_text=intro)
+                                    intro_text=intro, multiplayer=self.game.MULTIPLAYER)
         else:
             return flask.render_template('nongrid.html', game_title=self.game.GAME_TITLE,
                                     example_bot=self.game.default_prog_for_bot(self.language), 
                                     screen_width=self.game.SCREEN_WIDTH,
                                     screen_height=self.game.SCREEN_HEIGHT,
-                                    intro_text=intro, options=self.game.OPTIONS)
+                                    intro_text=intro, multiplayer=self.game.MULTIPLAYER, options=self.game.OPTIONS)
 
     @classmethod
     def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,

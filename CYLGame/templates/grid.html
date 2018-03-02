@@ -132,12 +132,12 @@
                 }
             });
         }
-        function testCode() {
+        function testCode(opponents) {
             $("#debugTable").html("");
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim',
-                data: JSON.stringify({code: editor.getValue(), seed: window.seed}),
+                data: JSON.stringify({code: editor.getValue(), seed: window.seed, opponents: opponents}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
@@ -445,7 +445,10 @@
                 editor.session.setMode("ace/mode/lp");
             </script>
             <br>
-            <button id="testCode" onclick="testCode();">Play</button>
+            <button id="testCode" onclick="testCode(null);">Play{% if multiplayer %} Computer{% endif %}</button>
+            {% if multiplayer %}
+              <button id="testCode2" onclick="testCode(['00000000', '00000000', '00000000']);">Play Self</button>
+            {% endif %}
             <button id="loadCode" onclick="loadCodeWithCon();" style="display: none;">Load Last Submitted Code</button>
             <button id="submitCode" onclick="submitCode();" style="display: none;">Submit</button>
         </div>
