@@ -339,7 +339,10 @@ class GameServer(flask_classful.FlaskView):
             listener = _tcp_listener((cls.host, cls.port))
 
             def serve_forever(listener):
-                WSGIServer(listener, cls.app).serve_forever()
+                try:
+                    WSGIServer(listener, cls.app).serve_forever()
+                except KeyboardInterrupt:
+                    pass
 
             if num_of_threads is None:
                 num_of_threads = multiprocessing.cpu_count()
