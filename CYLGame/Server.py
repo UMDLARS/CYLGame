@@ -16,8 +16,8 @@ import flaskext.markdown as flask_markdown
 from gevent.server import _tcp_listener
 from gevent.wsgi import WSGIServer
 
-from CYLGame.Comp import create_room, MultiplayerCompRunner
-from .Game import GameRunner, GridGame, int2base
+from CYLGame.Comp import MultiplayerCompRunner
+from .Game import GameRunner, GridGame
 from .Player import Room
 from .Game import GameLanguage
 from .Game import average
