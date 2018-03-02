@@ -2,6 +2,8 @@ from __future__ import division
 
 import string
 
+from Crypto.Cipher import AES
+
 
 class OnlineMean:
     def __init__(self, i=0, mean=0):
@@ -50,3 +52,21 @@ def int2base(x, base):
     digits.reverse()
 
     return ''.join(digits)
+
+
+def encrypt_token_list(tokens, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    out = []
+    for token in tokens:
+        padded_token = "!" * -(len(token) % -len(key)) + token
+        out += [cipher.encrypt(bytes(padded_token, encoding="utf-8")).hex()]
+    return out
+
+
+def decrypt_token_list(tokens, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    out = []
+    for token in tokens:
+        plain_token = cipher.decrypt(bytes.fromhex(token))
+        out += [plain_token.decode(encoding="utf-8").lstrip("!")]
+    return out
