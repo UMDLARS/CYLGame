@@ -326,7 +326,7 @@ class GameServer(flask_classful.FlaskView):
 
         print("Starting server at {}:{}".format(cls.host, cls.port))
 
-        if cls.game.MULTIPLAYER:
+        if cls.game.MULTIPLAYER and multiplayer_scoring_interval >= 0:
             if debug:
                 print("Starting scoring process...")
             scoring_process = MultiplayerCompRunner(multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug)

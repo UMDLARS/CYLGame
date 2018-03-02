@@ -1,8 +1,10 @@
 import random
 import sys
 import traceback
+from abc import ABC, abstractmethod
 
-from littlepython import Compiler
+from littlepython import Compiler, ExecutionCountExceededException
+from littlepython.error import LittlePythonBaseExcetion
 
 from CYLGame.Utils import int2base
 
@@ -39,26 +41,32 @@ class UserProg(Prog):
         return {"move": ord(self.key)}
 
 
-class Player(object):
+class Player(ABC):
     def __init__(self, prog):
         self.prog = prog
         self.prev_vars = {}
         self.debugging = prog.options.get("debug", False)
         self.debug_vars = []  # TODO: Maybe make this into a class.
+        self.running = True
 
     def run_turn(self, random, max_ops=1000000):
-        try:
-            nxt_state = self.prog.run(self.get_state(), max_op_count=max_ops, random=random)
-            self.update_state(dict(nxt_state))
-            self.prev_vars = nxt_state
-        except:
-            traceback.print_exc(file=sys.stdout)
-            print("Player class had an error!")
-            self.update_state({})  # if the program had an error pass an empty state.
-            self.prev_vars = {}
+        if self.running:
+            try:
+                nxt_state = self.prog.run(self.get_state(), max_op_count=max_ops, random=random)
+                self.update_state(dict(nxt_state))
+                self.prev_vars = nxt_state
+            except LittlePythonBaseExcetion as e:
+                print("Player class raised: {}!".format(e.__class__.__name__))
+                self.running = False
+                self.prev_vars = {}
 
+    @abstractmethod
     def get_state(self):
-        raise Exception("Not implemented!")
+        pass
+
+    @abstractmethod
+    def update_state(self, new_state):
+        pass
 
 
 class DefaultGridPlayer(Player):
