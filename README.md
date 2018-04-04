@@ -27,10 +27,3 @@ Python:
 ```
 pip install -U flask flask-compress flask_classful Flask-Markdown ujson littlepython msgpack gevent
 ```
-
-## Play a game
-Go here and download the repo: [https://github.com/UMDCYL/applehunt](https://github.com/UMDCYL/applehunt)
-To play run:
-```
-python apple_game.py play
-```
