@@ -94,3 +94,5 @@ ENV/
 CYLGame/static/fonts/
 
 \.idea/
+.pytest_cache/
+.vscode/

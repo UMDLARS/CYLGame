@@ -119,7 +119,7 @@ class NonGridGame(Game):
         raise Exception("Not Implemented!")
 
 
-class ConstMapping(dict):
+class ConstMapping:
     def __init__(self, seq=None, **kwargs):
         """
         dict() -> new empty dictionary
@@ -133,6 +133,8 @@ class ConstMapping(dict):
             in the keyword argument list.  For example:  dict(one=1, two=2)
         # (copied from class doc)
         """
+        self.name_to_val_mapping = {}
+        self.val_to_name_mapping = {}
         super(ConstMapping, self).__init__()
         if isinstance(seq, dict):
             for v, k in seq.items():
@@ -145,27 +147,43 @@ class ConstMapping(dict):
                 self[v] = k
 
     def update(self, other):
-        if isinstance(other, ConstMapping):
-            super(ConstMapping, self).update(other)
-        elif isinstance(other, dict):
-            super(ConstMapping, self).update(ConstMapping(other))
-        else:
-            raise TypeError("Update must take a dictionary.")
+        for var, val in other.items():
+            self[var] = val
+
+    def __iter__(self):
+        return iter(self.name_to_val_mapping.items())
+
+    def __contains__(self, item):
+        return item in self.name_to_val_mapping or item in self.val_to_name_mapping
+
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            return self.name_to_val_mapping[item]
+        elif isinstance(item, int):
+            return self.val_to_name_mapping[item]
+        raise TypeError()
 
     def __setitem__(self, key, value):
-        if key in self:
-            del self[key]
-        if value in self:
-            del self[value]
-        dict.__setitem__(self, key, value)
-        dict.__setitem__(self, value, key)
+        # TODO: assert key is a valid littlepython variable name.
+        assert isinstance(key, str), "Key must be a variable name"
+        assert isinstance(value, int), "Only valid value is an int currently"
+
+        if key in self.name_to_val_mapping:
+            old_value = self.name_to_val_mapping[key]
+            del self.name_to_val_mapping[key]
+            del self.val_to_name_mapping[old_value]
+        assert value not in self.val_to_name_mapping, "This is a one-to-one mapping"
+
+        self.name_to_val_mapping[key] = value
+        self.val_to_name_mapping[value] = key
 
     def __delitem__(self, key):
-        dict.__delitem__(self, self[key])
-        dict.__delitem__(self, key)
+        value = self.name_to_val_mapping[key]
+        del self.name_to_val_mapping[key]
+        del self.val_to_name_mapping[value]
 
     def __len__(self):
-        return dict.__len__(self) // 2
+        return len(self.name_to_val_mapping)
 
 
 class GridGame(Game):
