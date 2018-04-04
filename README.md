@@ -1,5 +1,7 @@
 # Installing
 
+**If you are looking for a game to play or want to make a game you should check out this repo instead: [https://github.com/UMDCYL/applehunt](https://github.com/UMDCYL/applehunt)**
+
 ## Dependencies
 
 If you don't have python 3.6 on your system then you should install it.
@@ -25,11 +27,6 @@ Python:
 ```
 pip install -U flask flask-compress flask_classful Flask-Markdown ujson littlepython msgpack gevent
 ```
-
-## Setup
-Clone this repo and add the path to the repo to your path variable.
-
-Ex. export PYTHONPATH=$PYTHONPATH:/path/to/add/CYLGame
 
 ## Play a game
 Go here and download the repo: [https://github.com/UMDCYL/applehunt](https://github.com/UMDCYL/applehunt)
