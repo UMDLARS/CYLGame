@@ -90,7 +90,7 @@ class DefaultGridPlayer(Player):
 
     def update_state(self, state):
         # remove consts
-        for key in self.bot_consts:
+        for key in self.bot_consts.names:
             state.pop(key, None)
 
         self.move = chr(state.get("move", ord("Q")))

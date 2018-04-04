@@ -135,7 +135,6 @@ class ConstMapping:
         """
         self.name_to_val_mapping = {}
         self.val_to_name_mapping = {}
-        super(ConstMapping, self).__init__()
         if isinstance(seq, dict):
             for v, k in seq.items():
                 self[v] = k
@@ -149,6 +148,14 @@ class ConstMapping:
     def update(self, other):
         for var, val in other.items():
             self[var] = val
+
+    @property
+    def names(self):
+        return self.name_to_val_mapping.keys()
+
+    @property
+    def values(self):
+        return self.name_to_val_mapping.values()
 
     def __iter__(self):
         return iter(self.name_to_val_mapping.items())
