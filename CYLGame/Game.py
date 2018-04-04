@@ -144,6 +144,14 @@ class ConstMapping(dict):
             for v, k in seq:
                 self[v] = k
 
+    def update(self, other):
+        if isinstance(other, ConstMapping):
+            super(ConstMapping, self).update(other)
+        elif isinstance(other, dict):
+            super(ConstMapping, self).update(ConstMapping(other))
+        else:
+            raise TypeError("Update must take a dictionary.")
+
     def __setitem__(self, key, value):
         if key in self:
             del self[key]
