@@ -40,4 +40,4 @@ This will start the game running on an application web server on the `localhost`
 
 ... in your web browser.
 
-To make this game server accessible from the Internet or other hosts, additional steps are required. If you'd like to do this, or if you have any questions feel free to contact: Jonathan Beaulieu @ <beau0307@d.umn.edu>
+To make this game server accessible from the Internet or other hosts, additional steps are required. If you'd like to do this, or if you have any questions feel free to contact the devteam at <umdcyl-dev@d.umn.edu>
