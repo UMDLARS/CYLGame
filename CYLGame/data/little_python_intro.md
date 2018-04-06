@@ -107,8 +107,7 @@ Loops in a programming language allow a program to run a particular section of c
 
 LP supports loops in the form of `for` loops, which are loops that have a dedicated variable that counts each loop and a conditional statement that determines when the loop stops. LP's `for` loop syntax is very similar to other classic languages and looks like the following:
 
-     for i=0; i < 10; i = i + 1 
-     {
+     for i=0; i < 10; i = i + 1 {
            a = a + 1
      }
 
@@ -124,15 +123,13 @@ Following these three statements is the loop code, which is contained in curly b
 
 In our example above, we count from 0 up to 9 (the last value where `i < 10`), but we could have also counted down from 10 to 1 if we used the following loop:
 
-     for i=10; i > 0; i = i - 1 
-     {
+     for i=10; i > 0; i = i - 1 {
            a = a + 1
      }
 
 We can also skip multiple values; `for` loops do not have to increment by one. For example:
  
-     for i=100; i > 0; i = i - 10 
-     {
+     for i=100; i > 0; i = i - 10 {
            a = a + 1
      }
 
@@ -151,8 +148,7 @@ As an analogy, suppose you make omelets so frequently that you have it down to "
 
 Functions must be declared before using them. A function is defined by the operator `func` followed by the name of the function, which ends with a set of parentheses (e.g., `func test()`). Following the declaration, the code for the function is written between a set of curly braces (`{}`, e.g., `func test() { your_code_here }`). Finally, functions can return a value to the caller using the `return` operator. For example, here is a function that adds 1 and 2 together and returns the result:
 
-     func foo()
-     {
+     func foo() {
           return 1 + 2
      }
 
@@ -164,8 +160,7 @@ Here, we defined the function `foo()` and then we called it, storing the return 
 
 Functions can be defined to take input parameters inside the parentheses. These parameters are given variable names when declared, and when the function is called the parameters take those names inside the function. For example, given the following code
 
-     func add(a, b)
-     {
+     func add(a, b) {
           return a + b
      }
      
@@ -182,8 +177,7 @@ Functions can be defined to take input parameters inside the parentheses. These 
 Functions can acess and modify global variables if they already exist **before the function is called**. So, for example:
 
      x = 0
-     func inc_x()
-     {
+     func inc_x() {
           x = x + 1
      }
      
