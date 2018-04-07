@@ -6,6 +6,7 @@ import sys
 from CYLGame.Frame import GridFrameBuffer
 from CYLGame.Player import UserProg
 from CYLGame.Utils import int2base
+from CYLGame.Errors import GameCrashError
 
 FPS = 30
 
@@ -47,6 +48,9 @@ class Game(object):
     OPTIONS = None
     MULTIPLAYER = False  # TODO: document
     TURN_BASED = False  # TODO: document
+
+    def __init__(self, random):
+        self.random = random
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -307,7 +311,11 @@ class GameRunner(object):
             for player in players:
                 player.run_turn(game.random)
 
-            game.do_turn()
+            try:
+                game.do_turn()
+            except Exception as e:
+                # TODO: get more info
+                raise GameCrashError(room=room) from e
 
         room.score = game.get_score()
         if playback:

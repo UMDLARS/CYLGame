@@ -186,10 +186,15 @@ class GameServer(flask_classful.FlaskView):
         code = flask.request.get_json(silent=True).get('code', '')
         token = flask.request.get_json(silent=True).get('token', '')
         options = flask.request.get_json(silent=True).get('options', None)
+        if options is None:
+            options = {}
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         try:
             prog = self.compiler.compile(code)
+            prog.options = options
+            prog.token = token
+            prog.name = find_name_from_code(code)
         except:
             return flask.jsonify(error="Code did not compile")
         if self.game.MULTIPLAYER:
