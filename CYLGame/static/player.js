@@ -99,7 +99,7 @@ class Player {
           .append($("<button>")
             .text("Set Map Seed")
             .click(() => {
-              this.on_set_seed_click();
+              set_seed();  // This is a hack. Fix me sometime.
             }))
           .append(this.debug_toggle_btn
           ));
@@ -175,7 +175,7 @@ class Player {
 
   on_slower_click() {
     if (this.cur_frame >= this.replay_frames.length - 1) {
-      this.prevFrame();
+      this.on_prev_click();
     }
     if (this.cur_speed > 0) {
       this.reset_speed();
