@@ -8,10 +8,9 @@ in this document with the appropriate values.
 ### Install `python3.6` and `pip`
 
 ```
-sudo apt-get install python3-pip libssl-dev
 sudo add-apt-repository ppa:jonathonf/python-3.6
 sudo apt-get update
-sudo apt-get install python3.6 python3.6-dev 
+sudo apt-get install python3-pip libssl-dev python3.6 python3.6-dev 
 ```
 
 ### Install `pipenv`
