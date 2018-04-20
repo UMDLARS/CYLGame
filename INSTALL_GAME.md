@@ -39,4 +39,10 @@ This will start the game running on an application web server on the `localhost`
 
 ... in your web browser.
 
-To make this game server accessible from the Internet or other hosts, additional steps are required. If you'd like to do this, or if you have any questions feel free to contact the devteam at <umdcyl-dev@d.umn.edu>
+To make this game server accessible from the Internet or other hosts, additional steps are required. We do this by forwarding a URL from our web frontend to the game server running at a particular IP and port (this can be on the same or a different machine). To specify the IP and port for the game server, use:
+
+```
+pipenv run python game.py serve --host IPADDRESS -p PORT -db GAME_DB
+```
+
+If you have any questions feel free to contact the devteam at <umdcyl-dev@d.umn.edu>
