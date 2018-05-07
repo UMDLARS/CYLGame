@@ -122,7 +122,7 @@ class GameServer(flask_classful.FlaskView):
 
     @flask_classful.route('/comp_scoreboards', methods=["POST"])
     def comp_scoreboards(self):
-        token = flask.request.get_json(silent=True).get('token', '')
+        token = flask.request.get_json(silent=True).get('token', '').upper()
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         comps = self.gamedb.get_comps_for_token(token)
@@ -139,7 +139,7 @@ class GameServer(flask_classful.FlaskView):
     @flask_classful.route('/save_code', methods=['POST'])
     def save_code(self):
         code = flask.request.get_json(silent=True).get('code', '')
-        token = flask.request.get_json(silent=True).get('token', '')
+        token = flask.request.get_json(silent=True).get('token', '').upper()
         options = flask.request.get_json(silent=True).get('options', None)
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
@@ -160,6 +160,8 @@ class GameServer(flask_classful.FlaskView):
 
     @flask_classful.route('/game/<gtoken>/<token>')
     def get_player_game_data(self, gtoken, token):
+        gtoken = gtoken.upper()
+        token = token.upper()
         if not self.gamedb.is_game_token(gtoken):
             return flask.jsonify(error="Invalid Game Token")
         if not self.gamedb.is_user_token(token):
@@ -184,7 +186,7 @@ class GameServer(flask_classful.FlaskView):
     def sim_avg(self):
         # TODO: create this to run the game 100 times returning the average score to the user.
         code = flask.request.get_json(silent=True).get('code', '')
-        token = flask.request.get_json(silent=True).get('token', '')
+        token = flask.request.get_json(silent=True).get('token', '').upper()
         options = flask.request.get_json(silent=True).get('options', None)
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
@@ -266,7 +268,7 @@ class GameServer(flask_classful.FlaskView):
 
     @flask_classful.route('/check_token', methods=['POST'])
     def check_token(self):
-        token = flask.request.get_json(silent=True).get('token', '')
+        token = flask.request.get_json(silent=True).get('token', '').upper()
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         else:
@@ -274,7 +276,7 @@ class GameServer(flask_classful.FlaskView):
 
     @flask_classful.route('/load_code', methods=['POST'])
     def load_code(self):
-        token = flask.request.get_json(silent=True).get('token', '')
+        token = flask.request.get_json(silent=True).get('token', '').upper()
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         else:
