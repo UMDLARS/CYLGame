@@ -43,68 +43,68 @@ def avg(scores):
 
 
 # TODO: rewrite this function. It is very outdated!
-# def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func=avg):
-#     assert gamedb is not None
-#     assert gamedb.is_comp_token(token)
-#
-#     seeds = [random() for _ in xrange(2 * runs + 5)]
-#
-#     for school in gamedb.get_schools_in_comp(token):
-#         if debug:
-#             print("Got school '" + school + "'")
-#         max_score = 0
-#         max_code = ""
-#         for student in gamedb.get_tokens_for_school(school):
-#             if debug:
-#                 print("Got student '" + student + "'")
-#             code, options = gamedb.get_code_and_options(student)
-#             if not code:
-#                 continue
-#             if debug:
-#                 print("Compiling code...")
-#             prog = compiler.compile(code)
-#             prog.options = options
-#             if debug:
-#                 print("setting up game runner...")
-#             runner = GameRunner(game, Room([prog]))
-#             if debug:
-#                 print("Simulating...")
-#             score = None
-#
-#             scores = []
-#             count = 0
-#             seed = 0
+def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func=avg):
+    assert gamedb is not None
+    assert gamedb.is_comp_token(token)
+
+    seeds = [random() for _ in range(2 * runs + 5)]
+
+    for school in gamedb.get_schools_in_comp(token):
+        if debug:
+            print("Got school '" + school + "'")
+        max_score = 0
+        max_code = ""
+        for student in gamedb.get_tokens_for_school(school):
+            if debug:
+                print("Got student '" + student + "'")
+            code, options = gamedb.get_code_and_options(student)
+            if not code:
+                continue
+            if debug:
+                print("Compiling code...")
+            prog = compiler.compile(code)
+            prog.options = options
+            if debug:
+                print("setting up game runner...")
+            runner = GameRunner(game)
+            if debug:
+                print("Simulating...")
+            score = None
+
+            scores = []
+            count = 0
+            seed = 0
 #             # TODO: make this able to run in a pool of threads (so it can be run on multiple CPUs)
-#             while count < runs:
-#                 try:
-#                     if seed >= len(seeds):
-#                         print("Ran out of seeds")
-#                         break
-#                     scores += [runner.run_for_avg_score(times=1, seed=seeds[seed])]
-#                     # print(scores[-1])
-#                     # import sys
-#                     # sys.stdout.flush()
-#                     count += 1
-#                     seed += 1
-#                 except Exception as e:
-#                     print("There was an error simulating the game (Moving to next seed):", e)
-#                     seed += 1
-#             score = score_func(scores)
-#             # score = runner.run_for_avg_score(times=runs)
-#
-#             # while score is None:
-#             #     try:
-#             #     except Exception as e:
-#             #         print("There was an error simulating the game:", e)
-#             if score > max_score:
-#                 max_score = score
-#                 max_code = code
-#         if debug:
-#             print("Saving score...", max_score)
-#         gamedb.set_comp_avg_score(token, school, max_score)
-#         gamedb.set_comp_school_code(token, school, max_code)
-#     if debug:
-#         print("All done :)")
+            while count < runs:
+                try:
+                    if seed >= len(seeds):
+                        print("Ran out of seeds")
+                        break
+                    scores += [runner.run(Room([prog], seed=seeds[seed]), playback=False).score]
+                    # scores += [runner.run_for_avg_score(times=1, seed=seeds[seed])]
+                    # print(scores[-1])
+                    # import sys
+                    # sys.stdout.flush()
+                    count += 1
+                    seed += 1
+                except Exception as e:
+                    print("There was an error simulating the game (Moving to next seed):", e)
+                    seed += 1
+            score = score_func(scores)
+
+            # while score is None:
+            #     try:
+            #     except Exception as e:
+            #         print("There was an error simulating the game:", e)
+            if score > max_score:
+                max_score = score
+                max_code = code
+        if debug:
+            print("Saving score...", max_score)
+        gamedb.set_comp_avg_score(token, school, max_score)
+        gamedb.set_comp_school_code(token, school, max_code)
+    if debug:
+        print("All done :)")
 
 
 class Ranking(object):

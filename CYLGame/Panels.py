@@ -1,6 +1,9 @@
+import traceback
 from collections import defaultdict
 from copy import copy
 from functools import reduce
+
+from CYLGame.Utils import deprecated
 
 DEFAULT_CHAR = ' '
 
@@ -410,8 +413,8 @@ class MessagePanel(Panel):
         self.rows = self.h
         self.max_len = self.w
 
+    @deprecated("Please use the `add` method instead.")
     def __add__(self, other):
-        print("The __add__ method on a MessagePanel has been deprecated.")
         self.add(other)
         return self
 

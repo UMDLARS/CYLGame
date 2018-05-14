@@ -1,6 +1,8 @@
 from __future__ import division
 
 import string
+import warnings
+import functools
 
 from Crypto.Cipher import AES
 
@@ -70,3 +72,21 @@ def decrypt_token_list(tokens, key):
         plain_token = cipher.decrypt(bytes.fromhex(token))
         out += [plain_token.decode(encoding="utf-8").lstrip("!")]
     return out
+
+
+# Taken from: https://stackoverflow.com/questions/2536307/how-do-i-deprecate-python-functions
+def deprecated(message=""):
+    def deprecated_decorator(func):
+        """This is a decorator which can be used to mark functions
+        as deprecated. It will result in a warning being emitted
+        when the function is used."""
+        @functools.wraps(func)
+        def new_func(*args, **kwargs):
+            warnings.simplefilter('always', DeprecationWarning)  # turn off filter
+            warnings.warn("{} is a deprecated function. {}".format(func.__name__, message),
+                          category=DeprecationWarning,
+                          stacklevel=2)
+            warnings.simplefilter('default', DeprecationWarning)  # reset filter
+            return func(*args, **kwargs)
+        return new_func
+    return deprecated_decorator
