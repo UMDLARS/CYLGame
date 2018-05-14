@@ -183,7 +183,7 @@ Functions can acess and modify global variables if they already exist **before t
      
 .... will increment the value of `x` every time `inc_x()` is called. You can modify global state and return values with the same function, if you want to.
 
-##### Calling Functions and Storing Return Values
+#### Calling Functions and Storing Return Values
 
 Functions are called using their name, including the parentheses, which must include the parameters if the function expects parameters. For example:
 
