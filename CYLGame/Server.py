@@ -12,9 +12,6 @@ import shutil
 import traceback
 import flask_classful
 from flask import escape
-import flaskext.markdown as flask_markdown
-from gevent.server import _tcp_listener
-from gevent.wsgi import WSGIServer
 
 from CYLGame.Comp import MultiplayerCompRunner
 from .Game import GameRunner, GridGame
@@ -301,7 +298,7 @@ class GameServer(flask_classful.FlaskView):
     @classmethod
     def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,
               avg_game_count=10, multiplayer_scoring_interval=60, num_of_threads=None, game_data_path="temp_game",
-              avg_game_func=average, debug=False):
+              avg_game_func=average, debug=False, reuse_addr=None):
         cls.game = game
         cls.host = host
         cls.port = port
@@ -350,7 +347,9 @@ class GameServer(flask_classful.FlaskView):
             print("Debug Enabled.")
             cls.app.run(cls.host, cls.port)
         else:
-            listener = _tcp_listener((cls.host, cls.port))
+            from gevent.server import _tcp_listener
+            from gevent.wsgi import WSGIServer
+            listener = _tcp_listener((cls.host, cls.port), reuse_addr=reuse_addr)
 
             def serve_forever(listener):
                 try:

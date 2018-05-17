@@ -380,8 +380,11 @@ def run(game_class, avg_game_func=average):
     def serve(args):
         print("I am going to serve")
         from .Server import serve
+        reuse_addr = True
+        if args.no_addr_reuse:
+            reuse_addr = None
         serve(game_class, host=args.host, port=args.port, game_data_path=args.dbfile, avg_game_func=avg_game_func,
-              debug=args.debug, multiplayer_scoring_interval=args.scoring_time)
+              debug=args.debug, multiplayer_scoring_interval=args.scoring_time, reuse_addr=reuse_addr)
 
     def play(args):
         print("Playing...")
@@ -399,6 +402,7 @@ def run(game_class, avg_game_func=average):
     parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
     parser_serve.add_argument('-db', '--dbfile', nargs="?", type=str, help='The root path of the game database', default="temp_game")
     parser_serve.add_argument('--host', nargs="?", type=str, help='The mask to host to', default='127.0.0.1')
+    parser_serve.add_argument('--no-addr-reuse', action='store_true')
     parser_serve.add_argument('--debug', action='store_true')
     parser_serve.add_argument('-s', '--scoring_time', nargs="?", type=int, help='The number of seconds between re-scoring all the bots.', default=60)
     parser_serve.set_defaults(func=serve)
