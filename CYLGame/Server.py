@@ -26,11 +26,6 @@ ANONYMOUS_SCHOOL = "S00000000"
 ANONYMOUS_USER = "00000000"
 
 
-def static_file(filename):
-    resource_path = os.path.join(os.path.split(__file__)[0], "static", filename)
-    return resource_path
-
-
 def get_public_ip():
     # This is taken from: http://stackoverflow.com/a/1267524
     import socket
@@ -75,23 +70,13 @@ class GameServer(flask_classful.FlaskView):
 
     @classmethod
     def __copy_in_charset(cls, charset):
-        if not os.path.exists(static_file("fonts")):
-            os.mkdir(static_file("fonts"))
-        file_ending = os.path.split(charset)[-1]
-        prepostfix = "_col"
-        if "_ro." in file_ending:
-            prepostfix = "_ro"
-        elif "_tc." in file_ending:
-            prepostfix = "_tc"
-        postfix = file_ending.split(".")[-1]
-        def new_token():
-            return "".join([random.choice("0123456789ABCDEF") for _ in range(10)]) + prepostfix + "." + postfix
-        token = new_token()
-        while os.path.exists(static_file(os.path.join("fonts", token))):
-            token = new_token()
-        new_charset_path = static_file(os.path.join("fonts", token))
+        fonts_dir = os.path.join(cls.gamedb.www_cache.static_dir, "fonts")
+        if not os.path.exists(fonts_dir):
+            os.mkdir(fonts_dir)
+        charset_name = os.path.basename(charset)
+        new_charset_path = os.path.join(fonts_dir, charset_name)
         shutil.copyfile(charset, new_charset_path)
-        return os.path.split(new_charset_path)[-1]
+        return charset_name
 
     @flask_classful.route('/scoreboard', methods=["POST"])
     def scoreboard(self):
@@ -290,7 +275,7 @@ class GameServer(flask_classful.FlaskView):
                                     intro_text=intro, multiplayer=self.game.MULTIPLAYER)
         else:
             return flask.render_template('nongrid.html', game_title=self.game.GAME_TITLE,
-                                    example_bot=self.game.default_prog_for_bot(self.language), 
+                                    example_bot=self.game.default_prog_for_bot(self.language),
                                     screen_width=self.game.SCREEN_WIDTH,
                                     screen_height=self.game.SCREEN_HEIGHT,
                                     intro_text=intro, multiplayer=self.game.MULTIPLAYER, options=self.game.OPTIONS)
@@ -315,11 +300,17 @@ class GameServer(flask_classful.FlaskView):
         if not cls.gamedb.is_comp_token(ANONYMOUS_COMP):
             cls.gamedb.add_new_competition(_token=ANONYMOUS_COMP)
 
+        print("Building www cache...")
+        cls.gamedb.www_cache.safe_replace_cache(os.path.join(os.path.split(__file__)[0], "www"))
+
         if issubclass(game, GridGame):
             cls.charset = cls.__copy_in_charset(game.CHAR_SET)
 
         cls.app = flask.Flask(__name__.split('.')[0],
-                              static_url_path='')
+                              static_url_path='',
+                              static_folder=cls.gamedb.www_cache.static_dir,
+                              template_folder=cls.gamedb.www_cache.template_dir,
+                              root_path=cls.gamedb.www_cache.root_dir)
 
         @cls.app.template_filter('markdown')
         def markdown_filter(data):
@@ -368,9 +359,6 @@ class GameServer(flask_classful.FlaskView):
         print("Dying...")
         if cls.game.MULTIPLAYER:
             scoring_process.stop()
-        if cls.charset and os.path.exists(static_file(os.path.join("fonts", cls.charset))):
-            print("Removing charset...")
-            os.remove(static_file(os.path.join("fonts", cls.charset)))
         print("All good :)")
 
 

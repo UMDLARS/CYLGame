@@ -18,16 +18,66 @@ def read_json(filename):
         return msgpack.load(fp, encoding='utf-8')
 
 
+class WWWCache:
+    def __init__(self, root_dir):
+        self.root_dir = root_dir
+
+    def safe_replace_cache(self, www_dir):
+        """This function safely replaces the current www cached data with the data found in `www_dir`
+        """
+        if not os.path.exists(self.root_dir):
+            # no old cache
+            shutil.copytree(www_dir, self.root_dir)
+        else:
+            tmp_dir = os.path.join(self.root_dir + "_tmp")
+            old_dir = os.path.join(self.root_dir + "_old")
+
+            # make sure the tmp dir doesn't already exist
+            if os.path.exists(tmp_dir):
+                shutil.rmtree(tmp_dir)
+
+            # make sure the old dir doesn't already exist
+            if os.path.exists(old_dir):
+                shutil.rmtree(old_dir)
+
+            # copy in the new data
+            shutil.copytree(www_dir, tmp_dir)
+
+            # move old cache dir
+            os.rename(self.root_dir, old_dir)
+
+            # move in new cache dir
+            try:
+                os.rename(tmp_dir, self.root_dir)
+            except:
+                # This is bad!!! The old cache is gone but the new can't be put in.
+                # Try to put back old
+                os.rename(old_dir, self.root_dir)
+                raise
+
+            # All good now clean up.
+            shutil.rmtree(old_dir)
+
+    @property
+    def static_dir(self):
+        return os.path.join(self.root_dir, "static")
+
+    @property
+    def template_dir(self):
+        return os.path.join(self.root_dir, "templates")
+
+
 # TODO(derpferd): Use the move function to prevent RACE on files
 class GameDB(object):
     TOKEN_LEN = 8
 
     def __init__(self, root_dir):
-        self.root_dir = root_dir
+        self.root_dir = os.path.abspath(root_dir)
         self.data_dir = os.path.join(self.root_dir, "data")
         self.game_dir = os.path.join(self.root_dir, "games")
         self.schools_dir = os.path.join(self.root_dir, "schools")
         self.competitions_dir = os.path.join(self.root_dir, "competitions")
+        self.www_cache = WWWCache(os.path.join(self.root_dir, "www"))
         self.__load()
 
     def __load(self):
