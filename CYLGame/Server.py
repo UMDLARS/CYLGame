@@ -339,7 +339,7 @@ class GameServer(flask_classful.FlaskView):
             cls.app.run(cls.host, cls.port)
         else:
             from gevent.server import _tcp_listener
-            from gevent.wsgi import WSGIServer
+            from gevent.pywsgi import WSGIServer
             listener = _tcp_listener((cls.host, cls.port), reuse_addr=reuse_addr)
 
             def serve_forever(listener):
