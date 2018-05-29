@@ -1,11 +1,12 @@
 import gzip
 import io
 import os
-import shutil
 import random
+import shutil
 import time
-import msgpack
 from builtins import str as text
+
+import msgpack
 
 
 def write_json(o, filename):
@@ -110,12 +111,12 @@ class GameDB(object):
         return []
 
     def __get_user_game_tokens(self, token):
-        if self.is_user_token(token):
+        if self.is_user_token(token) and os.path.exists(self.__get_dir_for_token(token, "games")):
             return os.listdir(self.__get_dir_for_token(token, "games"))
         return []
 
     def __get_comp_game_tokens(self, token):
-        if self.is_comp_token(token):
+        if self.is_comp_token(token) and os.path.exists(self.__get_dir_for_token(token, "games")):
             return os.listdir(self.__get_dir_for_token(token, "games"))
         return []
 
@@ -123,6 +124,7 @@ class GameDB(object):
 
         def new_token():
             return prefix + "".join([random.choice("0123456789ABCDEF") for _ in range(self.TOKEN_LEN)])
+
         if not tokens:
             tokens = self.__get_user_tokens()
         token = new_token()
@@ -283,6 +285,10 @@ class GameDB(object):
     #     #     assert name is not None
     #     #     fp.write(name)
 
+    def get_ctime_for_game(self, token):
+        with open(os.path.join(self.game_dir, token, "ctime"), "r") as fp:
+            return float(fp.read())
+
     def get_comp_code(self, ctoken, stoken):
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         if os.path.exists(os.path.join(school_dir, "code.lp")):
@@ -354,6 +360,32 @@ class GameDB(object):
         assert os.path.exists(self.__get_dir_for_token(token))
         with io.open(self.__get_dir_for_token(token, "avg_score"), "w", encoding="utf8") as fp:
             fp.write(text(score))
+
+    def save_value(self, token, key, value):
+        """Save a key value pair to a tokens directory. If a value has been saved under the same key it will be
+            overwritten by the new value passed in. The value can be looked up using the `get_value` function.
+
+        Args:
+            token (str):    Any valid token.
+            key (str):      The key to store the `value` under.
+            value (str or int or float):    The value to be stored.
+        """
+        assert os.path.exists(self.__get_dir_for_token(token))
+        assert isinstance(key, str) and (isinstance(value, str) or isinstance(value, int) or isinstance(value, float))
+
+        obj = {}
+        if os.path.exists(self.__get_dir_for_token(token, "db.mp.gz")):
+            obj = read_json(self.__get_dir_for_token(token, "db.mp.gz"))
+        obj[key] = value
+
+        # We write all the data to a new file then move it to replace the old file to insure that the file is never half written.
+        write_json(obj, self.__get_dir_for_token(token, "db.mp.gz.new"))
+        os.rename(self.__get_dir_for_token(token, "db.mp.gz.new"), self.__get_dir_for_token(token, "db.mp.gz"))
+
+    def get_value(self, token, key, default_value=None):
+        if os.path.exists(self.__get_dir_for_token(token, "db.mp.gz")):
+            return read_json(self.__get_dir_for_token(token, "db.mp.gz")).get(key, default_value)
+        return default_value
 
     def save_game_frames(self, gtoken, frames):
         assert os.path.exists(self.__get_dir_for_token(gtoken))
@@ -461,9 +493,17 @@ class GameDB(object):
         # TODO: add a test for this method
         return os.listdir(self.__get_dir_for_token(gtoken, "players"))
 
+    def get_all_game_tokens(self):
+        return self.__get_game_tokens()
+
+    def get_all_comp_tokens(self):
+        return self.__get_comp_tokens()
+
     def delete_game(self, gtoken):
         # TODO: add a test for this method
         assert self.is_game_token(gtoken)
         for player in self.get_players_for_game(gtoken):
             os.remove(self.__get_dir_for_token(player, ["games", gtoken]))
+        if gtoken in self.get_games_for_token("P00000000"):  # TODO: remove game from all comps where it is used.
+            self.remove_game_from_comp("P00000000", gtoken)
         shutil.rmtree(self.__get_dir_for_token(gtoken))
