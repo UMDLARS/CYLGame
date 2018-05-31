@@ -244,9 +244,15 @@
             showLoading();
             return false;
         }
+        function getCurrentTimeString() {
+          function pad(n) {
+            return ("0" + n).slice(-2)
+          }
+          let d = new Date;
+          return  d.getMonth() + "/" + d.getDay() + "  " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds())
+
+        }
         function updateScoreboard() {
-            $("#scoreTable").html("");
-            $("#games").html("");
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'scoreboard',
@@ -254,6 +260,10 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
+                    $("#scoreTable").html("");
+                    $("#games").html("");
+
+                    $("#scoreUpdateTime").text(getCurrentTimeString());
                     console.log(data);
                     // Sort the data
                     function compare(a,b) {
@@ -455,6 +465,7 @@
     </div>
   </div>
   <div id="Score" class="tab-pane fade">
+      <span style="font-size: 12px">Last Updated: <span id="scoreUpdateTime"></span></span>
       <h3>Scoreboard for <span id="scoreSchool"></span></h3>
       <table id="scoreTable">
           <tr>
@@ -463,7 +474,7 @@
           </tr>
       </table>
       <br/><br/>
-      <h3>Games your bot played in:</h3>
+      <h3>Games your bot played in recently:</h3>
       <ul id="games">
       </ul>
   </div>
