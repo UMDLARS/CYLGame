@@ -1,10 +1,11 @@
 from __future__ import print_function
 from __future__ import division
 
+import sys
 from itertools import islice
-from random import random, choice, shuffle
+from random import randint, choice, shuffle
 
-from multiprocessing import Process, Event
+from multiprocessing import Process, Event, Pool
 
 import time
 
@@ -44,12 +45,41 @@ def avg(scores):
     return float((sum(scores) * 100) / len(scores)) / 100
 
 
+def sim_prog_for_score(game, compiler, code, options, seed, debug=True):
+    runner = GameRunner(game)
+    prog = compiler.compile(code)
+    prog.options = options
+    try:
+        score = runner.run(Room([prog], seed=seed), playback=False).score
+        sys.stdout.write(".")
+        sys.stdout.flush()
+        return score
+    except:
+        print("There was an error simulating the game. Make sure this isn't a bug with the program.\n  Seed: {}\n  Code: '''{}'''".format(seed, code))
+        return 0
+
+
 # TODO: rewrite this function. It is very outdated!
-def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func=avg):
+def sim_competition(compiler, game, gamedb, token, runs, ncores=None, debug=False, score_func=avg):
+    """
+
+    Args:
+        compiler:
+        game:
+        gamedb:
+        token:
+        runs:
+        ncores:      If None will default to the number of all available cores.
+        debug:
+        score_func:
+
+    Returns:
+
+    """
     assert gamedb is not None
     assert gamedb.is_comp_token(token)
 
-    seeds = [random() for _ in range(2 * runs + 5)]
+    seeds = [randint(0, sys.maxsize) for _ in range(runs)]
 
     for school in gamedb.get_schools_in_comp(token):
         if debug:
@@ -67,37 +97,16 @@ def sim_competition(compiler, game, gamedb, token, runs, debug=False, score_func
             prog = compiler.compile(code)
             prog.options = options
             if debug:
-                print("setting up game runner...")
-            runner = GameRunner(game)
-            if debug:
-                print("Simulating...")
-            score = None
+                print("Simulating {} games...".format(runs))
 
-            scores = []
-            count = 0
-            seed = 0
 #             # TODO: make this able to run in a pool of threads (so it can be run on multiple CPUs)
-            while count < runs:
-                try:
-                    if seed >= len(seeds):
-                        print("Ran out of seeds")
-                        break
-                    scores += [runner.run(Room([prog], seed=seeds[seed]), playback=False).score]
-                    # scores += [runner.run_for_avg_score(times=1, seed=seeds[seed])]
-                    # print(scores[-1])
-                    # import sys
-                    # sys.stdout.flush()
-                    count += 1
-                    seed += 1
-                except Exception as e:
-                    print("There was an error simulating the game (Moving to next seed):", e)
-                    seed += 1
-            score = score_func(scores)
+            with Pool(processes=ncores) as pool:
+                scores = pool.starmap(sim_prog_for_score, [(game, compiler, code, options, seed, debug) for seed in seeds])
 
-            # while score is None:
-            #     try:
-            #     except Exception as e:
-            #         print("There was an error simulating the game:", e)
+            score = score_func(scores)
+            if debug:
+                print(" Score: {}".format(score))
+
             if score > max_score:
                 max_score = score
                 max_code = code
