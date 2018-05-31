@@ -8,12 +8,21 @@ from Crypto.Cipher import AES
 
 
 class OnlineMean:
-    def __init__(self, i=0, mean=0):
+    def __init__(self, i=0, mean=0, roll_after_n=-1):
+        """
+
+        Args:
+            i:              The current number of numbers in the mean
+            mean:           The current mean
+            roll_after_n:   The number of numbers which to start "rolling the mean after"
+        """
         self.i = i
         self.mean = mean
+        self.roll_after = roll_after_n
 
     def __add__(self, other):
-        new_obj = OnlineMean(self.i, self.mean)
+        assert isinstance(other, int)
+        new_obj = OnlineMean(self.i, self.mean, self.roll_after)
         new_obj.add(other)
         return new_obj
 
@@ -21,14 +30,22 @@ class OnlineMean:
         n = float(n)
         if self.i == 0:
             self.mean = n
+            self.i += 1
         else:
+            if self.roll_after != -1 and self.i >= self.roll_after:
+                # Roll After is enabled and we are past it.
+                self.i = self.roll_after - 1
             self.mean = ((self.mean * self.i) / (self.i + 1)) + (n / (self.i + 1))
-        self.i += 1
+            self.i += 1
         return self.mean
 
     @property
     def floored_mean(self):
         return int(self.mean)
+
+    @property
+    def rounded_mean(self, places=2):
+        return int(self.mean * 10**places) / (10**places)
 
 
 # From: http://stackoverflow.com/a/2267446/4441526

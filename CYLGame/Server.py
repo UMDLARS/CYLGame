@@ -13,7 +13,7 @@ import traceback
 import flask_classful
 from flask import escape
 
-from CYLGame.Comp import MultiplayerCompRunner
+from CYLGame.Comp import MultiplayerCompRunner, RollingMultiplayerCompRunner
 from .Game import GameRunner, GridGame
 from .Player import Room
 from .Game import GameLanguage
@@ -99,6 +99,7 @@ class GameServer(flask_classful.FlaskView):
             for gtoken in self.gamedb.get_games_for_token(ANONYMOUS_COMP):
                 if token in self.gamedb.get_players_for_game(gtoken):
                     gtokens += [{"token": gtoken, "text": get_game_name(gtoken)}]
+            gtokens.sort(key=lambda x: self.gamedb.get_ctime_for_game(x["token"]), reverse=True)
             obj["games"] = gtokens
         return ujson.dumps(obj)
 
@@ -282,7 +283,7 @@ class GameServer(flask_classful.FlaskView):
 
     @classmethod
     def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,
-              avg_game_count=10, multiplayer_scoring_interval=60, num_of_threads=None, game_data_path="temp_game",
+              avg_game_count=10, multiplayer_scoring_interval=20, num_of_threads=None, game_data_path="temp_game",
               avg_game_func=average, debug=False, reuse_addr=None):
         cls.game = game
         cls.host = host
@@ -331,7 +332,8 @@ class GameServer(flask_classful.FlaskView):
         if cls.game.MULTIPLAYER and multiplayer_scoring_interval >= 0:
             if debug:
                 print("Starting scoring process...")
-            scoring_process = MultiplayerCompRunner(multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug)
+            scoring_process = RollingMultiplayerCompRunner(multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug)
+            # scoring_process = MultiplayerCompRunner(multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug)
             scoring_process.start()
 
         if debug:
