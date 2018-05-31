@@ -5,7 +5,7 @@ Steps in order:
 - game.init_board
 - for each bot in room players += game.create_new_player
 - game.start_game
-- Main Game Loop:
+- Main Game Loop: while game.is_running():
   - if playback: game.get_frame
   - for each player: player.run_turn
   - game.do_turn
@@ -31,7 +31,8 @@ This method should make sure that the game is ready to go. Make sure to update t
 
 ## Game.get_frame
 
-
+**WARNING**: There MUST NOT be any game logic in this function since it isn't called when simulating the game
+                    during the competitions.
 
 ## Game.do_turn
 
