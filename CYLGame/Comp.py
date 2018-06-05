@@ -12,7 +12,7 @@ import time
 import math
 from typing import Dict
 
-from CYLGame.Utils import OnlineMean
+from CYLGame.Utils import OnlineMean, choose
 from .Game import GameRunner
 from .Player import Room
 
@@ -154,14 +154,14 @@ class MultiplayerComp(object):
         Args:
             bots: (PROG) the players program to be executed and ranked
             room_size: (INT) the size of the rooms
-            run_factor(int): The average number of games a bot gets to play.
+            run_factor(int): The average number of random games per combination of bots.
         """
         self.default_bot_class = default_bot_class
         self.room_size = room_size
         self.scores = {}  # Prog:scores
         self.rooms = {}  # Rooms:Rankings
         self.cur_run = 0
-        self.total_runs = run_factor * math.ceil(len(bots) / 4.0)
+        self.total_runs = run_factor * choose(max(len(bots), 4), 4)
         for bot in bots:
             self.scores[bot] = OnlineMean()
 
@@ -243,6 +243,75 @@ class MultiplayerComp(object):
 
         return game_tokens
 
+    @staticmethod
+    def make_bot(gamedb, compiler, token, debug=False):
+        try:
+            if debug:
+                print("Making bot for '" + token + "'")
+            code, options = gamedb.get_code_and_options(token)
+            name = gamedb.get_name(token)
+            if not code:
+                return
+            if debug:
+                print("compiling code...")
+            prog = compiler.compile(code)
+            prog.options = options
+            prog.token = token
+            prog.name = name
+            return prog
+        except:
+            print("Couldn't compile code for '{}' in '{}'".format(s, gamedb.get_school_for_token(s)))
+
+    @staticmethod
+    def sim_comp(c_token, gamedb, game, compiler, save_games=False, debug=False):
+        if debug:
+            print("Getting the best bots from each school...")
+
+        # Get the best valid bot
+        best_bots = {}
+        for s_token in gamedb.get_schools_in_comp(c_token):
+            best_bot = None
+            best_bot_score = float("-inf")
+            for token in gamedb.get_tokens_for_school(s_token):
+                if gamedb.get_avg_score(token, float("-inf")) > best_bot_score:
+                    bot = MultiplayerComp.make_bot(gamedb, compiler, token, debug=debug)
+
+                    if bot:
+                        # Was compilable and the best bot
+                        best_bot_score = gamedb.get_avg_score(token)
+                        best_bot = bot
+            if best_bot:
+                best_bots[s_token] = best_bot
+            elif debug:
+                print(f"School {s_token} had on bot with a score")
+
+        if debug:
+            print(f"Got the following bots:\n{best_bots}")
+
+        if len(best_bots) == 0:
+            if debug:
+                print("No School had any valid bots. :(")
+            return
+
+        game_tokens = []
+        tourney = MultiplayerComp(best_bots.values(), game.get_number_of_players(), game.default_prog_for_computer())
+        if debug:
+            print(f"Will run {tourney.total_runs:.0f} games.")
+        start_time = time.time()
+        for i, room in enumerate(tourney):
+            if debug:
+                time_taken = time.time()-start_time
+                estimate_total_time = time_taken * (tourney.total_runs/(i+1))
+                eta = estimate_total_time - time_taken
+                print(f"Eta: ~{eta:.0f} secs Cur Room: {room}")
+            gamerunner = GameRunner(game)
+            tourney[room] = gamerunner.run(room).score
+            if save_games:
+                game_tokens += [room.save(gamedb)]
+
+        if save_games:
+            gamedb.replace_games_in_comp(c_token, new_gtokens=save_games)
+
 
 class MultiplayerCompRunner(Process):
     def __init__(self, interval, gamedb, game, compiler, debug=False):
@@ -315,9 +384,9 @@ class RollingMultiplayerComp(object):
             gamedb.save_value(bot.token, "rolling_n", score.i)
             gamedb.save_avg_score(bot.token, score.floored_mean)
 
-    def add_bot_if_needed(self, bot):
+    def add_bot_if_needed(self, bot, gamedb):
         if bot.token not in self.bots:
-            self.add_bot(bot)
+            self.add_bot(bot, gamedb)
 
     def __iter__(self):
         return self

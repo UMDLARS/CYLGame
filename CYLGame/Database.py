@@ -464,7 +464,7 @@ class GameDB(object):
                     return fp.read()
         return None
 
-    def get_avg_score(self, token):
+    def get_avg_score(self, token, default_value=None):
         if os.path.exists(self.__get_dir_for_token(token, "avg_score")):
             with io.open(self.__get_dir_for_token(token, "avg_score"), "r", encoding="utf8") as fp:
                 try:
@@ -472,9 +472,9 @@ class GameDB(object):
                     return float(fp.read())
                 except ValueError as e:
                     # If failed return none
-                    return None
+                    return default_value
         else:
-            return None
+            return default_value
 
     def get_school_for_token(self, token):
         for school in self.__get_school_tokens():

@@ -37,7 +37,6 @@ setup(name='CYLGame',
             # Complete list of classifiers: http://pypi.python.org/pypi?%3Aaction=list_classifiers
             "Development Status :: 3 - Alpha",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.5",
             "Programming Language :: Python :: 3.6",
       ]
       )

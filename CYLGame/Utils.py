@@ -1,5 +1,6 @@
 from __future__ import division
 
+import math
 import string
 import warnings
 import functools
@@ -46,6 +47,10 @@ class OnlineMean:
     @property
     def rounded_mean(self, places=2):
         return int(self.mean * 10**places) / (10**places)
+
+
+def choose(n, k):
+    return math.factorial(n)/(math.factorial(k)*math.factorial(n-k))
 
 
 # From: http://stackoverflow.com/a/2267446/4441526
