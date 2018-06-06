@@ -179,6 +179,9 @@ class MultiplayerComp(object):
             if k.prog in self.scores:
                 self.scores[k.prog] += value.ranks[k] * 10
 
+    def __getitem__(self, item):
+        return self.scores[item]
+
     def __next__(self):
         return self.next()
 
@@ -311,6 +314,11 @@ class MultiplayerComp(object):
 
         if save_games:
             gamedb.replace_games_in_comp(c_token, new_gtokens=save_games)
+
+        # Save scores
+        for s_token, best_bot in best_bots.items():
+            best_bot_score = tourney[best_bot].rounded_mean
+            gamedb.set_comp_avg_score(c_token, s_token, best_bot_score)
 
 
 class MultiplayerCompRunner(Process):
