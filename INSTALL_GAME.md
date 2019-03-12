@@ -8,7 +8,7 @@ in this document with the appropriate values.
 ### Install `python3.6` and `pip`
 
 ```
-sudo add-apt-repository ppa:deadsnakes/ppa
+sudo add-apt-repository ppa:deadsnakes/ppa  # Only needed for Ubuntu 14.04 and 16.04
 sudo apt-get update
 sudo apt-get install python3-pip libssl-dev python3.6 python3.6-dev 
 ```
