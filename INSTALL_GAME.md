@@ -13,6 +13,12 @@ sudo apt-get update
 sudo apt-get install python3-pip libssl-dev python3.6 python3.6-dev 
 ```
 
+### Install `git`
+
+```
+sudo apt-get install git
+```
+
 ### Install `pipenv`
 
 ```
