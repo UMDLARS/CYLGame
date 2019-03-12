@@ -52,3 +52,17 @@ pipenv run python game.py serve --host IPADDRESS -p PORT -db GAME_DB
 ```
 
 If you have any questions feel free to contact the devteam at <umdcyl-dev@d.umn.edu>
+
+### Playing the Game On Screen
+
+If you're developing or testing the game, you may want to play the game on your own monitor (rather than through the web interface). To do this, follow the above instructions, then:
+
+```
+$ pipenv install --dev
+```
+
+To play the game:
+
+```
+$ pipenv run python game.py play
+```
