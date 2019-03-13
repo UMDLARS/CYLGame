@@ -23,8 +23,12 @@ project = 'CYLGame'
 copyright = '2019, UMD LARS Lab'
 author = 'UMD LARS Lab'
 
-# The short X.Y version
-version = ''
+try:
+    import CYLGame.version
+    version = CYLGame.version
+except:
+    # The short X.Y version
+    version = ''
 # The full version, including alpha/beta/rc tags
 release = ''
 

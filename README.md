@@ -25,4 +25,4 @@ Creating your own games for the CYLGame framework is relatively easy; the best w
 
 # Installing CYLGame and Playing a Game
 
-See the [generic instructions for installing CYLGame and playing a game](https://github.com/UMDLARS/CYLGame/blob/master/INSTALL_GAME.md).
+See the [generic instructions for installing CYLGame and playing a game](https://umdlars.github.io/CYLGame/_build/html/userguide/installing.html).

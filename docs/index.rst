@@ -11,6 +11,15 @@ Hi there!
 .. toctree::
    :maxdepth: 2
 
+   userguide/installing
+   userguide/pipeline
+   userguide/release
+   userguide/build_docs
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Source Docs:
+
    modules
 
 
