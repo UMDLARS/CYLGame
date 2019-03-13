@@ -1,0 +1,515 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CYLGame.Game &#8212; CYLGame  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for CYLGame.Game</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">CYLGame.Frame</span> <span class="k">import</span> <span class="n">GridFrameBuffer</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="k">import</span> <span class="n">UserProg</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Utils</span> <span class="k">import</span> <span class="n">int2base</span>
+
+<span class="n">FPS</span> <span class="o">=</span> <span class="mi">30</span>
+
+
+<div class="viewcode-block" id="scorer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.scorer">[docs]</a><span class="k">def</span> <span class="nf">scorer</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function is a decorator for a scoring function.</span>
+<span class="sd">       This is hack a to get around self being passed as the first argument to the scoring function.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapped</span></div>
+
+
+<div class="viewcode-block" id="average"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.average">[docs]</a><span class="nd">@scorer</span>
+<span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="n">scores</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">((</span><span class="nb">sum</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">))</span> <span class="o">/</span> <span class="mi">100</span></div>
+
+
+<div class="viewcode-block" id="data_file"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.data_file">[docs]</a><span class="k">def</span> <span class="nf">data_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">resource_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resource_path</span></div>
+
+
+<div class="viewcode-block" id="GameLanguage"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameLanguage">[docs]</a><span class="k">class</span> <span class="nc">GameLanguage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">LITTLEPY</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="GameLanguage.get_language_description"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameLanguage.get_language_description">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_language_description</span><span class="p">(</span><span class="n">language</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">language</span> <span class="o">==</span> <span class="n">GameLanguage</span><span class="o">.</span><span class="n">LITTLEPY</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_file</span><span class="p">(</span><span class="s2">&quot;little_python_intro.md&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="Game"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game">[docs]</a><span class="k">class</span> <span class="nc">Game</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">WEBONLY</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">SCREEN_WIDTH</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">SCREEN_HEIGHT</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">GAME_TITLE</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">OPTIONS</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">MULTIPLAYER</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: document</span>
+    <span class="n">TURN_BASED</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: document</span>
+
+<div class="viewcode-block" id="Game.is_running"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.is_running">[docs]</a>    <span class="k">def</span> <span class="nf">is_running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is how the game runner knows if the game is over.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the game should still be play. False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.create_new_player"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.create_new_player">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_player</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prog</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This creates n new objects that inherits from the Player class.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            n new objects that inherit from the Player class with the given program.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.get_debug_vars"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.get_debug_vars">[docs]</a>    <span class="k">def</span> <span class="nf">get_debug_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.do_turn"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.do_turn">[docs]</a>    <span class="k">def</span> <span class="nf">do_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.get_frame"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.get_frame">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.init_board"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.init_board">[docs]</a>    <span class="k">def</span> <span class="nf">init_board</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.start_game"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.start_game">[docs]</a>    <span class="k">def</span> <span class="nf">start_game</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.default_prog_for_bot"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.default_prog_for_bot">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">default_prog_for_bot</span><span class="p">(</span><span class="n">language</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.default_prog_for_computer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.default_prog_for_computer">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">default_prog_for_computer</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;This method is only for multi-player games to implement.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            type[Prog]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.get_intro"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.get_intro">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_intro</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Game.get_move_consts"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.get_move_consts">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_move_consts</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ConstMapping</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Game.get_number_of_players"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.get_number_of_players">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_number_of_players</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;This method is only for multi-player games to implement.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The number of players needed to play the game.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NonGridGame"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.NonGridGame">[docs]</a><span class="k">class</span> <span class="nc">NonGridGame</span><span class="p">(</span><span class="n">Game</span><span class="p">):</span>
+    <span class="n">WEBONLY</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">GRID</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="NonGridGame.read_bot_state"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.NonGridGame.read_bot_state">[docs]</a>    <span class="k">def</span> <span class="nf">read_bot_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not Implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NonGridGame.get_vars_for_bot"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.NonGridGame.get_vars_for_bot">[docs]</a>    <span class="k">def</span> <span class="nf">get_vars_for_bot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not Implemented!&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ConstMapping"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.ConstMapping">[docs]</a><span class="k">class</span> <span class="nc">ConstMapping</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        dict() -&gt; new empty dictionary</span>
+<span class="sd">        dict(mapping) -&gt; new dictionary initialized from a mapping object&#39;s</span>
+<span class="sd">            (key, value) pairs</span>
+<span class="sd">        dict(iterable) -&gt; new dictionary initialized as if via:</span>
+<span class="sd">            d = {}</span>
+<span class="sd">            for k, v in iterable:</span>
+<span class="sd">                d[k] = v</span>
+<span class="sd">        dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs</span>
+<span class="sd">            in the keyword argument list.  For example:  dict(one=1, two=2)</span>
+<span class="sd">        # (copied from class doc)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">seq</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="k">elif</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
+
+<div class="viewcode-block" id="ConstMapping.update"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.ConstMapping.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># TODO: assert key is a valid littlepython variable name.</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;Key must be a variable name&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;Only valid value is an int currently&quot;</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">:</span>
+            <span class="n">old_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">[</span><span class="n">old_value</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">,</span> <span class="s2">&quot;This is a one-to-one mapping&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+
+    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GridGame"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame">[docs]</a><span class="k">class</span> <span class="nc">GridGame</span><span class="p">(</span><span class="n">Game</span><span class="p">):</span>
+    <span class="n">WEBONLY</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">GRID</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">SCREEN_WIDTH</span> <span class="o">=</span> <span class="mi">80</span>
+    <span class="n">SCREEN_HEIGHT</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">CHAR_WIDTH</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">CHAR_HEIGHT</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">GAME_TITLE</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">CHAR_SET</span> <span class="o">=</span> <span class="n">data_file</span><span class="p">(</span><span class="s2">&quot;fonts/terminal8x8_gs_ro.png&quot;</span><span class="p">)</span>
+    <span class="n">__frame_buffer</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="GridGame.is_running"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.is_running">[docs]</a>    <span class="k">def</span> <span class="nf">is_running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is how the game runner knows if the game is over.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the game should still be play. False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GridGame.create_new_player"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.create_new_player">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_player</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prog</span><span class="p">):</span>  <span class="c1"># TODO: add option to create computer, user or bot players.</span>
+        <span class="sd">&quot;&quot;&quot; TODO: write this</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not Implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GridGame.do_turn"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.do_turn">[docs]</a>    <span class="k">def</span> <span class="nf">do_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function should read the new state of all the players and react to them.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GridGame.draw_screen"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.draw_screen">[docs]</a>    <span class="k">def</span> <span class="nf">draw_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_buffer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;WARNING: There MUST NOT be any game logic in this function since it isn&#39;t called when simulating the game</span>
+<span class="sd">                    during the competitions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GridGame.get_frame"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.get_frame">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__frame_buffer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__frame_buffer</span> <span class="o">=</span> <span class="n">GridFrameBuffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw_screen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__frame_buffer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__frame_buffer</span><span class="o">.</span><span class="n">dump</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GridGame.get_vars"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.get_vars">[docs]</a>    <span class="k">def</span> <span class="nf">get_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; TODO: write this</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GridGame.get_score"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.get_score">[docs]</a>    <span class="k">def</span> <span class="nf">get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is the game runner gets the ending or mid-game score</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The current score.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GridGame.default_prog_for_bot"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.default_prog_for_bot">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">default_prog_for_bot</span><span class="p">(</span><span class="n">language</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GridGame.get_intro"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.get_intro">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_intro</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GridGame.get_move_consts"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.get_move_consts">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_move_consts</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ConstMapping</span><span class="p">({</span><span class="s2">&quot;north&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">),</span> <span class="s2">&quot;west&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">),</span> <span class="s2">&quot;east&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;northeast&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">),</span> <span class="s2">&quot;southeast&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">),</span> <span class="s2">&quot;northwest&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">),</span> <span class="s2">&quot;southwest&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">)})</span></div></div>
+
+
+<div class="viewcode-block" id="GameRunner"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner">[docs]</a><span class="k">class</span> <span class="nc">GameRunner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game_class</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span> <span class="o">=</span> <span class="n">game_class</span>  <span class="c1"># type: Type[Game]</span>
+
+<div class="viewcode-block" id="GameRunner.run"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room</span><span class="p">,</span> <span class="n">playback</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The the game.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            room(Room): The room to play.</span>
+<span class="sd">            playback(bool): if True save the playback.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Room:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">room</span><span class="o">.</span><span class="n">bots</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>  <span class="c1"># Make sure that we have a bot to run</span>
+
+        <span class="n">game</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">room</span><span class="o">.</span><span class="n">seed</span><span class="p">))</span>
+
+        <span class="n">game</span><span class="o">.</span><span class="n">init_board</span><span class="p">()</span>
+        <span class="n">players</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="n">room</span><span class="o">.</span><span class="n">bots</span><span class="p">:</span>
+            <span class="c1"># TODO: This is a hack. Remove me sometime.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="s2">&quot;options&quot;</span><span class="p">):</span>
+                <span class="n">bot</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">playback</span><span class="p">:</span>
+                <span class="n">bot</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">players</span> <span class="o">+=</span> <span class="p">[</span><span class="n">game</span><span class="o">.</span><span class="n">create_new_player</span><span class="p">(</span><span class="n">bot</span><span class="p">)]</span>
+
+        <span class="n">game</span><span class="o">.</span><span class="n">start_game</span><span class="p">()</span>
+
+        <span class="n">screen_cap</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">TURN_BASED</span><span class="p">:</span>
+            <span class="n">current_player</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">game</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">playback</span><span class="p">:</span>
+                <span class="n">screen_cap</span> <span class="o">+=</span> <span class="p">[</span><span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()]</span>
+
+            <span class="n">players</span> <span class="o">=</span> <span class="n">players</span>
+            <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">TURN_BASED</span><span class="p">:</span>
+                <span class="n">players</span> <span class="o">=</span> <span class="p">[</span><span class="n">players</span><span class="p">[</span><span class="n">current_player</span><span class="p">]]</span>
+                <span class="n">current_player</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_player</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">players</span><span class="p">)</span>
+                <span class="c1"># TODO: sync screen cap and debug vars.</span>
+
+            <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="n">players</span><span class="p">:</span>
+                <span class="n">player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">random</span><span class="p">)</span>
+
+            <span class="n">game</span><span class="o">.</span><span class="n">do_turn</span><span class="p">()</span>
+
+        <span class="n">room</span><span class="o">.</span><span class="n">score</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">get_score</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">playback</span><span class="p">:</span>
+            <span class="n">room</span><span class="o">.</span><span class="n">screen_cap</span> <span class="o">=</span> <span class="n">screen_cap</span>
+            <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="n">players</span><span class="p">:</span>
+                <span class="n">room</span><span class="o">.</span><span class="n">debug_vars</span><span class="p">[</span><span class="n">player</span><span class="o">.</span><span class="n">prog</span><span class="p">]</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="n">debug_vars</span>
+
+        <span class="k">return</span> <span class="n">room</span></div>
+
+<div class="viewcode-block" id="GameRunner.run_for_avg_score"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.run_for_avg_score">[docs]</a>    <span class="k">def</span> <span class="nf">run_for_avg_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">average</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs the given game keeping only the scores.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            times (int): The number of times to run to get the average score.</span>
+
+<span class="sd">        Return:</span>
+<span class="sd">            The return value the average score for the times runs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: replace this method with a better one.</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+            <span class="n">scores</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">room</span><span class="o">.</span><span class="n">rand_seeded</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameRunner.run_with_local_display"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.run_with_local_display">[docs]</a>    <span class="k">def</span> <span class="nf">run_with_local_display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Will run the game for a user.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># This import statement is here so pygame is only imported if needed.</span>
+        <span class="kn">from</span> <span class="nn">CYLGame</span> <span class="k">import</span> <span class="n">Display</span>
+        <span class="n">game</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
+
+        <span class="n">charset</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">CharSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="o">.</span><span class="n">CHAR_SET</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="o">.</span><span class="n">CHAR_WIDTH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="o">.</span><span class="n">CHAR_HEIGHT</span><span class="p">)</span>
+        <span class="n">display</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">PyGameDisplay</span><span class="p">(</span><span class="o">*</span><span class="n">charset</span><span class="o">.</span><span class="n">char_size_to_pix</span><span class="p">((</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span> <span class="n">game</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">)),</span> <span class="n">title</span><span class="o">=</span><span class="n">game</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">)</span>
+
+        <span class="n">clock</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">get_clock</span><span class="p">()</span>
+
+        <span class="n">frame_buffer</span> <span class="o">=</span> <span class="n">GridFrameBuffer</span><span class="p">(</span><span class="o">*</span><span class="n">charset</span><span class="o">.</span><span class="n">pix_size_to_char</span><span class="p">(</span><span class="n">display</span><span class="o">.</span><span class="n">get_size</span><span class="p">()),</span> <span class="n">charset</span><span class="o">=</span><span class="n">charset</span><span class="p">)</span>
+        <span class="n">frame_updated</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">game</span><span class="o">.</span><span class="n">init_board</span><span class="p">()</span>
+        <span class="n">players</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">:</span>
+            <span class="n">computer_bot_class</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">default_prog_for_computer</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">get_number_of_players</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">players</span> <span class="o">+=</span> <span class="p">[</span><span class="n">game</span><span class="o">.</span><span class="n">create_new_player</span><span class="p">(</span><span class="n">computer_bot_class</span><span class="p">())]</span>
+        <span class="n">player</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">create_new_player</span><span class="p">(</span><span class="n">UserProg</span><span class="p">())</span>
+
+        <span class="n">game</span><span class="o">.</span><span class="n">start_game</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="n">game</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
+            <span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">FPS</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">display</span><span class="o">.</span><span class="n">get_keys</span><span class="p">():</span>
+                <span class="c1"># TODO: fix</span>
+                <span class="n">player</span><span class="o">.</span><span class="n">prog</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+                <span class="n">player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">random</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">comp_player</span> <span class="ow">in</span> <span class="n">players</span><span class="p">:</span>
+                    <span class="n">comp_player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">random</span><span class="p">)</span>
+                <span class="n">game</span><span class="o">.</span><span class="n">do_turn</span><span class="p">()</span>
+                <span class="n">frame_updated</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">frame_updated</span><span class="p">:</span>
+                <span class="n">game</span><span class="o">.</span><span class="n">draw_screen</span><span class="p">(</span><span class="n">frame_buffer</span><span class="p">)</span>
+                <span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">frame_buffer</span><span class="p">)</span>
+                <span class="n">frame_updated</span> <span class="o">=</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">game_class</span><span class="p">,</span> <span class="n">avg_game_func</span><span class="o">=</span><span class="n">average</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I am going to serve&quot;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">.Server</span> <span class="k">import</span> <span class="n">serve</span>
+        <span class="n">reuse_addr</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_addr_reuse</span><span class="p">:</span>
+            <span class="n">reuse_addr</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">serve</span><span class="p">(</span><span class="n">game_class</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">game_data_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dbfile</span><span class="p">,</span> <span class="n">avg_game_func</span><span class="o">=</span><span class="n">avg_game_func</span><span class="p">,</span>
+              <span class="n">debug</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span> <span class="n">multiplayer_scoring_interval</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">scoring_time</span><span class="p">,</span> <span class="n">reuse_addr</span><span class="o">=</span><span class="n">reuse_addr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Playing...&quot;</span><span class="p">)</span>
+        <span class="n">GameRunner</span><span class="p">(</span><span class="n">game_class</span><span class="p">)</span><span class="o">.</span><span class="n">run_with_local_display</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="mi">36</span><span class="p">))</span>
+
+    <span class="kn">import</span> <span class="nn">argparse</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Play &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;What do you what to do?&#39;</span><span class="p">)</span>
+    <span class="n">parser_play</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;play&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Play &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s1">&#39; with a GUI&#39;</span><span class="p">)</span>
+    <span class="n">parser_play</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--seed&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Manually set the random seed.&#39;</span><span class="p">,</span>
+                             <span class="n">default</span><span class="o">=</span><span class="n">int2base</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">),</span> <span class="mi">36</span><span class="p">))</span>
+    <span class="n">parser_play</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">play</span><span class="p">)</span>
+    <span class="n">parser_serve</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;serve&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Serve &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s1">&#39; to the web.&#39;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;--port&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Port to serve on&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-db&#39;</span><span class="p">,</span> <span class="s1">&#39;--dbfile&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The root path of the game database&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;temp_game&quot;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--host&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The mask to host to&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--no-addr-reuse&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--scoring_time&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of seconds between re-scoring all the bots.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">serve</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">CYLGame</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">CYLGame</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, UMD LARS Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

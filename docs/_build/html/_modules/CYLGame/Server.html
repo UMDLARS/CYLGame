@@ -1,0 +1,472 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CYLGame.Server &#8212; CYLGame  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for CYLGame.Server</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">ujson</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Process</span>
+
+<span class="kn">import</span> <span class="nn">flask</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">flask_classful</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">escape</span>
+
+<span class="kn">from</span> <span class="nn">CYLGame.Comp</span> <span class="k">import</span> <span class="n">MultiplayerCompRunner</span><span class="p">,</span> <span class="n">RollingMultiplayerCompRunner</span>
+<span class="kn">from</span> <span class="nn">.Game</span> <span class="k">import</span> <span class="n">GameRunner</span><span class="p">,</span> <span class="n">GridGame</span>
+<span class="kn">from</span> <span class="nn">.Player</span> <span class="k">import</span> <span class="n">Room</span>
+<span class="kn">from</span> <span class="nn">.Game</span> <span class="k">import</span> <span class="n">GameLanguage</span>
+<span class="kn">from</span> <span class="nn">.Game</span> <span class="k">import</span> <span class="n">average</span>
+<span class="kn">from</span> <span class="nn">.Database</span> <span class="k">import</span> <span class="n">GameDB</span>
+
+
+<span class="n">ANONYMOUS_COMP</span> <span class="o">=</span> <span class="s2">&quot;P00000000&quot;</span>
+<span class="n">ANONYMOUS_SCHOOL</span> <span class="o">=</span> <span class="s2">&quot;S00000000&quot;</span>
+<span class="n">ANONYMOUS_USER</span> <span class="o">=</span> <span class="s2">&quot;00000000&quot;</span>
+
+
+<div class="viewcode-block" id="get_public_ip"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.get_public_ip">[docs]</a><span class="k">def</span> <span class="nf">get_public_ip</span><span class="p">():</span>
+    <span class="c1"># This is taken from: http://stackoverflow.com/a/1267524</span>
+    <span class="kn">import</span> <span class="nn">socket</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="p">([</span><span class="n">ip</span> <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname_ex</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">())[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ip</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;127.&quot;</span><span class="p">)][:</span><span class="mi">1</span><span class="p">],</span> <span class="p">[[(</span><span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="s1">&#39;8.8.8.8&#39;</span><span class="p">,</span> <span class="mi">53</span><span class="p">)),</span> <span class="n">s</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_DGRAM</span><span class="p">)]][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span> <span class="k">if</span> <span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="find_name_from_code"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.find_name_from_code">[docs]</a><span class="k">def</span> <span class="nf">find_name_from_code</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">re</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;#\s*name:\s*(.*)\s*&quot;</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="GameServer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer">[docs]</a><span class="k">class</span> <span class="nc">GameServer</span><span class="p">(</span><span class="n">flask_classful</span><span class="o">.</span><span class="n">FlaskView</span><span class="p">):</span>
+    <span class="n">game</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">compression</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">language</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">avg_game_count</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_avg_game_func</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">charset</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">gamedb</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">route_base</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__load_language</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">language</span> <span class="o">==</span> <span class="n">GameLanguage</span><span class="o">.</span><span class="n">LITTLEPY</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">littlepython</span> <span class="k">import</span> <span class="n">Compiler</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">compiler</span> <span class="o">=</span> <span class="n">Compiler</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid language. Could not load hookers.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__verify_game</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># TODO: add asserts for every attr used later.</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="p">,</span> <span class="s2">&quot;GAME_TITLE&quot;</span><span class="p">)</span>
+        <span class="n">score_op</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="p">,</span> <span class="s2">&quot;get_score&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">callable</span><span class="p">(</span><span class="n">score_op</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">__copy_in_charset</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">charset</span><span class="p">):</span>
+        <span class="n">fonts_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">www_cache</span><span class="o">.</span><span class="n">static_dir</span><span class="p">,</span> <span class="s2">&quot;fonts&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fonts_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">fonts_dir</span><span class="p">)</span>
+        <span class="n">charset_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">charset</span><span class="p">)</span>
+        <span class="n">new_charset_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fonts_dir</span><span class="p">,</span> <span class="n">charset_name</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">charset</span><span class="p">,</span> <span class="n">new_charset_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">charset_name</span>
+
+<div class="viewcode-block" id="GameServer.scoreboard"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.scoreboard">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/scoreboard&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">scoreboard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Token&quot;</span><span class="p">)</span>
+        <span class="n">school_tk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_school_for_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;school&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="n">school_tk</span><span class="p">),</span> <span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">user_tk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_tokens_for_school</span><span class="p">(</span><span class="n">school_tk</span><span class="p">):</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_avg_score</span><span class="p">(</span><span class="n">user_tk</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="n">user_tk</span><span class="p">)),</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_avg_score</span><span class="p">(</span><span class="n">user_tk</span><span class="p">)}]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">get_game_name</span><span class="p">(</span><span class="n">gtoken</span><span class="p">):</span>
+                <span class="n">bot_names</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_players_for_game</span><span class="p">(</span><span class="n">gtoken</span><span class="p">):</span>
+                    <span class="n">bot_names</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="n">token</span><span class="p">)]</span>
+                <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> - &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gtoken</span><span class="p">,</span> <span class="s2">&quot;&#39; vs &#39;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bot_names</span><span class="p">))</span>
+            <span class="n">gtokens</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">gtoken</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_games_for_token</span><span class="p">(</span><span class="n">ANONYMOUS_COMP</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">token</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_players_for_game</span><span class="p">(</span><span class="n">gtoken</span><span class="p">):</span>
+                    <span class="n">gtokens</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">gtoken</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">get_game_name</span><span class="p">(</span><span class="n">gtoken</span><span class="p">)}]</span>
+            <span class="n">gtokens</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_ctime_for_game</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">]),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;games&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gtokens</span>
+        <span class="k">return</span> <span class="n">ujson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.comp_scoreboards"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.comp_scoreboards">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/comp_scoreboards&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">comp_scoreboards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Token&quot;</span><span class="p">)</span>
+        <span class="n">comps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_comps_for_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;comps&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">comps</span><span class="p">:</span>
+            <span class="n">comp_obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="k">for</span> <span class="n">school</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_schools_in_comp</span><span class="p">(</span><span class="n">comp</span><span class="p">):</span>
+                <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_comp_avg_score</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">school</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">comp_obj</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="n">school</span><span class="p">)),</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">}]</span>
+            <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;comps&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">comp_obj</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ujson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.save_code"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.save_code">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/save_code&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">save_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;options&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Token&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">save_code</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">find_name_from_code</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">save_name</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;success&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.get_game_data"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.get_game_data">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/game/&lt;gtoken&gt;&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_game_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gtoken</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_game_token</span><span class="p">(</span><span class="n">gtoken</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Game Token&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ujson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_game_frames</span><span class="p">(</span><span class="n">gtoken</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="GameServer.get_player_game_data"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.get_player_game_data">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/game/&lt;gtoken&gt;/&lt;token&gt;&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_player_game_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gtoken</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="n">gtoken</span> <span class="o">=</span> <span class="n">gtoken</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_game_token</span><span class="p">(</span><span class="n">gtoken</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Game Token&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid User Token&quot;</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_game_frames</span><span class="p">(</span><span class="n">gtoken</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;player&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_player_game_data</span><span class="p">(</span><span class="n">gtoken</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">token</span> <span class="o">==</span> <span class="n">ANONYMOUS_USER</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">delete_game</span><span class="p">(</span><span class="n">gtoken</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ujson</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.get_player"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.get_player">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/player&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_player</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">GRID</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;grid_player.html&#39;</span><span class="p">,</span> <span class="n">char_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">CHAR_WIDTH</span><span class="p">,</span>
+                                    <span class="n">char_height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">CHAR_HEIGHT</span><span class="p">,</span> <span class="n">screen_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span>
+                                    <span class="n">screen_height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">,</span> <span class="n">char_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">charset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.sim_avg"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.sim_avg">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/sim_avg&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">sim_avg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: create this to run the game 100 times returning the average score to the user.</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;options&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Token&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Code did not compile&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">save_code</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">find_name_from_code</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">save_name</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">score</span><span class="o">=</span><span class="s2">&quot;still being computed. Check scoreboard later.&quot;</span><span class="p">)</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="n">Room</span><span class="p">([</span><span class="n">prog</span><span class="p">])</span>
+        <span class="n">runner</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run_for_avg_score</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_game_count</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_avg_game_func</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">save_avg_score</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">save_code</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">find_name_from_code</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">save_name</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">score</span><span class="o">=</span><span class="n">score</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Your bot ran into an error at runtime.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                       <span class="s2">&quot;If you think that your bot is correct, please file a bug report!</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                       <span class="s2">&quot;Make sure to include your code.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.sim"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.sim">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/sim&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">sim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">seed_str</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;seed&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">opponents</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;opponents&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;options&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">seed_str</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed_str</span><span class="p">,</span> <span class="mi">36</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Seed&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="n">prog</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+            <span class="n">prog</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">ANONYMOUS_USER</span>  <span class="c1"># anonymous user</span>
+            <span class="n">prog</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Your bot&quot;</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Code did not compile&quot;</span><span class="p">)</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="n">Room</span><span class="p">(</span><span class="n">bots</span><span class="o">=</span><span class="p">[</span><span class="n">prog</span><span class="p">],</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">:</span>
+            <span class="n">players</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">opponents</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">computer_bot_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">default_prog_for_computer</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">get_number_of_players</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">players</span> <span class="o">+=</span> <span class="p">[</span><span class="n">computer_bot_class</span><span class="p">()]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">opponent</span> <span class="ow">in</span> <span class="n">opponents</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">opponent</span> <span class="o">==</span> <span class="n">ANONYMOUS_USER</span><span class="p">:</span>
+                        <span class="n">opponent_prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+                        <span class="n">opponent_prog</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+                        <span class="n">opponent_prog</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Your other bot&quot;</span>
+                        <span class="n">players</span> <span class="o">+=</span> <span class="p">[</span><span class="n">opponent_prog</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Not implemented yet :(&quot;</span><span class="p">)</span>
+
+            <span class="n">room</span> <span class="o">=</span> <span class="n">Room</span><span class="p">(</span><span class="n">bots</span><span class="o">=</span><span class="p">[</span><span class="n">prog</span><span class="p">]</span> <span class="o">+</span> <span class="n">players</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">runner</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gtoken</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="n">playback</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">ujson</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;gtoken&quot;</span><span class="p">:</span> <span class="n">gtoken</span><span class="p">})</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Your bot ran into an error at runtime.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                       <span class="s2">&quot;If you think that your bot is correct, please file a bug report!</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                       <span class="s2">&quot;Make sure to include your code.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="GameServer.check_token"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.check_token">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/check_token&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">check_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Token&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">result</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.load_code"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.load_code">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/load_code&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">load_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Token&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">code</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_code_and_options</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">code</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.index"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">intro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">get_intro</span><span class="p">()</span> <span class="o">+</span> <span class="n">GameLanguage</span><span class="o">.</span><span class="n">get_language_description</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">GRID</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;grid.html&#39;</span><span class="p">,</span> <span class="n">game_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">,</span>
+                                    <span class="n">example_bot</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">default_prog_for_bot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">),</span> <span class="n">char_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">CHAR_WIDTH</span><span class="p">,</span>
+                                    <span class="n">char_height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">CHAR_HEIGHT</span><span class="p">,</span> <span class="n">screen_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span>
+                                    <span class="n">screen_height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">,</span> <span class="n">char_set</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">charset</span><span class="p">,</span>
+                                    <span class="n">intro_text</span><span class="o">=</span><span class="n">intro</span><span class="p">,</span> <span class="n">multiplayer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;nongrid.html&#39;</span><span class="p">,</span> <span class="n">game_title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">,</span>
+                                    <span class="n">example_bot</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">default_prog_for_bot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">),</span>
+                                    <span class="n">screen_width</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span>
+                                    <span class="n">screen_height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">,</span>
+                                    <span class="n">intro_text</span><span class="o">=</span><span class="n">intro</span><span class="p">,</span> <span class="n">multiplayer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">OPTIONS</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GameServer.serve"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.serve">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">game</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">GameLanguage</span><span class="o">.</span><span class="n">LITTLEPY</span><span class="p">,</span>
+              <span class="n">avg_game_count</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">multiplayer_scoring_interval</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">num_of_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">game_data_path</span><span class="o">=</span><span class="s2">&quot;temp_game&quot;</span><span class="p">,</span>
+              <span class="n">avg_game_func</span><span class="o">=</span><span class="n">average</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reuse_addr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">game</span> <span class="o">=</span> <span class="n">game</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">compression</span> <span class="o">=</span> <span class="n">compression</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">language</span> <span class="o">=</span> <span class="n">language</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">avg_game_count</span> <span class="o">=</span> <span class="n">avg_game_count</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_avg_game_func</span> <span class="o">=</span> <span class="n">avg_game_func</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span> <span class="o">=</span> <span class="n">GameDB</span><span class="p">(</span><span class="n">game_data_path</span><span class="p">)</span>
+        <span class="c1"># setup anonymous school with an anonymous user</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_school_token</span><span class="p">(</span><span class="n">ANONYMOUS_SCHOOL</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">add_new_school</span><span class="p">(</span><span class="n">_token</span><span class="o">=</span><span class="n">ANONYMOUS_SCHOOL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">ANONYMOUS_USER</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_new_token</span><span class="p">(</span><span class="n">ANONYMOUS_SCHOOL</span><span class="p">,</span> <span class="n">_token</span><span class="o">=</span><span class="n">ANONYMOUS_USER</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_comp_token</span><span class="p">(</span><span class="n">ANONYMOUS_COMP</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">add_new_competition</span><span class="p">(</span><span class="n">_token</span><span class="o">=</span><span class="n">ANONYMOUS_COMP</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Building www cache...&quot;</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">www_cache</span><span class="o">.</span><span class="n">safe_replace_cache</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;www&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">game</span><span class="p">,</span> <span class="n">GridGame</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">charset</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__copy_in_charset</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">CHAR_SET</span><span class="p">)</span>
+
+        <span class="bp">cls</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                              <span class="n">static_url_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                              <span class="n">static_folder</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">www_cache</span><span class="o">.</span><span class="n">static_dir</span><span class="p">,</span>
+                              <span class="n">template_folder</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">www_cache</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span>
+                              <span class="n">root_path</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">www_cache</span><span class="o">.</span><span class="n">root_dir</span><span class="p">)</span>
+
+        <span class="nd">@cls</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">template_filter</span><span class="p">(</span><span class="s1">&#39;markdown&#39;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">markdown_filter</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Markup</span>
+            <span class="kn">from</span> <span class="nn">markdown</span> <span class="k">import</span> <span class="n">markdown</span>
+
+            <span class="k">return</span> <span class="n">Markup</span><span class="p">(</span><span class="n">markdown</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">compression</span><span class="p">:</span>
+            <span class="c1"># BUUT WHAT ABOUT BREACH ATTACKS</span>
+            <span class="kn">import</span> <span class="nn">flask_compress</span>
+            <span class="n">flask_compress</span><span class="o">.</span><span class="n">Compress</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">__load_language</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting server at </span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span> <span class="ow">and</span> <span class="n">multiplayer_scoring_interval</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting scoring process...&quot;</span><span class="p">)</span>
+            <span class="n">scoring_process</span> <span class="o">=</span> <span class="n">RollingMultiplayerCompRunner</span><span class="p">(</span><span class="n">multiplayer_scoring_interval</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">compiler</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+            <span class="c1"># scoring_process = MultiplayerCompRunner(multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug)</span>
+            <span class="n">scoring_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Debug Enabled.&quot;</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">gevent.server</span> <span class="k">import</span> <span class="n">_tcp_listener</span>
+            <span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="k">import</span> <span class="n">WSGIServer</span>
+            <span class="n">listener</span> <span class="o">=</span> <span class="n">_tcp_listener</span><span class="p">((</span><span class="bp">cls</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">port</span><span class="p">),</span> <span class="n">reuse_addr</span><span class="o">=</span><span class="n">reuse_addr</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">serve_forever</span><span class="p">(</span><span class="n">listener</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">WSGIServer</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="p">)</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="n">num_of_threads</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">num_of_threads</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_of_threads</span><span class="p">):</span>
+                <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">serve_forever</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">listener</span><span class="p">,))</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+            <span class="n">serve_forever</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dying...&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">:</span>
+            <span class="n">scoring_process</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All good :)&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># This is for backwards compatibility</span>
+<span class="n">serve</span> <span class="o">=</span> <span class="n">GameServer</span><span class="o">.</span><span class="n">serve</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">CYLGame</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">CYLGame</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, UMD LARS Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
