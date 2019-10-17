@@ -10,14 +10,14 @@ appropriate values.
 Getting Started
 ---------------
 
-Install ``python3.6`` and ``pip``
+Install ``python3.7`` and ``pip``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-   sudo add-apt-repository ppa:deadsnakes/ppa  # Only needed for Ubuntu 14.04 and 16.04
+   sudo add-apt-repository ppa:deadsnakes/ppa  # Only needed for Ubuntu and 16.04
    sudo apt-get update
-   sudo apt-get install python3-pip libssl-dev python3.6 python3.6-dev 
+   sudo apt-get install python3-pip libssl-dev python3.7 python3.7-dev 
 
 Install ``git``
 ~~~~~~~~~~~~~~~
@@ -31,7 +31,7 @@ Install ``pipenv``
 
 ::
 
-   sudo python3.6 -m pip install pipenv
+   sudo python3.7 -m pip install pipenv
 
 Clone the game repository (insert your game here)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,7 +42,7 @@ Clone the game repository (insert your game here)
    cd applehunt                                           # or the directory created in the previous line
    pipenv install
 
-Running
+Running a Game Server on Localhost
 ~~~~~~~
 
 From within the directory of the game in question (e.g., ``applehunt``),
