@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>CYLGame pipeline &#8212; CYLGame  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Releasing a Build" href="release.html" />
+    <link rel="prev" title="Installing (and Playing) a Game" href="installing.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="cylgame-pipeline">
+<h1>CYLGame pipeline<a class="headerlink" href="#cylgame-pipeline" title="Permalink to this headline">¶</a></h1>
+<p>Steps in order:</p>
+<ul class="simple">
+<li><p>game.init_board</p></li>
+<li><p>for each bot in room players += game.create_new_player</p></li>
+<li><p>game.start_game</p></li>
+<li><p>Main Game Loop: while game.is_running():</p>
+<ul>
+<li><p>if playback: game.get_frame</p></li>
+<li><p>for each player: player.run_turn</p></li>
+<li><p>game.do_turn</p></li>
+</ul>
+</li>
+<li><p>game.get_score</p></li>
+</ul>
+<p>More detail for each step under their respective headings below</p>
+<div class="section" id="game-create-new-player">
+<h2>Game.create_new_player<a class="headerlink" href="#game-create-new-player" title="Permalink to this headline">¶</a></h2>
+<p>This method should create a new <code class="docutils literal notranslate"><span class="pre">Player</span></code> with the provided <code class="docutils literal notranslate"><span class="pre">prog</span></code>.</p>
+</div>
+<div class="section" id="game-init-board">
+<h2>Game.init_board<a class="headerlink" href="#game-init-board" title="Permalink to this headline">¶</a></h2>
+<p>This method should get the game ready to be played. Note: at this point
+the players have been created.</p>
+<p>Note: after this call the game should be able to correctly respond to
+<code class="docutils literal notranslate"><span class="pre">game.get_frame</span></code>.</p>
+</div>
+<div class="section" id="game-start-game">
+<h2>Game.start_game<a class="headerlink" href="#game-start-game" title="Permalink to this headline">¶</a></h2>
+<p>This method should make sure that the game is ready to go. Make sure to
+update the bots vars here.</p>
+</div>
+<div class="section" id="game-get-frame">
+<h2>Game.get_frame<a class="headerlink" href="#game-get-frame" title="Permalink to this headline">¶</a></h2>
+<p><strong>WARNING</strong>: There MUST NOT be any game logic in this function since it
+isn’t called when simulating the game during the competitions.</p>
+</div>
+<div class="section" id="game-do-turn">
+<h2>Game.do_turn<a class="headerlink" href="#game-do-turn" title="Permalink to this headline">¶</a></h2>
+<p>In this function the game should update the game state according to the
+players change in state.</p>
+</div>
+<div class="section" id="player">
+<h2>Player<a class="headerlink" href="#player" title="Permalink to this headline">¶</a></h2>
+<p>The player should retain the state for the program being run.</p>
+</div>
+<div class="section" id="player-run-turn">
+<h2>Player.run_turn<a class="headerlink" href="#player-run-turn" title="Permalink to this headline">¶</a></h2>
+<p>Runs the</p>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>The player will track the state.</p>
+<p>The game needs to react to how the players’ states have changed since
+last turn in <code class="docutils literal notranslate"><span class="pre">do_turn</span></code></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">CYLGame</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installing (and Playing) a Game</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CYLGame pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#game-create-new-player">Game.create_new_player</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#game-init-board">Game.init_board</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#game-start-game">Game.start_game</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#game-get-frame">Game.get_frame</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#game-do-turn">Game.do_turn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#player">Player</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#player-run-turn">Player.run_turn</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="release.html">Releasing a Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_docs.html">Building the docs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Docs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">CYLGame</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="installing.html" title="previous chapter">Installing (and Playing) a Game</a></li>
+      <li>Next: <a href="release.html" title="next chapter">Releasing a Build</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, UMD LARS Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/userguide/pipeline.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

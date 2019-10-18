@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Releasing a Build &#8212; CYLGame  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Building the docs" href="build_docs.html" />
+    <link rel="prev" title="CYLGame pipeline" href="pipeline.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="releasing-a-build">
+<h1>Releasing a Build<a class="headerlink" href="#releasing-a-build" title="Permalink to this headline">¶</a></h1>
+<p>Follow these steps to release a build of CYLGame.</p>
+<ol class="arabic simple">
+<li><p>Version Bump</p>
+<ol class="arabic simple">
+<li><p>Change the version number in <code class="docutils literal notranslate"><span class="pre">CYLGame/version.py</span></code> to the version
+you wish to release. (Note: for bug fixes simply add one to the
+last number ex. <code class="docutils literal notranslate"><span class="pre">1.6.22</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">1.6.23</span></code>)</p></li>
+<li><p>Commit this change using git and the the following message:
+<code class="docutils literal notranslate"><span class="pre">Version</span> <span class="pre">Bump</span></code> (Example command
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">CYLGame/version.py</span> <span class="pre">-m</span> <span class="pre">&quot;Version</span> <span class="pre">Bump&quot;</span></code>)</p></li>
+<li><p>Create a tag for the version in git. (Example command
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">tag</span> <span class="pre">v1.6.23</span></code>)</p></li>
+<li><p>Push the commit and tag to github. (Example command
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">master</span> <span class="pre">--tags</span></code>)</p></li>
+</ol>
+</li>
+<li><p>Check build</p>
+<ol class="arabic simple">
+<li><p><strong>Check</strong> <a class="reference external" href="https://travis-ci.org/UMDLARS/CYLGame">https://travis-ci.org/UMDLARS/CYLGame</a> <strong>to make sure
+the build passes.</strong></p></li>
+</ol>
+</li>
+<li><p>Compile and Upload</p>
+<ol class="arabic simple">
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">sdist</span> <span class="pre">upload</span></code> to compile and upload the
+build to the Python Package Index (aka. the Cheese Shop).</p></li>
+</ol>
+</li>
+</ol>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">CYLGame</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installing (and Playing) a Game</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">CYLGame pipeline</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Releasing a Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_docs.html">Building the docs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Docs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">CYLGame</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="pipeline.html" title="previous chapter">CYLGame pipeline</a></li>
+      <li>Next: <a href="build_docs.html" title="next chapter">Building the docs</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, UMD LARS Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/userguide/release.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

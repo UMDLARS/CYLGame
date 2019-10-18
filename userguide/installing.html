@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Installing (and Playing) a Game &#8212; CYLGame  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CYLGame pipeline" href="pipeline.html" />
+    <link rel="prev" title="Welcome to CYLGame’s documentation!" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="installing-and-playing-a-game">
+<h1>Installing (and Playing) a Game<a class="headerlink" href="#installing-and-playing-a-game" title="Permalink to this headline">¶</a></h1>
+<p>This document explains how to install and play a generic CYLGame game on
+a clean install of Ubuntu Linux. We will use the basic ‘Applehunt’ game,
+but if you wish to install a different CYLGame modules, replace the git
+repository and directories described in this document with the
+appropriate values.</p>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="install-python3-7-and-pip">
+<h3>Install <code class="docutils literal notranslate"><span class="pre">python3.7</span></code> and <code class="docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#install-python3-7-and-pip" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">deadsnakes</span><span class="o">/</span><span class="n">ppa</span>  <span class="c1"># Only needed for Ubuntu and 16.04</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">libssl</span><span class="o">-</span><span class="n">dev</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span><span class="o">-</span><span class="n">dev</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-git">
+<h3>Install <code class="docutils literal notranslate"><span class="pre">git</span></code><a class="headerlink" href="#install-git" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">git</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-pipenv">
+<h3>Install <code class="docutils literal notranslate"><span class="pre">pipenv</span></code><a class="headerlink" href="#install-pipenv" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">pipenv</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="clone-the-game-repository-insert-your-game-here">
+<h3>Clone the game repository (insert your game here)<a class="headerlink" href="#clone-the-game-repository-insert-your-game-here" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">UMDLARS</span><span class="o">/</span><span class="n">applehunt</span><span class="o">.</span><span class="n">git</span>     <span class="c1"># or a different game of your choice</span>
+<span class="n">cd</span> <span class="n">applehunt</span>                                           <span class="c1"># or the directory created in the previous line</span>
+<span class="n">pipenv</span> <span class="n">install</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-a-game-server-on-localhost">
+<h3>Running a Game Server on Localhost<a class="headerlink" href="#running-a-game-server-on-localhost" title="Permalink to this headline">¶</a></h3>
+<p>From within the directory of the game in question (e.g., <code class="docutils literal notranslate"><span class="pre">applehunt</span></code>),
+run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pipenv</span> <span class="n">run</span> <span class="n">python</span> <span class="n">game</span><span class="o">.</span><span class="n">py</span> <span class="n">serve</span>
+</pre></div>
+</div>
+<p>This will start the game running on an application web server on the
+<code class="docutils literal notranslate"><span class="pre">localhost</span></code> interface, which you can access by going to:</p>
+<p><code class="docutils literal notranslate"><span class="pre">http://localhost:5000</span></code></p>
+<p>… in your web browser.</p>
+<p>To make this game server accessible from the Internet or other hosts,
+additional steps are required. We do this by forwarding a URL from our
+web frontend to the game server running at a particular IP and port
+(this can be on the same or a different machine). To specify the IP and
+port for the game server, use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pipenv</span> <span class="n">run</span> <span class="n">python</span> <span class="n">game</span><span class="o">.</span><span class="n">py</span> <span class="n">serve</span> <span class="o">--</span><span class="n">host</span> <span class="n">IPADDRESS</span> <span class="o">-</span><span class="n">p</span> <span class="n">PORT</span> <span class="o">-</span><span class="n">db</span> <span class="n">GAME_DB</span>
+</pre></div>
+</div>
+<p>If you have any questions feel free to contact the devteam at
+<a class="reference external" href="mailto:umdcyl-dev&#37;&#52;&#48;d&#46;umn&#46;edu">umdcyl-dev<span>&#64;</span>d<span>&#46;</span>umn<span>&#46;</span>edu</a></p>
+</div>
+<div class="section" id="playing-the-game-on-screen">
+<h3>Playing the Game On Screen<a class="headerlink" href="#playing-the-game-on-screen" title="Permalink to this headline">¶</a></h3>
+<p>If you’re developing or testing the game, you may want to play the game
+on your own monitor (rather than through the web interface). To do this,
+follow the above instructions, then:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pipenv install --dev
+</pre></div>
+</div>
+<p>To play the game:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pipenv run python game.py play
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">CYLGame</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installing (and Playing) a Game</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">CYLGame pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release.html">Releasing a Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_docs.html">Building the docs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Docs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">CYLGame</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Welcome to CYLGame’s documentation!</a></li>
+      <li>Next: <a href="pipeline.html" title="next chapter">CYLGame pipeline</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, UMD LARS Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/userguide/installing.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,313 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>CYLGame.SensorGame &#8212; CYLGame  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for CYLGame.SensorGame</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">CYLGame.Game</span> <span class="k">import</span> <span class="n">NonGridGame</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="k">import</span> <span class="n">Player</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Frame</span> <span class="k">import</span> <span class="n">GameFrame</span>
+<span class="kn">from</span> <span class="nn">CYLGame</span> <span class="k">import</span> <span class="n">GameLanguage</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">TAU</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">;</span>
+<span class="n">SEP</span> <span class="o">=</span> <span class="s2">&quot;---------------------------------------&quot;</span>
+
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="kc">False</span>
+<div class="viewcode-block" id="dprint"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.dprint">[docs]</a><span class="k">def</span> <span class="nf">dprint</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">string</span><span class="p">)</span></div>
+    
+
+<div class="viewcode-block" id="deg2rad"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.deg2rad">[docs]</a><span class="k">def</span> <span class="nf">deg2rad</span><span class="p">(</span><span class="n">deg</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">deg</span><span class="p">)</span> <span class="o">*</span> <span class="n">TAU</span> <span class="o">/</span> <span class="mf">360.0</span></div>
+<div class="viewcode-block" id="rad2deg"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.rad2deg">[docs]</a><span class="k">def</span> <span class="nf">rad2deg</span><span class="p">(</span><span class="n">rad</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="mf">360.0</span> <span class="o">/</span> <span class="n">TAU</span></div>
+
+<div class="viewcode-block" id="rotate_point"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.rotate_point">[docs]</a><span class="k">def</span> <span class="nf">rotate_point</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
+    <span class="n">cos_</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+    <span class="n">sin_</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+    <span class="n">newp</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">newp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">cos_</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">sin_</span>
+    <span class="n">newp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">sin_</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">cos_</span>
+
+    <span class="k">return</span> <span class="n">newp</span></div>
+
+<div class="viewcode-block" id="compute_vector"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.compute_vector">[docs]</a><span class="k">def</span> <span class="nf">compute_vector</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">screen_width</span><span class="p">,</span> <span class="n">screen_height</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the vector and distance between two objects, start and end.</span>
+<span class="sd">    start and end must have a position attribute which is a list/tuple</span>
+<span class="sd">    of the x and y coord.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vector</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">half_width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">screen_width</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">half_width</span><span class="p">:</span>
+        <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">screen_width</span>
+    <span class="k">elif</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">half_width</span><span class="p">:</span>
+        <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">screen_width</span>
+
+    <span class="n">half_height</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">screen_height</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">half_height</span><span class="p">:</span>
+        <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">screen_height</span>
+    <span class="k">elif</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">half_height</span><span class="p">:</span>
+        <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">screen_height</span>
+
+    <span class="k">return</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">vector</span></div>
+
+<div class="viewcode-block" id="SensorSanitizers"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorSanitizers">[docs]</a><span class="k">class</span> <span class="nc">SensorSanitizers</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="c1"># sensor sanitize/validate functions</span>
+<div class="viewcode-block" id="SensorSanitizers.san_range"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorSanitizers.san_range">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">san_range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="n">new_r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_r</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">new_r</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">elif</span> <span class="n">new_r</span> <span class="o">&gt;</span> <span class="mf">100.0</span><span class="p">:</span>
+            <span class="n">new_r</span> <span class="o">=</span> <span class="mf">100.0</span>
+        <span class="k">return</span> <span class="n">new_r</span></div>
+
+<div class="viewcode-block" id="SensorSanitizers.san_angle"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorSanitizers.san_angle">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">san_angle</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SensorSanitizers.san_width"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorSanitizers.san_width">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">san_width</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">w</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="n">new_w</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_w</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">new_w</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">elif</span> <span class="n">new_w</span> <span class="o">&gt;</span> <span class="mf">360.0</span><span class="p">:</span>
+            <span class="n">new_w</span> <span class="o">=</span> <span class="mf">360.0</span>
+        <span class="k">return</span> <span class="n">new_w</span></div>
+
+<div class="viewcode-block" id="SensorSanitizers.san_turret"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorSanitizers.san_turret">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">san_turret</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></div>
+
+    <span class="kn">import</span> <span class="nn">re</span>
+    <span class="n">color_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;#[0-9A-Fa-f]</span><span class="si">{6}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="SensorSanitizers.san_color"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorSanitizers.san_color">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">san_color</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">SensorSanitizers</span><span class="o">.</span><span class="n">color_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
+
+<div class="viewcode-block" id="SensorPlayer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorPlayer">[docs]</a><span class="k">class</span> <span class="nc">SensorPlayer</span><span class="p">(</span><span class="n">Player</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SensorPlayer.add_sensor"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorPlayer.add_sensor">[docs]</a>    <span class="k">def</span> <span class="nf">add_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_range</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">turret</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a sensor to this player.</span>
+<span class="sd">        _range: integer [0, 100], the distance that the sensor travels</span>
+<span class="sd">        angle: integer [0, 360], the direction in degrees the sensor points</span>
+<span class="sd">        width: integer [0, 360], the width in degrees of the sensor</span>
+<span class="sd">        turret: bool, if True, the angle is relative to the turret&#39;s angle,</span>
+<span class="sd">        otherwise angle is relative to the tank&#39;s angle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sensor</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">_range</span><span class="p">)</span>
+        <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;angle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+        <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deg2rad</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+        <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;turret&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">turret</span>
+        <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;triggered&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sensor</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SensorPlayer.sensor_calc"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorPlayer.sensor_calc">[docs]</a>    <span class="k">def</span> <span class="nf">sensor_calc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">dist_sq</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">tank_sensor_range</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        See if other is in any of our sensors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">killer</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">killer</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># check if they are in our max sensor range</span>
+        <span class="k">if</span> <span class="n">dist_sq</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">tank_sensor_range</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1">#print(&quot;sensor_calc&quot;)</span>
+        <span class="c1">#print(dist_sq, vector, self.angle)</span>
+        <span class="c1"># Now calculate sensors</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;triggered&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">other</span><span class="o">.</span><span class="n">obj_type</span><span class="p">:</span>
+                <span class="c1"># sensor already firing</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">dist_sq</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># out of range</span>
+                <span class="k">continue</span>
+
+            <span class="n">theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;angle&quot;</span><span class="p">]</span>
+            <span class="c1">#print(sensor[&quot;angle&quot;])</span>
+            <span class="k">if</span> <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;turret&quot;</span><span class="p">]:</span>
+                <span class="n">theta</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turret_current</span>
+
+            <span class="c1"># do some funky math</span>
+            <span class="c1"># rotate other&#39;s position by theta</span>
+            <span class="n">rotated_point</span> <span class="o">=</span> <span class="n">rotate_point</span><span class="p">(</span><span class="o">-</span><span class="n">theta</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span>
+            <span class="c1"># Sensor is symmetrical, so we only need to consider top</span>
+            <span class="c1"># quadrants</span>
+            <span class="n">rotated_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">rotated_point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="c1"># compute inverse slope of our sensor</span>
+            <span class="n">m_s</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+            <span class="c1"># compute slope to other</span>
+            <span class="n">m_r</span> <span class="o">=</span> <span class="n">rotated_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">rotated_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
+            
+            <span class="c1"># if our inverse slope is less than other, they&#39;re inside</span>
+            <span class="c1"># the arc</span>
+            <span class="k">if</span> <span class="n">m_r</span> <span class="o">&gt;=</span> <span class="n">m_s</span><span class="p">:</span>
+                <span class="c1">#print(&quot;triggered&quot;, i)</span>
+                <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;triggered&quot;</span><span class="p">]</span> <span class="o">|=</span> <span class="n">other</span><span class="o">.</span><span class="n">obj_type</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Now check if the edge of the arc intersects the tank. Do</span>
+            <span class="c1"># this just like with firing</span>
+            <span class="n">rotated_point</span> <span class="o">=</span> <span class="n">rotate_point</span><span class="p">(</span><span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">rotated_point</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rotated_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">rotated_point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">:</span>
+                <span class="c1">#print(&quot;triggered&quot;, i)</span>
+                <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;triggered&quot;</span><span class="p">]</span> <span class="o">|=</span> <span class="n">other</span><span class="o">.</span><span class="n">obj_type</span></div></div>
+
+
+
+<div class="viewcode-block" id="SensorGame"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorGame">[docs]</a><span class="k">class</span> <span class="nc">SensorGame</span><span class="p">(</span><span class="n">NonGridGame</span><span class="p">):</span>
+    <span class="n">WEBONLY</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">NONGRID</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">OPTIONS</span> <span class="o">=</span> <span class="s2">&quot;sensors&quot;</span>
+
+<div class="viewcode-block" id="SensorGame.do_sensors"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorGame.do_sensors">[docs]</a>    <span class="k">def</span> <span class="nf">do_sensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">players</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span>
+        <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="n">players</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="n">player</span><span class="o">.</span><span class="n">sensors</span><span class="p">:</span>
+                <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;triggered&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">players</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">players</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">killer</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">players</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">players</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">killer</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">dist_sq</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">compute_vector</span><span class="p">(</span><span class="n">players</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">players</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">)</span>
+                <span class="n">players</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sensor_calc</span><span class="p">(</span><span class="n">players</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">dist_sq</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SENSOR_RANGE</span><span class="p">)</span>
+                <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+                <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+                <span class="n">players</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">sensor_calc</span><span class="p">(</span><span class="n">players</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dist_sq</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SENSOR_RANGE</span><span class="p">)</span></div></div>
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">CYLGame</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/installing.html">Installing (and Playing) a Game</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/pipeline.html">CYLGame pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/release.html">Releasing a Build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/build_docs.html">Building the docs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Source Docs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">CYLGame</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, UMD LARS Lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
