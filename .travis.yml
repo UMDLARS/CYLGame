@@ -14,7 +14,7 @@ install:
 script:
   - python setup.py test
   - py.test --cov=./
-  - cd docs; make html; touch _build/html/.nojekyll
+  - cd docs; pipenv run make html; touch _build/html/.nojekyll
 
 after_success:
   - codecov
