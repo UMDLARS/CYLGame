@@ -10,6 +10,7 @@ sphinxcontrib-versioning = "*"
 
 [packages]
 cylgame = {editable = true,path = "."}
+sphinx = "*"
 
 [requires]
 python_version = "3.7"
