@@ -88,6 +88,11 @@ class Player {
         .click(() => {
           this.on_faster_click();
         }));
+      this.btn_bar.append($("<button>")
+        .text("Export GIF")
+        .click(() => {
+          this.export_gif();
+        }));
       if (this.show_debug_table) {
         // Set seed and toggle debug table:
         this.debug_toggle_btn = $("<button>")
@@ -220,6 +225,55 @@ class Player {
     } else {
       this.play();
     }
+  }
+
+  export_gif(){
+    this.pause();
+    // show_loading();
+    let f = 0;
+    let f_start = parseInt(prompt("What frame would you like to start at?"));
+    let f_end = parseInt(prompt("What frame would you like to end at?"));
+    let images = [];
+    let canvas = $('canvas').get(1);
+    for (f = f_start; f < f_end; f++) {
+      this.cur_frame = this.real_cur_frame = f;
+      this.drawCurFrame();
+      let blob = canvas.toDataURL();
+      //images.push(canvas.toDataURL("image/png"));
+
+      //Get data from canvas
+      let img = document.createElement("img");
+      img.src = canvas.toDataURL('image/png');
+      images.push(img);
+    }
+    gifshot.createGIF({
+      'images': images,
+      'gifWidth': canvas.width,
+      'gifHeight': canvas.height,
+    },function(obj) {
+      // hide_loading();
+      if(!obj.error) {
+        //var image = obj.image,
+        //animatedImage = document.createElement('img');
+        //animatedImage.src = image;
+        //document.body.appendChild(animatedImage);
+
+        // Download the image
+        let a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        // // The next two steps may be redundant?
+        // let blob = new Blob(obj.image, {type: "octet/stream"});
+        // let url = window.URL.createObjectURL(blob);
+        a.href = obj.image;
+        a.download = "cyl.gif";
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        alert(`There was an error: ${object.error}`);
+      }
+    });
   }
 
   stop() {
