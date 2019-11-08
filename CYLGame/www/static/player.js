@@ -88,11 +88,6 @@ class Player {
         .click(() => {
           this.on_faster_click();
         }));
-      this.btn_bar.append($("<button>")
-        .text("Export GIF")
-        .click(() => {
-          this.export_gif();
-        }));
       if (this.show_debug_table) {
         // Set seed and toggle debug table:
         this.debug_toggle_btn = $("<button>")
@@ -106,8 +101,12 @@ class Player {
             .click(() => {
               set_seed();  // This is a hack. Fix me sometime.
             }))
-          .append(this.debug_toggle_btn
-          ));
+          .append(this.debug_toggle_btn)
+          .append($("<button>")
+          .text("Export GIF")
+          .click(() => {
+            this.export_gif();
+          })));
       }
       this.btn_bar.append($("<br>"));
       this.parent_div.append(this.btn_bar);
