@@ -394,6 +394,8 @@ def run(game_class, avg_game_func=average):
 
     parser = argparse.ArgumentParser(prog=game_class.GAME_TITLE, description='Play ' + game_class.GAME_TITLE + '.')
     subparsers = parser.add_subparsers(help='What do you what to do?')
+    subparsers.required = True
+    subparsers.dest = "command"
     parser_play = subparsers.add_parser('play', help='Play ' + game_class.GAME_TITLE + ' with a GUI')
     parser_play.add_argument('-s', '--seed', nargs="?", type=str, help='Manually set the random seed.',
                              default=int2base(random.randint(0, sys.maxsize), 36))
