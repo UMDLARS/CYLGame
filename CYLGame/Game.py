@@ -46,7 +46,6 @@ class Game(object):
     GAME_TITLE = ""
     OPTIONS = None
     MULTIPLAYER = False  # TODO: document
-    TURN_BASED = False  # TODO: document
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -279,7 +278,7 @@ class GameRunner(object):
         game = self.game_class(random.Random(room.seed))
 
         game.init_board()
-        all_players = []
+        players = []
         for bot in room.bots:
             # TODO: This is a hack. Remove me sometime.
             if not hasattr(bot, "options"):
@@ -287,24 +286,16 @@ class GameRunner(object):
             if playback:
                 bot.options["debug"] = True
 
-            all_players += [game.create_new_player(bot)]
+            players += [game.create_new_player(bot)]
 
         game.start_game()
 
         screen_cap = []
-        if game.TURN_BASED:
-            current_player = 0
         while game.is_running():
             if playback:
                 screen_cap += [game.get_frame()]
 
-            current_players = all_players
-            if game.TURN_BASED:
-                current_players = [all_players[current_player]]
-                current_player = (current_player + 1) % len(all_players)
-                # TODO: sync screen cap and debug vars.
-
-            for player in current_players:
+            for player in players:
                 player.run_turn(game.random)
 
             game.do_turn()
@@ -312,7 +303,7 @@ class GameRunner(object):
         room.score = game.get_score()
         if playback:
             room.screen_cap = screen_cap
-            for player in all_players:
+            for player in players:
                 room.debug_vars[player.prog] = player.debug_vars
 
         return room
