@@ -31,23 +31,23 @@
           <div class="body" role="main">
             
   <h1>Source code for CYLGame.Comp</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">islice</span>
-<span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">randint</span><span class="p">,</span> <span class="n">choice</span><span class="p">,</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">islice</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span><span class="p">,</span> <span class="n">choice</span><span class="p">,</span> <span class="n">shuffle</span>
 
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Event</span><span class="p">,</span> <span class="n">Pool</span>
 
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 
-<span class="kn">from</span> <span class="nn">CYLGame.Utils</span> <span class="k">import</span> <span class="n">OnlineMean</span><span class="p">,</span> <span class="n">choose</span>
-<span class="kn">from</span> <span class="nn">.Game</span> <span class="k">import</span> <span class="n">GameRunner</span>
-<span class="kn">from</span> <span class="nn">.Player</span> <span class="k">import</span> <span class="n">Room</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Utils</span> <span class="kn">import</span> <span class="n">OnlineMean</span><span class="p">,</span> <span class="n">choose</span>
+<span class="kn">from</span> <span class="nn">.Game</span> <span class="kn">import</span> <span class="n">GameRunner</span>
+<span class="kn">from</span> <span class="nn">.Player</span> <span class="kn">import</span> <span class="n">Room</span>
 
 
 <div class="viewcode-block" id="create_room"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Comp.create_room">[docs]</a><span class="k">def</span> <span class="nf">create_room</span><span class="p">(</span><span class="n">gamedb</span><span class="p">,</span> <span class="n">bot</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
@@ -57,7 +57,7 @@
         <span class="n">pool</span> <span class="o">+=</span> <span class="n">gamedb</span><span class="o">.</span><span class="n">get_tokens_for_school</span><span class="p">(</span><span class="n">stoken</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+        <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
         <span class="k">return</span> <span class="n">Room</span><span class="p">([</span><span class="n">bot</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)])</span>
 
     <span class="n">bots</span> <span class="o">=</span> <span class="p">[</span><span class="n">bot</span><span class="p">]</span>
@@ -152,7 +152,7 @@
 
 
 <div class="viewcode-block" id="Ranking"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Comp.Ranking">[docs]</a><span class="k">class</span> <span class="nc">Ranking</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bots</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bots</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Args:</span>
@@ -162,13 +162,13 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bots</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ranks</span><span class="p">[</span><span class="n">bots</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span>  <span class="c1"># Key: BOTS Value: RANK</span>
 
-    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="n">new_rank</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranks</span><span class="p">:</span>
             <span class="n">new_rank</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranks</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">new_rank</span>
 
-    <span class="k">def</span> <span class="nf">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">other</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="n">new_rank</span> <span class="o">=</span> <span class="p">{}</span>
@@ -181,7 +181,7 @@
 
 
 <div class="viewcode-block" id="MultiplayerComp"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Comp.MultiplayerComp">[docs]</a><span class="k">class</span> <span class="nc">MultiplayerComp</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bots</span><span class="p">,</span> <span class="n">room_size</span><span class="p">,</span> <span class="n">default_bot_class</span><span class="p">,</span> <span class="n">run_factor</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bots</span><span class="p">,</span> <span class="n">room_size</span><span class="p">,</span> <span class="n">default_bot_class</span><span class="p">,</span> <span class="n">run_factor</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Args:</span>
@@ -198,10 +198,10 @@
         <span class="k">for</span> <span class="n">bot</span> <span class="ow">in</span> <span class="n">bots</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="n">bot</span><span class="p">]</span> <span class="o">=</span> <span class="n">OnlineMean</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ARGS:</span>
 <span class="sd">            key (Room): The room to set to ranking</span>
@@ -212,10 +212,10 @@
             <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">prog</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">prog</span><span class="p">]</span> <span class="o">+=</span> <span class="n">value</span><span class="o">.</span><span class="n">ranks</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
 
 <div class="viewcode-block" id="MultiplayerComp.next"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Comp.MultiplayerComp.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -319,10 +319,10 @@
             <span class="k">if</span> <span class="n">best_bot</span><span class="p">:</span>
                 <span class="n">best_bots</span><span class="p">[</span><span class="n">s_token</span><span class="p">]</span> <span class="o">=</span> <span class="n">best_bot</span>
             <span class="k">elif</span> <span class="n">debug</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;School </span><span class="si">{s_token}</span><span class="s2"> had on bot with a score&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;School </span><span class="si">{s_token}</span><span class="s2"> had on bot with a score&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Got the following bots:</span><span class="se">\n</span><span class="si">{best_bots}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got the following bots:</span><span class="se">\n</span><span class="si">{best_bots}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">best_bots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
@@ -332,14 +332,14 @@
         <span class="n">game_tokens</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">tourney</span> <span class="o">=</span> <span class="n">MultiplayerComp</span><span class="p">(</span><span class="n">best_bots</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">game</span><span class="o">.</span><span class="n">get_number_of_players</span><span class="p">(),</span> <span class="n">game</span><span class="o">.</span><span class="n">default_prog_for_computer</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Will run </span><span class="si">{tourney.total_runs:.0f}</span><span class="s2"> games.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Will run </span><span class="si">{tourney.total_runs:.0f}</span><span class="s2"> games.&quot;</span><span class="p">)</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">room</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tourney</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
                 <span class="n">time_taken</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span>
                 <span class="n">estimate_total_time</span> <span class="o">=</span> <span class="n">time_taken</span> <span class="o">*</span> <span class="p">(</span><span class="n">tourney</span><span class="o">.</span><span class="n">total_runs</span><span class="o">/</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
                 <span class="n">eta</span> <span class="o">=</span> <span class="n">estimate_total_time</span> <span class="o">-</span> <span class="n">time_taken</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Eta: ~</span><span class="si">{eta:.0f}</span><span class="s2"> secs Cur Room: </span><span class="si">{room}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Eta: ~</span><span class="si">{eta:.0f}</span><span class="s2"> secs Cur Room: </span><span class="si">{room}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">gamerunner</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="p">(</span><span class="n">game</span><span class="p">)</span>
             <span class="n">tourney</span><span class="p">[</span><span class="n">room</span><span class="p">]</span> <span class="o">=</span> <span class="n">gamerunner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">room</span><span class="p">)</span><span class="o">.</span><span class="n">score</span>
             <span class="k">if</span> <span class="n">save_games</span><span class="p">:</span>
@@ -355,7 +355,7 @@
 
 
 <div class="viewcode-block" id="MultiplayerCompRunner"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Comp.MultiplayerCompRunner">[docs]</a><span class="k">class</span> <span class="nc">MultiplayerCompRunner</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">gamedb</span><span class="p">,</span> <span class="n">game</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">gamedb</span><span class="p">,</span> <span class="n">game</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Args:</span>
@@ -397,7 +397,7 @@
 
 
 <div class="viewcode-block" id="RollingMultiplayerComp"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Comp.RollingMultiplayerComp">[docs]</a><span class="k">class</span> <span class="nc">RollingMultiplayerComp</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_size</span><span class="p">,</span> <span class="n">default_bot_class</span><span class="p">,</span> <span class="n">rolling_n</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_size</span><span class="p">,</span> <span class="n">default_bot_class</span><span class="p">,</span> <span class="n">rolling_n</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Args:</span>
@@ -429,10 +429,10 @@
         <span class="k">if</span> <span class="n">bot</span><span class="o">.</span><span class="n">token</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bots</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">gamedb</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        ARGS:</span>
 <span class="sd">            key (Room): The room to set to ranking</span>
@@ -443,7 +443,7 @@
             <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">prog</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">prog</span><span class="p">]</span> <span class="o">+=</span> <span class="n">value</span><span class="o">.</span><span class="n">ranks</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span>
 
-    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
 
 <div class="viewcode-block" id="RollingMultiplayerComp.next"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Comp.RollingMultiplayerComp.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -458,7 +458,7 @@
 
 
 <div class="viewcode-block" id="RollingMultiplayerCompRunner"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Comp.RollingMultiplayerCompRunner">[docs]</a><span class="k">class</span> <span class="nc">RollingMultiplayerCompRunner</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">gamedb</span><span class="p">,</span> <span class="n">game</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">rolling_n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">gamedb</span><span class="p">,</span> <span class="n">game</span><span class="p">,</span> <span class="n">compiler</span><span class="p">,</span> <span class="n">rolling_n</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Args:</span>
@@ -661,7 +661,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

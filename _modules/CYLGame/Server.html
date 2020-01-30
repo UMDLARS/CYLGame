@@ -31,27 +31,27 @@
           <div class="body" role="main">
             
   <h1>Source code for CYLGame.Server</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">ujson</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">Process</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span>
 
 <span class="kn">import</span> <span class="nn">flask</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">flask_classful</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">escape</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">escape</span>
 
-<span class="kn">from</span> <span class="nn">CYLGame.Comp</span> <span class="k">import</span> <span class="n">MultiplayerCompRunner</span><span class="p">,</span> <span class="n">RollingMultiplayerCompRunner</span>
-<span class="kn">from</span> <span class="nn">.Game</span> <span class="k">import</span> <span class="n">GameRunner</span><span class="p">,</span> <span class="n">GridGame</span>
-<span class="kn">from</span> <span class="nn">.Player</span> <span class="k">import</span> <span class="n">Room</span>
-<span class="kn">from</span> <span class="nn">.Game</span> <span class="k">import</span> <span class="n">GameLanguage</span>
-<span class="kn">from</span> <span class="nn">.Game</span> <span class="k">import</span> <span class="n">average</span>
-<span class="kn">from</span> <span class="nn">.Database</span> <span class="k">import</span> <span class="n">GameDB</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Comp</span> <span class="kn">import</span> <span class="n">MultiplayerCompRunner</span><span class="p">,</span> <span class="n">RollingMultiplayerCompRunner</span>
+<span class="kn">from</span> <span class="nn">.Game</span> <span class="kn">import</span> <span class="n">GameRunner</span><span class="p">,</span> <span class="n">GridGame</span>
+<span class="kn">from</span> <span class="nn">.Player</span> <span class="kn">import</span> <span class="n">Room</span>
+<span class="kn">from</span> <span class="nn">.Game</span> <span class="kn">import</span> <span class="n">GameLanguage</span>
+<span class="kn">from</span> <span class="nn">.Game</span> <span class="kn">import</span> <span class="n">average</span>
+<span class="kn">from</span> <span class="nn">.Database</span> <span class="kn">import</span> <span class="n">GameDB</span>
 
 
 <span class="n">ANONYMOUS_COMP</span> <span class="o">=</span> <span class="s2">&quot;P00000000&quot;</span>
@@ -89,7 +89,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__load_language</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">language</span> <span class="o">==</span> <span class="n">GameLanguage</span><span class="o">.</span><span class="n">LITTLEPY</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">littlepython</span> <span class="k">import</span> <span class="n">Compiler</span>
+            <span class="kn">from</span> <span class="nn">littlepython</span> <span class="kn">import</span> <span class="n">Compiler</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">compiler</span> <span class="o">=</span> <span class="n">Compiler</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid language. Could not load hookers.&quot;</span><span class="p">)</span>
@@ -348,8 +348,8 @@
 
         <span class="nd">@cls</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">template_filter</span><span class="p">(</span><span class="s1">&#39;markdown&#39;</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">markdown_filter</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Markup</span>
-            <span class="kn">from</span> <span class="nn">markdown</span> <span class="k">import</span> <span class="n">markdown</span>
+            <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Markup</span>
+            <span class="kn">from</span> <span class="nn">markdown</span> <span class="kn">import</span> <span class="n">markdown</span>
 
             <span class="k">return</span> <span class="n">Markup</span><span class="p">(</span><span class="n">markdown</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 
@@ -373,8 +373,8 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Debug Enabled.&quot;</span><span class="p">)</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">gevent.server</span> <span class="k">import</span> <span class="n">_tcp_listener</span>
-            <span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="k">import</span> <span class="n">WSGIServer</span>
+            <span class="kn">from</span> <span class="nn">gevent.server</span> <span class="kn">import</span> <span class="n">_tcp_listener</span>
+            <span class="kn">from</span> <span class="nn">gevent.pywsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
             <span class="n">listener</span> <span class="o">=</span> <span class="n">_tcp_listener</span><span class="p">((</span><span class="bp">cls</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">port</span><span class="p">),</span> <span class="n">reuse_addr</span><span class="o">=</span><span class="n">reuse_addr</span><span class="p">)</span>
 
             <span class="k">def</span> <span class="nf">serve_forever</span><span class="p">(</span><span class="n">listener</span><span class="p">):</span>
@@ -463,7 +463,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
