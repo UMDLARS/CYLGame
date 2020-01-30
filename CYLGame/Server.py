@@ -266,6 +266,25 @@ class GameServer(flask_classful.FlaskView):
             code, options = self.gamedb.get_code_and_options(token)
             return flask.jsonify(code=code, options=options)
 
+    @flask_classful.route('/play', methods=['POST'])
+    def play(self):
+        request = flask.request.get_json(silent=True)
+        move = request.get('move', '')
+        state = request.get('state', {})
+        moves = state.get('moves', '') + move
+        seed_str = state.get('seed', None)
+
+        seed = random.randint(0, sys.maxsize)
+        if seed_str:
+            try:
+                seed = int(seed_str, 36)
+            except:
+                return flask.jsonify(error="Invalid Seed")
+
+        runner = GameRunner(self.game)
+        screen_cap, state = runner.run_with_remote_display(moves=moves, seed=seed)
+        return flask.jsonify(screen_cap=screen_cap, state=state)
+
     def index(self):
         intro = self.game.get_intro() + GameLanguage.get_language_description(self.language)
         if self.game.GRID:

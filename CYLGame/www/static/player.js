@@ -3,11 +3,12 @@
 let DEBUGGING = false;
 
 class Player {
-  constructor(parent_div, height, width, draw_func, show_btn_bar = false, show_debug_table = false) {
+  constructor(parent_div, height, width, draw_func, show_btn_bar = false, show_debug_table = false, show_progress_bar = false) {
     parent_div = $(parent_div);
     this.parent_div = parent_div;
     this.show_btn_bar = show_btn_bar;
     this.show_debug_table = show_debug_table;
+    this.show_progress_bar = show_progress_bar;
     this.draw_func = draw_func;
 
     // Player state
@@ -27,27 +28,29 @@ class Player {
     this.canvas.attr("width", width +"px");
     this.parent_div.append(this.canvas);
 
-    // Create Progress bar
-    let bar_parent = $("<div>");
-    let bar = $("<div>");
-    bar.addClass("progress");
-    this.playback_progress_bar = $("<div>");
-    this.playback_progress_bar.addClass("progress-bar");
-    this.playback_progress_bar.addClass("fast");
-    this.playback_progress_bar.attr("role", "progressbar");
-    this.playback_progress_bar.attr("aria-valuemin", "0");
-    this.playback_progress_bar.attr("aria-valuemax", "100");
-    this.playback_progress_bar.css("width", "100%");
-    bar.append(this.playback_progress_bar);
-    bar_parent.append(bar);
-    this.playback_progress_bar_text = $("<span>");
-    this.playback_progress_bar_text.text("Frame 0 of 0");
-    bar_parent.append(this.playback_progress_bar_text);
-    this.seed_text = $("<span>");
-    this.seed_text.css("float", "right");
-    bar_parent.append(this.seed_text);
-    this.parent_div.append(bar_parent);
-    this.parent_div.append($("<br>"));
+    if (this.show_progress_bar) {
+      // Create Progress bar
+      let bar_parent = $("<div>");
+      let bar = $("<div>");
+      bar.addClass("progress");
+      this.playback_progress_bar = $("<div>");
+      this.playback_progress_bar.addClass("progress-bar");
+      this.playback_progress_bar.addClass("fast");
+      this.playback_progress_bar.attr("role", "progressbar");
+      this.playback_progress_bar.attr("aria-valuemin", "0");
+      this.playback_progress_bar.attr("aria-valuemax", "100");
+      this.playback_progress_bar.css("width", "100%");
+      bar.append(this.playback_progress_bar);
+      bar_parent.append(bar);
+      this.playback_progress_bar_text = $("<span>");
+      this.playback_progress_bar_text.text("Frame 0 of 0");
+      bar_parent.append(this.playback_progress_bar_text);
+      this.seed_text = $("<span>");
+      this.seed_text.css("float", "right");
+      bar_parent.append(this.seed_text);
+      this.parent_div.append(bar_parent);
+      this.parent_div.append($("<br>"));
+    }
 
     if (this.show_btn_bar) {
       // Create btn bar
@@ -411,5 +414,68 @@ class Player {
         let row = $("<tr>").append($("<td>").html(item)).append($("<td>").html(vars[item]));
         this.debug_table.append(row);
     });
+  }
+}
+
+class InteractivePlayer extends Player {
+  constructor(...args) {
+    super(...args);
+
+    this.state = {};
+    this.ready = true;
+
+    $(document).keypress((event) => {
+      if (this.canvas.is(':visible')) {
+        this.move(event.originalEvent.key);
+      }
+    });
+    this.move('');
+  }
+
+  move(key) {
+    if (this.ready) {
+      this.ready = false;
+      console.log(this.state);
+      this.load_from_moves_and_state(key, function () {});
+    } else {
+      console.log('Player waiting for response');
+    }
+  }
+
+  load_from_moves_and_state(move, callback) {
+    if (this.show_debug_table) {
+      this.debug_table.html("");
+    }
+    console.log("Requesting with " + JSON.stringify({move: move, state: this.state}));
+    $.ajax({
+      type: "POST",
+      url: $SCRIPT_ROOT + 'play',
+      data: JSON.stringify({move: move, state: this.state}),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: (data) => {
+        if (window.canceled) {
+          return;
+        }
+        callback();
+        if (data["error"]) {
+          alert(data["error"]);
+        } else {
+          this.state = data["state"];
+          this.screen = data["screen_cap"];
+          this.draw_func(this.canvas[0], this.screen);
+          this.ready = true;
+        }
+      },
+      failure: (errMsg) => {
+        if (window.canceled) {
+          return;
+        }
+        callback();
+        // hideLoading();
+        alert(errMsg);
+      }
+    });
+    return false;
   }
 }

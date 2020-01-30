@@ -366,6 +366,34 @@ class GameRunner(object):
                 display.update(frame_buffer)
                 frame_updated = False
 
+    def run_with_remote_display(self, moves, seed=None):
+        """Will run the game for a remote user.
+
+        Returns:
+        """
+        game = self.game_class(random.Random(seed))
+
+        game.init_board()
+        players = []
+        if game.MULTIPLAYER:
+            computer_bot_class = game.default_prog_for_computer()
+            for _ in range(game.get_number_of_players() - 1):
+                players += [game.create_new_player(computer_bot_class())]
+        player = game.create_new_player(UserProg())
+
+        game.start_game()
+
+        for move in moves:
+            player.prog.key = move
+            player.run_turn(game.random)
+            for comp_player in players:
+                comp_player.run_turn(game.random)
+            game.do_turn()
+            if not game.is_running():
+                return game.get_frame(), {}
+
+        return game.get_frame(), {'moves': moves, 'seed':  int2base(seed, 36)}
+
 
 def run(game_class, avg_game_func=average):
     def serve(args):
@@ -381,12 +409,20 @@ def run(game_class, avg_game_func=average):
         print("Playing...")
         GameRunner(game_class).run_with_local_display(int(args.seed, 36))
 
+    def play_move(args):
+        print(GameRunner(game_class).run_with_remote_display(args.moves, int(args.seed, 36)))
+
     import argparse
 
     parser = argparse.ArgumentParser(prog=game_class.GAME_TITLE, description='Play ' + game_class.GAME_TITLE + '.')
     subparsers = parser.add_subparsers(help='What do you what to do?')
     subparsers.required = True
     subparsers.dest = "command"
+    parser_play_move = subparsers.add_parser('playmove', help='Play move ' + game_class.GAME_TITLE)
+    parser_play_move.add_argument('-m', '--moves', type=str, help='String of moves.')
+    parser_play_move.add_argument('-s', '--seed', nargs="?", type=str, help='Manually set the random seed.',
+                             default=int2base(random.randint(0, sys.maxsize), 36))
+    parser_play_move.set_defaults(func=play_move)
     parser_play = subparsers.add_parser('play', help='Play ' + game_class.GAME_TITLE + ' with a GUI')
     parser_play.add_argument('-s', '--seed', nargs="?", type=str, help='Manually set the random seed.',
                              default=int2base(random.randint(0, sys.maxsize), 36))

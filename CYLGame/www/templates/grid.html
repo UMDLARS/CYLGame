@@ -50,9 +50,11 @@
             };
             let player_height = {{ screen_height * char_height }};
             let player_width = {{ screen_width * char_width }};
-            window.main_player = new Player(document.getElementById("left_col"),player_height, player_width,
+            window.bot_player = new Player(document.getElementById("left_col"),player_height, player_width,
                                             draw,
-                                            true, true);
+                                            true, true, true);
+            window.play_player = new InteractivePlayer(document.getElementById("play_container"),player_height, player_width,
+            draw);
             if (localStorage.user_token != null) {
               login();
             }
@@ -152,7 +154,7 @@
                         hideLoading();
                         alert(data["error"]);
                     } else {
-                      window.main_player.load_from_tokens(data["gtoken"], "00000000", hideLoading);
+                      window.bot_player.load_from_tokens(data["gtoken"], "00000000", hideLoading);
                         // get_and_play_game(data["gtoken"]);
                     }
                 },
@@ -384,7 +386,7 @@
     <h1>{{ game_title }}</h1>
     <ul class="nav nav-tabs">
       <li class="active"><a data-toggle="tab" href="#Intro">Intro</a></li>
-{#      <li><a data-toggle="tab" href="#Game">Game</a></li>#}
+      <li><a data-toggle="tab" href="#Game">Game</a></li>
       <li><a data-toggle="tab" href="#Bot">Bot</a></li>
       <li><a id="scoreSelector" data-toggle="tab" href="#Score" style="display: none;">School Scoreboard</a></li>
       <li><a id="compSelector" data-toggle="tab" href="#Comp" style="display: none;">Competition Rankings</a></li>
@@ -400,8 +402,7 @@
   <div id="Game" class="tab-pane fade">
       <h3>Play the Game</h3>
       <p>This is where the user can play the game to test out different ideas.</p>
-      <div style="margin-left: 1em;margin-right: 1em;">
-        <canvas id="displayPlayer" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>
+      <div id="play_container" style="margin-left: 1em;margin-right: 1em;">
       </div>
   </div>
   <div id="Bot" class="tab-pane fade">
@@ -415,37 +416,6 @@
       <img id="chars" src="{{ 'fonts/'+char_set }}" style="display: none;">
       <div id="wrap">
         <div id="left_col">
-            <!--<img id="chars" src="{{ 'fonts/'+char_set }}" style="display: none;">-->
-            <!--<canvas id="display" height="{{ screen_height * char_height }}px" width="{{ screen_width * char_width }}px"></canvas>-->
-            <!--<div>-->
-                <!--<div class="progress">-->
-                    <!--<div id="playbackProgress" class="progress-bar fast" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<span id="playbackProgressText">Frame 0 of 0</span>-->
-                <!--<span id="mapNumberText" style="float: right;"></span>-->
-            <!--</div>-->
-            <!--<br>-->
-            <!--<div id="btn-bar">-->
-                <!--<button onclick="stop();">Stop</button>-->
-                <!--<button onclick="slower();">&lt;&lt;</button>-->
-                <!--<button onclick="prevFrame();">&lt;</button>-->
-                <!--<button onclick="toggle_play();">Play/Pause</button>-->
-                <!--<button onclick="nextFrame();">&gt;</button>-->
-                <!--<button onclick="faster();">&gt;&gt;</button>-->
-                <!--<div style="float: right;">-->
-                    <!--<button id="btnSetSeed" onclick="set_seed();">Set Map Seed</button>-->
-                    <!--<button id="btnToggleDebug" onclick="toggle_debug_table();">Show Debug Table</button>-->
-                <!--</div>-->
-                <!--<br>-->
-            <!--</div>-->
-            <!--<div>-->
-                <!--<br>-->
-                <!--<center>-->
-                    <!--<table id="debugTable" style="display: none;">-->
-                    <!--</table>-->
-                <!--</center>-->
-            <!--</div>-->
         </div>
         <div id="right_col">
             <pre id="editor">{{ example_bot }}</pre>
