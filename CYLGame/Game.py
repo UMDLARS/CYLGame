@@ -279,7 +279,7 @@ class GameRunner(object):
         game = self.game_class(random.Random(room.seed))
 
         game.init_board()
-        players = []
+        all_players = []
         for bot in room.bots:
             # TODO: This is a hack. Remove me sometime.
             if not hasattr(bot, "options"):
@@ -287,7 +287,7 @@ class GameRunner(object):
             if playback:
                 bot.options["debug"] = True
 
-            players += [game.create_new_player(bot)]
+            all_players += [game.create_new_player(bot)]
 
         game.start_game()
 
@@ -298,13 +298,13 @@ class GameRunner(object):
             if playback:
                 screen_cap += [game.get_frame()]
 
-            players = players
+            current_players = all_players
             if game.TURN_BASED:
-                players = [players[current_player]]
-                current_player = (current_player + 1) % len(players)
+                current_players = [all_players[current_player]]
+                current_player = (current_player + 1) % len(all_players)
                 # TODO: sync screen cap and debug vars.
 
-            for player in players:
+            for player in current_players:
                 player.run_turn(game.random)
 
             game.do_turn()
@@ -312,7 +312,7 @@ class GameRunner(object):
         room.score = game.get_score()
         if playback:
             room.screen_cap = screen_cap
-            for player in players:
+            for player in all_players:
                 room.debug_vars[player.prog] = player.debug_vars
 
         return room
