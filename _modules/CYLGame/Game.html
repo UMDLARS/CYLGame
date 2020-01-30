@@ -79,7 +79,6 @@
     <span class="n">GAME_TITLE</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">OPTIONS</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">MULTIPLAYER</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: document</span>
-    <span class="n">TURN_BASED</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: document</span>
 
 <div class="viewcode-block" id="Game.is_running"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.is_running">[docs]</a>    <span class="k">def</span> <span class="nf">is_running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This is how the game runner knows if the game is over.</span>
@@ -325,17 +324,11 @@
         <span class="n">game</span><span class="o">.</span><span class="n">start_game</span><span class="p">()</span>
 
         <span class="n">screen_cap</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">TURN_BASED</span><span class="p">:</span>
-            <span class="n">current_player</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="n">game</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">playback</span><span class="p">:</span>
                 <span class="n">screen_cap</span> <span class="o">+=</span> <span class="p">[</span><span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()]</span>
 
             <span class="n">current_players</span> <span class="o">=</span> <span class="n">all_players</span>
-            <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">TURN_BASED</span><span class="p">:</span>
-                <span class="n">current_players</span> <span class="o">=</span> <span class="p">[</span><span class="n">all_players</span><span class="p">[</span><span class="n">current_player</span><span class="p">]]</span>
-                <span class="n">current_player</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_player</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_players</span><span class="p">)</span>
-                <span class="c1"># TODO: sync screen cap and debug vars.</span>
 
             <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="n">current_players</span><span class="p">:</span>
                 <span class="n">player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">random</span><span class="p">)</span>
