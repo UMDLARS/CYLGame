@@ -462,8 +462,8 @@ class InteractivePlayer extends Player {
           alert(data["error"]);
         } else {
           this.state = data["state"];
-          this.screen = data["screen_cap"];
-          this.draw_func(this.canvas[0], this.screen);
+          this.frame = data["frame"];
+          this.draw_func(this.canvas[0], this.frame);
           this.ready = true;
         }
       },

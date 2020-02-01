@@ -11,6 +11,7 @@ import random
 import shutil
 import traceback
 import flask_classful
+from cachetools import LRUCache
 from flask import escape
 
 from CYLGame.Comp import MultiplayerCompRunner, RollingMultiplayerCompRunner
@@ -19,7 +20,7 @@ from .Player import Room
 from .Game import GameLanguage
 from .Game import average
 from .Database import GameDB
-
+from .Utils import int2base
 
 ANONYMOUS_COMP = "P00000000"
 ANONYMOUS_SCHOOL = "S00000000"
@@ -51,6 +52,7 @@ class GameServer(flask_classful.FlaskView):
     _avg_game_func = None
     charset = None
     gamedb = None
+    play_game_cache: LRUCache = None
     route_base = '/'
 
     @classmethod
@@ -271,7 +273,7 @@ class GameServer(flask_classful.FlaskView):
         request = flask.request.get_json(silent=True)
         move = request.get('move', '')
         state = request.get('state', {})
-        moves = state.get('moves', '') + move
+        moves = state.get('moves', '')
         seed_str = state.get('seed', None)
 
         seed = random.randint(0, sys.maxsize)
@@ -281,9 +283,23 @@ class GameServer(flask_classful.FlaskView):
             except:
                 return flask.jsonify(error="Invalid Seed")
 
-        runner = GameRunner(self.game)
-        screen_cap, state = runner.run_with_remote_display(moves=moves, seed=seed)
-        return flask.jsonify(screen_cap=screen_cap, state=state)
+        seed_str = int2base(seed, 36)
+        hash_key = seed_str + moves
+
+        if hash_key in self.play_game_cache:
+            game_state = self.play_game_cache.pop(hash_key)
+        else:
+            game_state = GameRunner(self.game).init_game(seed=seed)
+            for prev_move in moves:
+                game_state = GameRunner.move_game(game_state, prev_move)
+        if move:
+            new_hash_key = hash_key + move
+            game_state = GameRunner.move_game(game_state, move)
+            self.play_game_cache[new_hash_key] = game_state
+
+        state = {'seed': seed_str,
+                 'moves': game_state.moves}
+        return flask.jsonify(frame=game_state.frame, state=state)
 
     def index(self):
         intro = self.game.get_intro() + GameLanguage.get_language_description(self.language)
@@ -303,7 +319,7 @@ class GameServer(flask_classful.FlaskView):
     @classmethod
     def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,
               avg_game_count=10, multiplayer_scoring_interval=20, num_of_threads=None, game_data_path="temp_game",
-              avg_game_func=average, debug=False, reuse_addr=None):
+              avg_game_func=average, debug=False, reuse_addr=None, play_cache_size=64):
         cls.game = game
         cls.host = host
         cls.port = port
@@ -312,6 +328,7 @@ class GameServer(flask_classful.FlaskView):
         cls.avg_game_count = avg_game_count
         cls._avg_game_func = avg_game_func
         cls.gamedb = GameDB(game_data_path)
+        cls.play_game_cache = LRUCache(play_cache_size)
         # setup anonymous school with an anonymous user
         if not cls.gamedb.is_school_token(ANONYMOUS_SCHOOL):
             cls.gamedb.add_new_school(_token=ANONYMOUS_SCHOOL)
