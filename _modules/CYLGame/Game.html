@@ -35,9 +35,11 @@
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">CYLGame.Frame</span> <span class="kn">import</span> <span class="n">GridFrameBuffer</span>
-<span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="kn">import</span> <span class="n">UserProg</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="kn">import</span> <span class="n">UserProg</span><span class="p">,</span> <span class="n">Player</span>
 <span class="kn">from</span> <span class="nn">CYLGame.Utils</span> <span class="kn">import</span> <span class="n">int2base</span>
 
 <span class="n">FPS</span> <span class="o">=</span> <span class="mi">30</span>
@@ -292,6 +294,17 @@
                 <span class="s2">&quot;northeast&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">),</span> <span class="s2">&quot;southeast&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">),</span> <span class="s2">&quot;northwest&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">),</span> <span class="s2">&quot;southwest&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">)})</span></div></div>
 
 
+<div class="viewcode-block" id="PlayGameState"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.PlayGameState">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PlayGameState</span><span class="p">:</span>
+    <span class="n">game</span><span class="p">:</span> <span class="n">Game</span>
+    <span class="n">computer_players</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Player</span><span class="p">]</span>
+    <span class="n">human_player</span><span class="p">:</span> <span class="n">Player</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="n">moves</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">frame</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span></div>
+
+
 <div class="viewcode-block" id="GameRunner"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner">[docs]</a><span class="k">class</span> <span class="nc">GameRunner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">game_class</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span> <span class="o">=</span> <span class="n">game_class</span>  <span class="c1"># type: Type[Game]</span>
@@ -399,11 +412,7 @@
                 <span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">frame_buffer</span><span class="p">)</span>
                 <span class="n">frame_updated</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="GameRunner.run_with_remote_display"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.run_with_remote_display">[docs]</a>    <span class="k">def</span> <span class="nf">run_with_remote_display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moves</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Will run the game for a remote user.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="GameRunner.init_game"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.init_game">[docs]</a>    <span class="k">def</span> <span class="nf">init_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlayGameState</span><span class="p">:</span>
         <span class="n">game</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
 
         <span class="n">game</span><span class="o">.</span><span class="n">init_board</span><span class="p">()</span>
@@ -415,17 +424,25 @@
         <span class="n">player</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">create_new_player</span><span class="p">(</span><span class="n">UserProg</span><span class="p">())</span>
 
         <span class="n">game</span><span class="o">.</span><span class="n">start_game</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">PlayGameState</span><span class="p">(</span><span class="n">game</span><span class="o">=</span><span class="n">game</span><span class="p">,</span> <span class="n">computer_players</span><span class="o">=</span><span class="n">players</span><span class="p">,</span> <span class="n">human_player</span><span class="o">=</span><span class="n">player</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">moves</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">())</span></div>
 
-        <span class="k">for</span> <span class="n">move</span> <span class="ow">in</span> <span class="n">moves</span><span class="p">:</span>
-            <span class="n">player</span><span class="o">.</span><span class="n">prog</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">move</span>
-            <span class="n">player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">random</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">comp_player</span> <span class="ow">in</span> <span class="n">players</span><span class="p">:</span>
-                <span class="n">comp_player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">random</span><span class="p">)</span>
-            <span class="n">game</span><span class="o">.</span><span class="n">do_turn</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">game</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
-                <span class="k">return</span> <span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">(),</span> <span class="p">{}</span>
+<div class="viewcode-block" id="GameRunner.move_game"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.move_game">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">move_game</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PlayGameState</span><span class="p">,</span> <span class="n">move</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlayGameState</span><span class="p">:</span>
+        <span class="n">player</span><span class="p">,</span> <span class="n">comp_players</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">human_player</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">computer_players</span>
+        <span class="n">local_random</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">random</span>
+        <span class="n">game</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">game</span>
 
-        <span class="k">return</span> <span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">(),</span> <span class="p">{</span><span class="s1">&#39;moves&#39;</span><span class="p">:</span> <span class="n">moves</span><span class="p">,</span> <span class="s1">&#39;seed&#39;</span><span class="p">:</span>  <span class="n">int2base</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="mi">36</span><span class="p">)}</span></div></div>
+        <span class="n">player</span><span class="o">.</span><span class="n">prog</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">move</span>
+        <span class="n">player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">local_random</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">comp_player</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">computer_players</span><span class="p">:</span>
+            <span class="n">comp_player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">local_random</span><span class="p">)</span>
+        <span class="n">game</span><span class="o">.</span><span class="n">do_turn</span><span class="p">()</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">game</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">moves</span> <span class="o">+=</span> <span class="n">move</span>
+
+        <span class="k">return</span> <span class="n">state</span></div></div>
 
 
 <div class="viewcode-block" id="run"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">game_class</span><span class="p">,</span> <span class="n">avg_game_func</span><span class="o">=</span><span class="n">average</span><span class="p">):</span>
@@ -442,20 +459,12 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Playing...&quot;</span><span class="p">)</span>
         <span class="n">GameRunner</span><span class="p">(</span><span class="n">game_class</span><span class="p">)</span><span class="o">.</span><span class="n">run_with_local_display</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="mi">36</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">play_move</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">GameRunner</span><span class="p">(</span><span class="n">game_class</span><span class="p">)</span><span class="o">.</span><span class="n">run_with_remote_display</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">moves</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="mi">36</span><span class="p">)))</span>
-
     <span class="kn">import</span> <span class="nn">argparse</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Play &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
     <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;What do you what to do?&#39;</span><span class="p">)</span>
     <span class="n">subparsers</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">subparsers</span><span class="o">.</span><span class="n">dest</span> <span class="o">=</span> <span class="s2">&quot;command&quot;</span>
-    <span class="n">parser_play_move</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;playmove&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Play move &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">)</span>
-    <span class="n">parser_play_move</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;--moves&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;String of moves.&#39;</span><span class="p">)</span>
-    <span class="n">parser_play_move</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--seed&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Manually set the random seed.&#39;</span><span class="p">,</span>
-                             <span class="n">default</span><span class="o">=</span><span class="n">int2base</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">),</span> <span class="mi">36</span><span class="p">))</span>
-    <span class="n">parser_play_move</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">play_move</span><span class="p">)</span>
     <span class="n">parser_play</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;play&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Play &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s1">&#39; with a GUI&#39;</span><span class="p">)</span>
     <span class="n">parser_play</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--seed&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Manually set the random seed.&#39;</span><span class="p">,</span>
                              <span class="n">default</span><span class="o">=</span><span class="n">int2base</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">),</span> <span class="mi">36</span><span class="p">))</span>

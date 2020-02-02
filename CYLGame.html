@@ -714,6 +714,16 @@
 <em class="property">class </em><code class="sig-prename descclassname">CYLGame.Game.</code><code class="sig-name descname">GameRunner</code><span class="sig-paren">(</span><em class="sig-param">game_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.GameRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
+<dt id="CYLGame.Game.GameRunner.init_game">
+<code class="sig-name descname">init_game</code><span class="sig-paren">(</span><em class="sig-param">seed: Optional[int] = None</em><span class="sig-paren">)</span> &#x2192; CYLGame.Game.PlayGameState<a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.init_game"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.init_game" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="CYLGame.Game.GameRunner.move_game">
+<em class="property">static </em><code class="sig-name descname">move_game</code><span class="sig-paren">(</span><em class="sig-param">state: CYLGame.Game.PlayGameState</em>, <em class="sig-param">move: str</em><span class="sig-paren">)</span> &#x2192; CYLGame.Game.PlayGameState<a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.move_game"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.move_game" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="CYLGame.Game.GameRunner.run">
 <code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">room</em>, <em class="sig-param">playback=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>The the game.</p>
@@ -751,13 +761,6 @@
 <dt id="CYLGame.Game.GameRunner.run_with_local_display">
 <code class="sig-name descname">run_with_local_display</code><span class="sig-paren">(</span><em class="sig-param">seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.run_with_local_display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.run_with_local_display" title="Permalink to this definition">¶</a></dt>
 <dd><p>Will run the game for a user.</p>
-<p>Returns:</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="CYLGame.Game.GameRunner.run_with_remote_display">
-<code class="sig-name descname">run_with_remote_display</code><span class="sig-paren">(</span><em class="sig-param">moves</em>, <em class="sig-param">seed=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.run_with_remote_display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.run_with_remote_display" title="Permalink to this definition">¶</a></dt>
-<dd><p>Will run the game for a remote user.</p>
 <p>Returns:</p>
 </dd></dl>
 
@@ -906,6 +909,12 @@ during the competitions.</p>
 <code class="sig-name descname">read_bot_state</code><span class="sig-paren">(</span><em class="sig-param">state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#NonGridGame.read_bot_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.NonGridGame.read_bot_state" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="class">
+<dt id="CYLGame.Game.PlayGameState">
+<em class="property">class </em><code class="sig-prename descclassname">CYLGame.Game.</code><code class="sig-name descname">PlayGameState</code><span class="sig-paren">(</span><em class="sig-param">game: CYLGame.Game.Game, computer_players: List[CYLGame.Player.Player], human_player: CYLGame.Player.Player, seed: int, moves: str, frame: Union[List[List[int]], NoneType]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#PlayGameState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.PlayGameState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 </dd></dl>
 
 <dl class="function">
@@ -1351,7 +1360,7 @@ otherwise angle is relative to the tank’s angle</p>
 
 <dl class="attribute">
 <dt id="CYLGame.SensorGame.SensorSanitizers.re">
-<code class="sig-name descname">re</code><em class="property"> = &lt;module 're' from '/home/travis/virtualenv/python3.8-dev/lib/python3.8/re.py'&gt;</em><a class="headerlink" href="#CYLGame.SensorGame.SensorSanitizers.re" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">re</code><em class="property"> = &lt;module 're' from '/home/travis/virtualenv/python3.7.1/lib/python3.7/re.py'&gt;</em><a class="headerlink" href="#CYLGame.SensorGame.SensorSanitizers.re" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1492,6 +1501,11 @@ of the x and y coord.</p>
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="CYLGame.Server.GameServer.play_game_cache">
+<code class="sig-name descname">play_game_cache</code><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Server.GameServer.play_game_cache" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="CYLGame.Server.GameServer.port">
 <code class="sig-name descname">port</code><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Server.GameServer.port" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1513,7 +1527,7 @@ of the x and y coord.</p>
 
 <dl class="method">
 <dt id="CYLGame.Server.GameServer.serve">
-<em class="property">classmethod </em><code class="sig-name descname">serve</code><span class="sig-paren">(</span><em class="sig-param">game</em>, <em class="sig-param">host=''</em>, <em class="sig-param">port=5000</em>, <em class="sig-param">compression=False</em>, <em class="sig-param">language=0</em>, <em class="sig-param">avg_game_count=10</em>, <em class="sig-param">multiplayer_scoring_interval=20</em>, <em class="sig-param">num_of_threads=None</em>, <em class="sig-param">game_data_path='temp_game'</em>, <em class="sig-param">avg_game_func=&lt;function scorer.&lt;locals&gt;.wrapped&gt;</em>, <em class="sig-param">debug=False</em>, <em class="sig-param">reuse_addr=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Server.html#GameServer.serve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Server.GameServer.serve" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">serve</code><span class="sig-paren">(</span><em class="sig-param">game</em>, <em class="sig-param">host=''</em>, <em class="sig-param">port=5000</em>, <em class="sig-param">compression=False</em>, <em class="sig-param">language=0</em>, <em class="sig-param">avg_game_count=10</em>, <em class="sig-param">multiplayer_scoring_interval=20</em>, <em class="sig-param">num_of_threads=None</em>, <em class="sig-param">game_data_path='temp_game'</em>, <em class="sig-param">avg_game_func=&lt;function scorer.&lt;locals&gt;.wrapped&gt;</em>, <em class="sig-param">debug=False</em>, <em class="sig-param">reuse_addr=None</em>, <em class="sig-param">play_cache_size=64</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Server.html#GameServer.serve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Server.GameServer.serve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1540,7 +1554,7 @@ of the x and y coord.</p>
 
 <dl class="function">
 <dt id="CYLGame.Server.serve">
-<code class="sig-prename descclassname">CYLGame.Server.</code><code class="sig-name descname">serve</code><span class="sig-paren">(</span><em class="sig-param">game</em>, <em class="sig-param">host=''</em>, <em class="sig-param">port=5000</em>, <em class="sig-param">compression=False</em>, <em class="sig-param">language=0</em>, <em class="sig-param">avg_game_count=10</em>, <em class="sig-param">multiplayer_scoring_interval=20</em>, <em class="sig-param">num_of_threads=None</em>, <em class="sig-param">game_data_path='temp_game'</em>, <em class="sig-param">avg_game_func=&lt;function scorer.&lt;locals&gt;.wrapped&gt;</em>, <em class="sig-param">debug=False</em>, <em class="sig-param">reuse_addr=None</em><span class="sig-paren">)</span><a class="headerlink" href="#CYLGame.Server.serve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">CYLGame.Server.</code><code class="sig-name descname">serve</code><span class="sig-paren">(</span><em class="sig-param">game</em>, <em class="sig-param">host=''</em>, <em class="sig-param">port=5000</em>, <em class="sig-param">compression=False</em>, <em class="sig-param">language=0</em>, <em class="sig-param">avg_game_count=10</em>, <em class="sig-param">multiplayer_scoring_interval=20</em>, <em class="sig-param">num_of_threads=None</em>, <em class="sig-param">game_data_path='temp_game'</em>, <em class="sig-param">avg_game_func=&lt;function scorer.&lt;locals&gt;.wrapped&gt;</em>, <em class="sig-param">debug=False</em>, <em class="sig-param">reuse_addr=None</em>, <em class="sig-param">play_cache_size=64</em><span class="sig-paren">)</span><a class="headerlink" href="#CYLGame.Server.serve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
