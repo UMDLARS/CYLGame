@@ -32,9 +32,10 @@
             
   <h1>Source code for CYLGame.Server</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+
 <span class="kn">import</span> <span class="nn">ujson</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span>
@@ -45,10 +46,12 @@
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">flask_classful</span>
 <span class="kn">from</span> <span class="nn">cachetools</span> <span class="kn">import</span> <span class="n">LRUCache</span>
-<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">escape</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">escape</span><span class="p">,</span> <span class="n">has_request_context</span>
+<span class="kn">from</span> <span class="nn">flask_request_id_header.middleware</span> <span class="kn">import</span> <span class="n">RequestID</span>
 
 <span class="kn">from</span> <span class="nn">CYLGame.Comp</span> <span class="kn">import</span> <span class="n">MultiplayerCompRunner</span><span class="p">,</span> <span class="n">RollingMultiplayerCompRunner</span>
 <span class="kn">from</span> <span class="nn">.Game</span> <span class="kn">import</span> <span class="n">GameRunner</span><span class="p">,</span> <span class="n">GridGame</span>
+<span class="kn">from</span> <span class="nn">.Log</span> <span class="kn">import</span> <span class="n">setup_logging</span>
 <span class="kn">from</span> <span class="nn">.Player</span> <span class="kn">import</span> <span class="n">Room</span>
 <span class="kn">from</span> <span class="nn">.Game</span> <span class="kn">import</span> <span class="n">GameLanguage</span>
 <span class="kn">from</span> <span class="nn">.Game</span> <span class="kn">import</span> <span class="n">average</span>
@@ -86,6 +89,7 @@
     <span class="n">charset</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">gamedb</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">play_game_cache</span><span class="p">:</span> <span class="n">LRUCache</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># log: Logger = None</span>
     <span class="n">route_base</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span>
 
     <span class="nd">@classmethod</span>
@@ -112,6 +116,12 @@
         <span class="n">new_charset_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fonts_dir</span><span class="p">,</span> <span class="n">charset_name</span><span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">charset</span><span class="p">,</span> <span class="n">new_charset_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">charset_name</span>
+
+<div class="viewcode-block" id="GameServer.before_request"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.before_request">[docs]</a>    <span class="k">def</span> <span class="nf">before_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">has_request_context</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{flask.request.method}</span><span class="s1"> </span><span class="si">{flask.request.url}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{name}</span><span class="s1">() called without context.&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GameServer.scoreboard"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.scoreboard">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/scoreboard&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
     <span class="k">def</span> <span class="nf">scoreboard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -308,6 +318,7 @@
         <span class="n">state</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;state&#39;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">moves</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;moves&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">seed_str</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[move: </span><span class="si">{move}</span><span class="s1">, state: </span><span class="si">{state}</span><span class="s1">, moves: </span><span class="si">{moves}</span><span class="s1">, seed: </span><span class="si">{seed_str}</span><span class="s1">]&#39;</span><span class="p">)</span>
 
         <span class="n">seed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">seed_str</span><span class="p">:</span>
@@ -320,8 +331,10 @@
         <span class="n">hash_key</span> <span class="o">=</span> <span class="n">seed_str</span> <span class="o">+</span> <span class="n">moves</span>
 
         <span class="k">if</span> <span class="n">hash_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">play_game_cache</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;In cache&quot;</span><span class="p">)</span>
             <span class="n">game_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">play_game_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">hash_key</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not in Cache. Hash Key: &#39;</span><span class="si">{hash_key}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
             <span class="n">game_state</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="p">)</span><span class="o">.</span><span class="n">init_game</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">prev_move</span> <span class="ow">in</span> <span class="n">moves</span><span class="p">:</span>
                 <span class="n">game_state</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="o">.</span><span class="n">move_game</span><span class="p">(</span><span class="n">game_state</span><span class="p">,</span> <span class="n">prev_move</span><span class="p">)</span>
@@ -329,6 +342,7 @@
             <span class="n">new_hash_key</span> <span class="o">=</span> <span class="n">hash_key</span> <span class="o">+</span> <span class="n">move</span>
             <span class="n">game_state</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="o">.</span><span class="n">move_game</span><span class="p">(</span><span class="n">game_state</span><span class="p">,</span> <span class="n">move</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">play_game_cache</span><span class="p">[</span><span class="n">new_hash_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_state</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Storing Cache. Hash Key: &#39;</span><span class="si">{new_hash_key}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="n">seed_str</span><span class="p">,</span>
                  <span class="s1">&#39;moves&#39;</span><span class="p">:</span> <span class="n">game_state</span><span class="o">.</span><span class="n">moves</span><span class="p">}</span>
@@ -352,7 +366,8 @@
 <div class="viewcode-block" id="GameServer.serve"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.serve">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">game</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">GameLanguage</span><span class="o">.</span><span class="n">LITTLEPY</span><span class="p">,</span>
               <span class="n">avg_game_count</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">multiplayer_scoring_interval</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">num_of_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">game_data_path</span><span class="o">=</span><span class="s2">&quot;temp_game&quot;</span><span class="p">,</span>
-              <span class="n">avg_game_func</span><span class="o">=</span><span class="n">average</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reuse_addr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">play_cache_size</span><span class="o">=</span><span class="mi">64</span><span class="p">):</span>
+              <span class="n">avg_game_func</span><span class="o">=</span><span class="n">average</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reuse_addr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">play_cache_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+              <span class="n">error_log_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{dbfile}</span><span class="s2">/log/error.log&quot;</span><span class="p">,</span> <span class="n">debug_log_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{dbfile}</span><span class="s2">/log/debug.log&quot;</span><span class="p">):</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">game</span> <span class="o">=</span> <span class="n">game</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
@@ -376,11 +391,14 @@
         <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">game</span><span class="p">,</span> <span class="n">GridGame</span><span class="p">):</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">charset</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">__copy_in_charset</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">CHAR_SET</span><span class="p">)</span>
 
+        <span class="n">setup_logging</span><span class="p">(</span><span class="n">debug_file</span><span class="o">=</span><span class="n">debug_log_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{dbfile}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">game_data_path</span><span class="p">),</span>
+                      <span class="n">error_file</span><span class="o">=</span><span class="n">error_log_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{dbfile}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">game_data_path</span><span class="p">))</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
                               <span class="n">static_url_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
                               <span class="n">static_folder</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">www_cache</span><span class="o">.</span><span class="n">static_dir</span><span class="p">,</span>
                               <span class="n">template_folder</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">www_cache</span><span class="o">.</span><span class="n">template_dir</span><span class="p">,</span>
                               <span class="n">root_path</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">www_cache</span><span class="o">.</span><span class="n">root_dir</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;REQUEST_ID_UNIQUE_VALUE_PREFIX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;CYLGAME-&#39;</span>
 
         <span class="nd">@cls</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">template_filter</span><span class="p">(</span><span class="s1">&#39;markdown&#39;</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">markdown_filter</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
@@ -393,6 +411,8 @@
             <span class="c1"># BUUT WHAT ABOUT BREACH ATTACKS</span>
             <span class="kn">import</span> <span class="nn">flask_compress</span>
             <span class="n">flask_compress</span><span class="o">.</span><span class="n">Compress</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
+
+        <span class="n">RequestID</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__load_language</span><span class="p">()</span>
 
