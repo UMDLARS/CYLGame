@@ -1,7 +1,8 @@
 from __future__ import print_function
+
 import os
-import re
 import sys
+
 import ujson
 import multiprocessing
 from multiprocessing import Process
@@ -12,10 +13,12 @@ import shutil
 import traceback
 import flask_classful
 from cachetools import LRUCache
-from flask import escape
+from flask import escape, has_request_context
+from flask_request_id_header.middleware import RequestID
 
 from CYLGame.Comp import MultiplayerCompRunner, RollingMultiplayerCompRunner
 from .Game import GameRunner, GridGame
+from .Log import setup_logging
 from .Player import Room
 from .Game import GameLanguage
 from .Game import average
@@ -53,6 +56,7 @@ class GameServer(flask_classful.FlaskView):
     charset = None
     gamedb = None
     play_game_cache: LRUCache = None
+    # log: Logger = None
     route_base = '/'
 
     @classmethod
@@ -79,6 +83,12 @@ class GameServer(flask_classful.FlaskView):
         new_charset_path = os.path.join(fonts_dir, charset_name)
         shutil.copyfile(charset, new_charset_path)
         return charset_name
+
+    def before_request(self, name):
+        if has_request_context():
+            self.app.logger.debug(f'{flask.request.method} {flask.request.url}')
+        else:
+            self.app.logger.error(f'{name}() called without context.')
 
     @flask_classful.route('/scoreboard', methods=["POST"])
     def scoreboard(self):
@@ -275,6 +285,7 @@ class GameServer(flask_classful.FlaskView):
         state = request.get('state', {})
         moves = state.get('moves', '')
         seed_str = state.get('seed', None)
+        self.app.logger.debug(f'[move: {move}, state: {state}, moves: {moves}, seed: {seed_str}]')
 
         seed = random.randint(0, sys.maxsize)
         if seed_str:
@@ -287,8 +298,10 @@ class GameServer(flask_classful.FlaskView):
         hash_key = seed_str + moves
 
         if hash_key in self.play_game_cache:
+            self.app.logger.debug("In cache")
             game_state = self.play_game_cache.pop(hash_key)
         else:
+            self.app.logger.debug(f"Not in Cache. Hash Key: '{hash_key}'")
             game_state = GameRunner(self.game).init_game(seed=seed)
             for prev_move in moves:
                 game_state = GameRunner.move_game(game_state, prev_move)
@@ -296,6 +309,7 @@ class GameServer(flask_classful.FlaskView):
             new_hash_key = hash_key + move
             game_state = GameRunner.move_game(game_state, move)
             self.play_game_cache[new_hash_key] = game_state
+            self.app.logger.debug(f"Storing Cache. Hash Key: '{new_hash_key}'")
 
         state = {'seed': seed_str,
                  'moves': game_state.moves}
@@ -319,7 +333,8 @@ class GameServer(flask_classful.FlaskView):
     @classmethod
     def serve(cls, game, host='', port=5000, compression=False, language=GameLanguage.LITTLEPY,
               avg_game_count=10, multiplayer_scoring_interval=20, num_of_threads=None, game_data_path="temp_game",
-              avg_game_func=average, debug=False, reuse_addr=None, play_cache_size=64):
+              avg_game_func=average, debug=False, reuse_addr=None, play_cache_size=64,
+              error_log_file="{dbfile}/log/error.log", debug_log_file="{dbfile}/log/debug.log"):
         cls.game = game
         cls.host = host
         cls.port = port
@@ -343,11 +358,14 @@ class GameServer(flask_classful.FlaskView):
         if issubclass(game, GridGame):
             cls.charset = cls.__copy_in_charset(game.CHAR_SET)
 
+        setup_logging(debug_file=debug_log_file.replace('{dbfile}', game_data_path),
+                      error_file=error_log_file.replace('{dbfile}', game_data_path))
         cls.app = flask.Flask(__name__.split('.')[0],
                               static_url_path='',
                               static_folder=cls.gamedb.www_cache.static_dir,
                               template_folder=cls.gamedb.www_cache.template_dir,
                               root_path=cls.gamedb.www_cache.root_dir)
+        cls.app.config['REQUEST_ID_UNIQUE_VALUE_PREFIX'] = 'CYLGAME-'
 
         @cls.app.template_filter('markdown')
         def markdown_filter(data):
@@ -360,6 +378,8 @@ class GameServer(flask_classful.FlaskView):
             # BUUT WHAT ABOUT BREACH ATTACKS
             import flask_compress
             flask_compress.Compress(cls.app)
+
+        RequestID(cls.app)
         cls.register(cls.app)
         cls.__load_language()
 

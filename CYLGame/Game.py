@@ -439,6 +439,10 @@ def run(game_class, avg_game_func=average):
     parser_serve = subparsers.add_parser('serve', help='Serve ' + game_class.GAME_TITLE + ' to the web.')
     parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
     parser_serve.add_argument('-db', '--dbfile', nargs="?", type=str, help='The root path of the game database', default="temp_game")
+    parser_serve.add_argument('--debug-log', nargs="?", type=str, help='The file path to use for the debug log.'
+                                                                       '"{dbname}" in the path will be replaced by the path to the game database', default="{dbfile}/log/debug.log")
+    parser_serve.add_argument('--error-log', nargs="?", type=str, help='The file path to use for the error log.'
+                                                                       '"{dbname}" in the path will be replaced by the path to the game database', default="{dbfile}/log/error.log")
     parser_serve.add_argument('--host', nargs="?", type=str, help='The mask to host to', default='127.0.0.1')
     parser_serve.add_argument('--no-addr-reuse', action='store_true')
     parser_serve.add_argument('--debug', action='store_true')
