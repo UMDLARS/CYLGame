@@ -18,7 +18,7 @@ Follow these steps to release a build of CYLGame.
 
 2. Check build
 
-   1. **Check** https://travis-ci.org/UMDLARS/CYLGame **to make sure
+   1. **Check** https://travis-ci.com/UMDLARS/CYLGame **to make sure
       the build passes.**
 
 3. Compile and Upload
