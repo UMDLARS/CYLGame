@@ -23,5 +23,6 @@ Follow these steps to release a build of CYLGame.
 
 3. Compile and Upload
 
-   1. Run ``python setup.py sdist upload`` to compile and upload the
+   1. Run ``python setup.py sdist`` to compile.
+   2. Run ``twine upload dist/*`` to upload the
       build to the Python Package Index (aka. the Cheese Shop).
