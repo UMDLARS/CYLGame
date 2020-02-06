@@ -84,7 +84,7 @@ class GameServer(flask_classful.FlaskView):
         shutil.copyfile(charset, new_charset_path)
         return charset_name
 
-    def before_request(self, name):
+    def before_request(self, name, **kwarg):
         if has_request_context():
             self.app.logger.debug(f'{flask.request.method} {flask.request.url}')
         else:
