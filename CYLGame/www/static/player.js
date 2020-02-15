@@ -464,7 +464,15 @@ class InteractivePlayer extends Player {
           this.state = data["state"];
           this.frame = data["frame"];
           this.draw_func(this.canvas[0], this.frame);
-          this.ready = true;
+          if (data["lost"]) {
+            if (confirm("You lost. Play again?")) {
+              this.state = {};
+              this.move('');
+              this.ready = true;
+            }
+          } else {
+            this.ready = true;
+          }
         }
       },
       failure: (errMsg) => {
