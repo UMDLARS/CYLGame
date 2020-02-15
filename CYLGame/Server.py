@@ -313,7 +313,7 @@ class GameServer(flask_classful.FlaskView):
 
         state = {'seed': seed_str,
                  'moves': game_state.moves}
-        return flask.jsonify(frame=game_state.frame, state=state)
+        return flask.jsonify(frame=game_state.frame, state=state, lost=not game_state.game.is_running())
 
     def index(self):
         intro = self.game.get_intro() + GameLanguage.get_language_description(self.language)
