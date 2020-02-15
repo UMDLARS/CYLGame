@@ -7,11 +7,11 @@
     <title>CYLGame package &#8212; CYLGame  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="CYLGame" href="modules.html" />
@@ -915,6 +915,36 @@ during the competitions.</p>
 <dt id="CYLGame.Game.PlayGameState">
 <em class="property">class </em><code class="sig-prename descclassname">CYLGame.Game.</code><code class="sig-name descname">PlayGameState</code><span class="sig-paren">(</span><em class="sig-param">game: CYLGame.Game.Game, computer_players: List[CYLGame.Player.Player], human_player: CYLGame.Player.Player, seed: int, moves: str, frame: Union[List[List[int]], NoneType]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#PlayGameState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#CYLGame.Game.PlayGameState" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="CYLGame.Game.PlayGameState.computer_players">
+<code class="sig-name descname">computer_players</code><em class="property">: List[Player]</em><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Game.PlayGameState.computer_players" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CYLGame.Game.PlayGameState.frame">
+<code class="sig-name descname">frame</code><em class="property">: Optional[List[List[int]]]</em><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Game.PlayGameState.frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CYLGame.Game.PlayGameState.game">
+<code class="sig-name descname">game</code><em class="property">: Game</em><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Game.PlayGameState.game" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CYLGame.Game.PlayGameState.human_player">
+<code class="sig-name descname">human_player</code><em class="property">: Player</em><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Game.PlayGameState.human_player" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CYLGame.Game.PlayGameState.moves">
+<code class="sig-name descname">moves</code><em class="property">: str</em><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Game.PlayGameState.moves" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CYLGame.Game.PlayGameState.seed">
+<code class="sig-name descname">seed</code><em class="property">: int</em><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Game.PlayGameState.seed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -1360,7 +1390,7 @@ otherwise angle is relative to the tank’s angle</p>
 
 <dl class="attribute">
 <dt id="CYLGame.SensorGame.SensorSanitizers.re">
-<code class="sig-name descname">re</code><em class="property"> = &lt;module 're' from '/home/travis/virtualenv/python3.8.0/lib/python3.8/re.py'&gt;</em><a class="headerlink" href="#CYLGame.SensorGame.SensorSanitizers.re" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">re</code><em class="property"> = &lt;module 're' from '/home/travis/virtualenv/python3.7.1/lib/python3.7/re.py'&gt;</em><a class="headerlink" href="#CYLGame.SensorGame.SensorSanitizers.re" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1507,7 +1537,7 @@ of the x and y coord.</p>
 
 <dl class="attribute">
 <dt id="CYLGame.Server.GameServer.play_game_cache">
-<code class="sig-name descname">play_game_cache</code><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Server.GameServer.play_game_cache" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">play_game_cache</code><em class="property">: cachetools.lru.LRUCache</em><em class="property"> = None</em><a class="headerlink" href="#CYLGame.Server.GameServer.play_game_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -1670,7 +1700,7 @@ of the x and y coord.</p>
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -1687,7 +1717,7 @@ of the x and y coord.</p>
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

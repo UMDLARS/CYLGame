@@ -8,11 +8,11 @@
     <title>Index &#8212; CYLGame  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -140,6 +140,8 @@
 </li>
       <li><a href="CYLGame.html#CYLGame.SensorGame.compute_vector">compute_vector() (in module CYLGame.SensorGame)</a>
 </li>
+      <li><a href="CYLGame.html#CYLGame.Game.PlayGameState.computer_players">computer_players (CYLGame.Game.PlayGameState attribute)</a>
+</li>
       <li><a href="CYLGame.html#CYLGame.Game.ConstMapping">ConstMapping (class in CYLGame.Game)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.Panels.PanelBorder.create">create() (CYLGame.Panels.PanelBorder static method)</a>
@@ -258,9 +260,11 @@
 </li>
       <li><a href="CYLGame.html#CYLGame.Panels.MapPanel.first_draw">first_draw() (CYLGame.Panels.MapPanel method)</a>
 </li>
+      <li><a href="CYLGame.html#CYLGame.Utils.OnlineMean.floored_mean">floored_mean() (CYLGame.Utils.OnlineMean property)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="CYLGame.html#CYLGame.Utils.OnlineMean.floored_mean">floored_mean() (CYLGame.Utils.OnlineMean property)</a>
+      <li><a href="CYLGame.html#CYLGame.Game.PlayGameState.frame">frame (CYLGame.Game.PlayGameState attribute)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.Frame.FrameBuffer">FrameBuffer (class in CYLGame.Frame)</a>
 </li>
@@ -274,8 +278,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="CYLGame.html#CYLGame.Game.Game">Game (class in CYLGame.Game)</a>
 </li>
-      <li><a href="CYLGame.html#CYLGame.Server.GameServer.game">game (CYLGame.Server.GameServer attribute)</a>
+      <li><a href="CYLGame.html#CYLGame.Game.PlayGameState.game">game (CYLGame.Game.PlayGameState attribute)</a>
+
+      <ul>
+        <li><a href="CYLGame.html#CYLGame.Server.GameServer.game">(CYLGame.Server.GameServer attribute)</a>
 </li>
+      </ul></li>
       <li><a href="CYLGame.html#CYLGame.Game.Game.GAME_TITLE">GAME_TITLE (CYLGame.Game.Game attribute)</a>
 
       <ul>
@@ -424,6 +432,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="CYLGame.html#CYLGame.Server.GameServer.host">host (CYLGame.Server.GameServer attribute)</a>
 </li>
+      <li><a href="CYLGame.html#CYLGame.Game.PlayGameState.human_player">human_player (CYLGame.Game.PlayGameState attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -498,11 +508,13 @@
 </li>
       <li><a href="CYLGame.html#CYLGame.Panels.MapPanel">MapPanel (class in CYLGame.Panels)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="CYLGame.html#CYLGame.Panels.MessagePanel">MessagePanel (class in CYLGame.Panels)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="CYLGame.html#CYLGame.Game.GameRunner.move_game">move_game() (CYLGame.Game.GameRunner static method)</a>
+</li>
+      <li><a href="CYLGame.html#CYLGame.Game.PlayGameState.moves">moves (CYLGame.Game.PlayGameState attribute)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.Game.Game.MULTIPLAYER">MULTIPLAYER (CYLGame.Game.Game attribute)</a>
 </li>
@@ -698,10 +710,12 @@
         <li><a href="CYLGame.html#CYLGame.Game.GridGame.SCREEN_WIDTH">(CYLGame.Game.GridGame attribute)</a>
 </li>
       </ul></li>
-      <li><a href="CYLGame.html#CYLGame.SensorGame.SensorPlayer.sensor_calc">sensor_calc() (CYLGame.SensorGame.SensorPlayer method)</a>
+      <li><a href="CYLGame.html#CYLGame.Game.PlayGameState.seed">seed (CYLGame.Game.PlayGameState attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="CYLGame.html#CYLGame.SensorGame.SensorPlayer.sensor_calc">sensor_calc() (CYLGame.SensorGame.SensorPlayer method)</a>
+</li>
       <li><a href="CYLGame.html#CYLGame.SensorGame.SensorGame">SensorGame (class in CYLGame.SensorGame)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.SensorGame.SensorPlayer">SensorPlayer (class in CYLGame.SensorGame)</a>
@@ -864,7 +878,7 @@
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -881,7 +895,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.3.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
