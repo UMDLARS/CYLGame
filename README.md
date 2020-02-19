@@ -15,7 +15,7 @@ We maintain a server running UMDCYL games, and are happy to allow others to use 
 We have created a number of games for the CYLGame framework, including:
 
 * [Applehunt](https://github.com/UMDLARS/applehunt) -- a simple demo program (seek and navigate towards apples, avoiding traps)
-* [Robots](https://github.com/UMDLARS/robots) -- a clone of the classic 80s videogame "[ROBOTS](https://en.wikipedia.org/wiki/Robots_(computer_game))"
+* [Robots](https://github.com/UMDLARS/robots) -- a clone of the classic 80s videogame "[ROBOTS](https://en.wikipedia.org/wiki/Chase_(video_game))"
 * [Ski](https://github.com/UMDLARS/ski) -- a riff on [classic 2D skiing games](https://en.wikipedia.org/wiki/SkiFree)
 * [Pac-Bot](https://github.com/UMDLARS/pac-bot) -- an implementation of [Pac-Man](https://en.wikipedia.org/wiki/Pac-Man)
 * [Space Invaders](https://github.com/UMDLARS/space_invaders) -- an implementation of [the legendary game](https://en.wikipedia.org/wiki/Space_Invaders)
