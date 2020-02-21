@@ -465,15 +465,17 @@ class InteractivePlayer extends Player {
           this.state = data["state"];
           this.frame = data["frame"];
           this.draw_func(this.canvas[0], this.frame);
-          document.getElementById("playAgain").onclick = function playAgain(){ this.state={};this.ready=true;};
+          function playAgain()
+          {
+             playMore.disabled = true;
+             this.state = {};
+             this.move('');
+             this.ready = true;
+          }
+          var playMore = document.getElementById("playAgain");
+          playMore.onclick = playAgain.bind(this,playMore);
           if (data["lost"]) {
-              document.getElementById("playAgain").disabled = false;
-//              playAgain.onClick = "this.state = {};this.move = ('');this.ready = true;"
-//            if (confirm("You lost. Play again?")) {
-//              this.state = {};
-//              this.move('');
-//              this.ready = true;
-//            }
+              playMore.disabled = false;
           } else {
             this.ready = true;
           }
