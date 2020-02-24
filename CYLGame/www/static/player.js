@@ -28,6 +28,7 @@ class Player {
     this.canvas.attr("width", width +"px");
     this.parent_div.append(this.canvas);
 
+
     if (this.show_progress_bar) {
       // Create Progress bar
       let bar_parent = $("<div>");
@@ -464,12 +465,17 @@ class InteractivePlayer extends Player {
           this.state = data["state"];
           this.frame = data["frame"];
           this.draw_func(this.canvas[0], this.frame);
+          function playAgain()
+          {
+             playMore.disabled = true;
+             this.ready = true;
+             this.state = {};
+             this.move('');
+          }
+          var playMore = document.getElementById("playAgain");
+          playMore.onclick = playAgain.bind(this,playMore);
           if (data["lost"]) {
-            if (confirm("You lost. Play again?")) {
-              this.state = {};
-              this.move('');
-              this.ready = true;
-            }
+              playMore.disabled = false;
           } else {
             this.ready = true;
           }
