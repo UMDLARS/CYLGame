@@ -468,9 +468,9 @@ class InteractivePlayer extends Player {
           function playAgain()
           {
              playMore.disabled = true;
+             this.ready = true;
              this.state = {};
              this.move('');
-             this.ready = true;
           }
           var playMore = document.getElementById("playAgain");
           playMore.onclick = playAgain.bind(this,playMore);
