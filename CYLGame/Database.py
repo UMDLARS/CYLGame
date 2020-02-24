@@ -11,12 +11,12 @@ import msgpack
 
 def write_json(o, filename):
     with gzip.open(filename, "w") as fp:
-        msgpack.dump(o, fp, encoding='utf-8')
+        msgpack.dump(o, fp)
 
 
 def read_json(filename):
     with gzip.open(filename, "r") as fp:
-        return msgpack.load(fp, encoding='utf-8')
+        return msgpack.load(fp)
 
 
 class WWWCache:
