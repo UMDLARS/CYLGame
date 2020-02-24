@@ -44,12 +44,12 @@
 
 <div class="viewcode-block" id="write_json"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Database.write_json">[docs]</a><span class="k">def</span> <span class="nf">write_json</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-        <span class="n">msgpack</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+        <span class="n">msgpack</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="read_json"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Database.read_json">[docs]</a><span class="k">def</span> <span class="nf">read_json</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WWWCache"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Database.WWWCache">[docs]</a><span class="k">class</span> <span class="nc">WWWCache</span><span class="p">:</span>
@@ -604,7 +604,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
