@@ -14,7 +14,6 @@ Hi there!
    userguide/installing
    userguide/pipeline
    userguide/release
-   userguide/build_docs
 
 .. toctree::
    :maxdepth: 2
