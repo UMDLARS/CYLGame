@@ -119,9 +119,9 @@
 
 <div class="viewcode-block" id="GameServer.before_request"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.before_request">[docs]</a>    <span class="k">def</span> <span class="nf">before_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwarg</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">has_request_context</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{flask.request.method}</span><span class="s1"> </span><span class="si">{flask.request.url}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{name}</span><span class="s1">() called without context.&#39;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">() called without context.&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GameServer.scoreboard"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.scoreboard">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/scoreboard&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
     <span class="k">def</span> <span class="nf">scoreboard</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -318,7 +318,7 @@
         <span class="n">state</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;state&#39;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">moves</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;moves&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">seed_str</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;seed&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[move: </span><span class="si">{move}</span><span class="s1">, state: </span><span class="si">{state}</span><span class="s1">, moves: </span><span class="si">{moves}</span><span class="s1">, seed: </span><span class="si">{seed_str}</span><span class="s1">]&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[move: </span><span class="si">{</span><span class="n">move</span><span class="si">}</span><span class="s1">, state: </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s1">, moves: </span><span class="si">{</span><span class="n">moves</span><span class="si">}</span><span class="s1">, seed: </span><span class="si">{</span><span class="n">seed_str</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">)</span>
 
         <span class="n">seed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">seed_str</span><span class="p">:</span>
@@ -334,7 +334,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;In cache&quot;</span><span class="p">)</span>
             <span class="n">game_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">play_game_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">hash_key</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not in Cache. Hash Key: &#39;</span><span class="si">{hash_key}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not in Cache. Hash Key: &#39;</span><span class="si">{</span><span class="n">hash_key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
             <span class="n">game_state</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="p">)</span><span class="o">.</span><span class="n">init_game</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">prev_move</span> <span class="ow">in</span> <span class="n">moves</span><span class="p">:</span>
                 <span class="n">game_state</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="o">.</span><span class="n">move_game</span><span class="p">(</span><span class="n">game_state</span><span class="p">,</span> <span class="n">prev_move</span><span class="p">)</span>
@@ -342,7 +342,7 @@
             <span class="n">new_hash_key</span> <span class="o">=</span> <span class="n">hash_key</span> <span class="o">+</span> <span class="n">move</span>
             <span class="n">game_state</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="o">.</span><span class="n">move_game</span><span class="p">(</span><span class="n">game_state</span><span class="p">,</span> <span class="n">move</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">play_game_cache</span><span class="p">[</span><span class="n">new_hash_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">game_state</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Storing Cache. Hash Key: &#39;</span><span class="si">{new_hash_key}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Storing Cache. Hash Key: &#39;</span><span class="si">{</span><span class="n">new_hash_key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="n">seed_str</span><span class="p">,</span>
                  <span class="s1">&#39;moves&#39;</span><span class="p">:</span> <span class="n">game_state</span><span class="o">.</span><span class="n">moves</span><span class="p">}</span>
@@ -477,7 +477,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../userguide/installing.html">Installing (and Playing) a Game</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../userguide/pipeline.html">CYLGame pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../userguide/release.html">Releasing a Build</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../userguide/build_docs.html">Building the docs</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Docs:</span></p>
 <ul>
@@ -519,7 +518,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

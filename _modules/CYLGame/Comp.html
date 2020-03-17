@@ -319,10 +319,10 @@
             <span class="k">if</span> <span class="n">best_bot</span><span class="p">:</span>
                 <span class="n">best_bots</span><span class="p">[</span><span class="n">s_token</span><span class="p">]</span> <span class="o">=</span> <span class="n">best_bot</span>
             <span class="k">elif</span> <span class="n">debug</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;School </span><span class="si">{s_token}</span><span class="s2"> had on bot with a score&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;School </span><span class="si">{</span><span class="n">s_token</span><span class="si">}</span><span class="s2"> had on bot with a score&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got the following bots:</span><span class="se">\n</span><span class="si">{best_bots}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got the following bots:</span><span class="se">\n</span><span class="si">{</span><span class="n">best_bots</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">best_bots</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
@@ -332,14 +332,14 @@
         <span class="n">game_tokens</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">tourney</span> <span class="o">=</span> <span class="n">MultiplayerComp</span><span class="p">(</span><span class="n">best_bots</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">game</span><span class="o">.</span><span class="n">get_number_of_players</span><span class="p">(),</span> <span class="n">game</span><span class="o">.</span><span class="n">default_prog_for_computer</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Will run </span><span class="si">{tourney.total_runs:.0f}</span><span class="s2"> games.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Will run </span><span class="si">{</span><span class="n">tourney</span><span class="o">.</span><span class="n">total_runs</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> games.&quot;</span><span class="p">)</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">room</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tourney</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
                 <span class="n">time_taken</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span>
                 <span class="n">estimate_total_time</span> <span class="o">=</span> <span class="n">time_taken</span> <span class="o">*</span> <span class="p">(</span><span class="n">tourney</span><span class="o">.</span><span class="n">total_runs</span><span class="o">/</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
                 <span class="n">eta</span> <span class="o">=</span> <span class="n">estimate_total_time</span> <span class="o">-</span> <span class="n">time_taken</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Eta: ~</span><span class="si">{eta:.0f}</span><span class="s2"> secs Cur Room: </span><span class="si">{room}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Eta: ~</span><span class="si">{</span><span class="n">eta</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> secs Cur Room: </span><span class="si">{</span><span class="n">room</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">gamerunner</span> <span class="o">=</span> <span class="n">GameRunner</span><span class="p">(</span><span class="n">game</span><span class="p">)</span>
             <span class="n">tourney</span><span class="p">[</span><span class="n">room</span><span class="p">]</span> <span class="o">=</span> <span class="n">gamerunner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">room</span><span class="p">)</span><span class="o">.</span><span class="n">score</span>
             <span class="k">if</span> <span class="n">save_games</span><span class="p">:</span>
@@ -619,7 +619,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../userguide/installing.html">Installing (and Playing) a Game</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../userguide/pipeline.html">CYLGame pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../userguide/release.html">Releasing a Build</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../userguide/build_docs.html">Building the docs</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Source Docs:</span></p>
 <ul>
@@ -661,7 +660,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
