@@ -350,7 +350,7 @@
 
         <span class="c1"># Save scores</span>
         <span class="k">for</span> <span class="n">s_token</span><span class="p">,</span> <span class="n">best_bot</span> <span class="ow">in</span> <span class="n">best_bots</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">best_bot_score</span> <span class="o">=</span> <span class="n">tourney</span><span class="p">[</span><span class="n">best_bot</span><span class="p">]</span><span class="o">.</span><span class="n">rounded_mean</span>
+            <span class="n">best_bot_score</span> <span class="o">=</span> <span class="n">tourney</span><span class="p">[</span><span class="n">best_bot</span><span class="p">]</span><span class="o">.</span><span class="n">rounded_mean</span><span class="p">()</span>
             <span class="n">gamedb</span><span class="o">.</span><span class="n">set_comp_avg_score</span><span class="p">(</span><span class="n">c_token</span><span class="p">,</span> <span class="n">s_token</span><span class="p">,</span> <span class="n">best_bot_score</span><span class="p">)</span></div></div>
 
 

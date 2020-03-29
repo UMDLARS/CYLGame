@@ -55,7 +55,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">roll_after</span> <span class="o">=</span> <span class="n">roll_after_n</span>
 
     <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
         <span class="n">new_obj</span> <span class="o">=</span> <span class="n">OnlineMean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">roll_after</span><span class="p">)</span>
         <span class="n">new_obj</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_obj</span>
@@ -75,11 +75,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">floored_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rounded_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="n">places</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="n">places</span><span class="p">)</span></div>
+<div class="viewcode-block" id="OnlineMean.rounded_mean"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Utils.OnlineMean.rounded_mean">[docs]</a>    <span class="k">def</span> <span class="nf">rounded_mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">places</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="choose"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Utils.choose">[docs]</a><span class="k">def</span> <span class="nf">choose</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
