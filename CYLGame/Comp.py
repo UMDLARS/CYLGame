@@ -317,7 +317,7 @@ class MultiplayerComp(object):
 
         # Save scores
         for s_token, best_bot in best_bots.items():
-            best_bot_score = tourney[best_bot].rounded_mean
+            best_bot_score = tourney[best_bot].rounded_mean()
             gamedb.set_comp_avg_score(c_token, s_token, best_bot_score)
 
 
