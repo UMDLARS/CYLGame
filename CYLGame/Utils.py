@@ -53,8 +53,15 @@ def choose(n, k):
 
 
 # From: http://stackoverflow.com/a/2267446/4441526
-digs = string.digits + string.ascii_letters
+digs = string.digits + string.ascii_lowercase
 def int2base(x, base):
+    """This function converts an int to a str using a specific base.
+
+    Note: This function was created to support weird bases that don't already have a builtin method. So if you want to
+          convert ints to base 2, 8, 16 it is better to use bin, oct, hex method respectively.
+    """
+    if len(digs) < base or base < 2:
+        raise NotImplementedError(f'int2base only supports bases between {2} and {len(digs)}')
     if x < 0:
         sign = -1
     elif x == 0:
