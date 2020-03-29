@@ -14,7 +14,7 @@ install:
 script:
   - python setup.py test
   - py.test --cov=CYLGame
-  - pip install sphinx; cd docs; make html; touch _build/html/.nojekyll
+  - pip install sphinx; cd docs; make html; touch _build/html/.nojekyll; cd ..
 
 after_success:
   - codecov
