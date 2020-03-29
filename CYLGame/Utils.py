@@ -22,7 +22,7 @@ class OnlineMean:
         self.roll_after = roll_after_n
 
     def __add__(self, other):
-        assert isinstance(other, int)
+        assert isinstance(other, int) or isinstance(other, float)
         new_obj = OnlineMean(self.i, self.mean, self.roll_after)
         new_obj.add(other)
         return new_obj
@@ -42,11 +42,10 @@ class OnlineMean:
 
     @property
     def floored_mean(self):
-        return int(self.mean)
+        return math.floor(self.mean)
 
-    @property
     def rounded_mean(self, places=2):
-        return int(self.mean * 10**places) / (10**places)
+        return round(self.mean, places)
 
 
 def choose(n, k):
