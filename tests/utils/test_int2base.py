@@ -25,5 +25,5 @@ def test_int2base(i, base, out):
         (123213, 37)
 ))
 def test_choose_not_implemented_cases(i, base):
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         int2base(i, base)

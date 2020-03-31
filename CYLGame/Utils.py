@@ -61,7 +61,7 @@ def int2base(x, base):
           convert ints to base 2, 8, 16 it is better to use bin, oct, hex method respectively.
     """
     if len(digs) < base or base < 2:
-        raise NotImplementedError(f'int2base only supports bases between {2} and {len(digs)}')
+        raise ValueError(f'int2base only supports bases between {2} and {len(digs)}')
     if x < 0:
         sign = -1
     elif x == 0:
