@@ -70,6 +70,23 @@ class WWWCache:
 
 # TODO(derpferd): Use the move function to prevent RACE on files
 class GameDB(object):
+    """
+    This is the database that stores all persisted data. This database is a file based DB.
+
+    /                           => Root game directory
+    /data                       => Should be named something like "users". This stores user related data.
+    /data/TOKEN                 => A directory containing data for the user with the token TOKEN.
+    /data/TOKEN/avg_score       => File containing a single float representing the average score for the user.
+    /data/TOKEN/name            => File containing the name for the user.
+    /data/TOKEN/code.lp         => The last code submitted for the user.
+    /data/TOKEN/games           => A directory related games.
+    /data/TOKEN/games/GTOKEN    => An empty file representing that the users bot was used in game GTOKEN.
+    /games                      => Stores game related data.
+    /schools                    => Stores school related data.
+    /competitions               => Stores competition related data.
+    /www                        => Stores static and template files for the server. This is a cache that is deleted and
+                                    recreated on each restart.
+    """
     TOKEN_LEN = 8
 
     def __init__(self, root_dir):
