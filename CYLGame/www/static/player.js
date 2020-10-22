@@ -92,6 +92,11 @@ class Player {
         .click(() => {
           this.on_faster_click();
         }));
+      this.btn_bar.append($("<button>")
+        .text(">|")
+        .click(() => {
+          this.on_end_click();
+        }));
       if (this.show_debug_table) {
         // Set seed and toggle debug table:
         this.debug_toggle_btn = $("<button>")
@@ -230,6 +235,10 @@ class Player {
     }
   }
 
+  on_end_click() {
+    this.end();
+  }
+
   export_gif(){
     this.pause();
     // show_loading();
@@ -300,6 +309,14 @@ class Player {
       }
       this.startDrawLoop();
     }
+  }
+
+  end() {
+    this.pause();
+    this.reset_speed();
+    this.cur_frame = this.replay_frames.length - 1;
+    this.real_cur_frame = this.cur_frame;
+    this.drawCurFrame();
   }
 
   // Debug table toggle
