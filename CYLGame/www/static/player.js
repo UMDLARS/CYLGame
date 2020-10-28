@@ -33,7 +33,6 @@ class Player {
       // Create Progress bar
       let bar_parent = $("<div>");
       let bar = $("<div>");
-      //bar.addClass("progress");
       this.playback_progress_bar = $("<input>");
       this.playback_progress_bar.attr("id", "progressBar");
       this.playback_progress_bar.attr("type", "range");
@@ -356,6 +355,7 @@ class Player {
     this.stop();
     this.replay_frames = frames;
     this.replay_vars = vars;
+    this.playback_progress_bar.prop({"min": 1, "max": this.replay_frames.length});
     this.play();
   }
 
@@ -416,13 +416,8 @@ class Player {
 
   drawCurFrame() {
     if (this.cur_frame >= 0 && this.cur_frame < this.replay_frames.length) {
-      if (this.cur_frame == 1) {
-        this.playback_progress_bar.prop({"min": 1, "max": this.replay_frames.length});
-      }
       this.playback_progress_bar.prop("value", this.cur_frame);
-      console.log(this.cur_frame);
       this.playback_progress_bar_text.html("Frame " + this.cur_frame + " of " + (this.replay_frames.length));
-      console.log(this.cur_frame);
       this.draw_func(this.canvas[0], this.replay_frames[this.cur_frame]);
       if (this.show_debug_table) {
         this.create_var_table(this.replay_vars[this.cur_frame]);
