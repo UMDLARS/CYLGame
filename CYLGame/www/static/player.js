@@ -33,14 +33,14 @@ class Player {
       // Create Progress bar
       let bar_parent = $("<div>");
       let bar = $("<div>");
-      bar.addClass("progress");
-      this.playback_progress_bar = $("<div>");
-      this.playback_progress_bar.addClass("progress-bar");
-      this.playback_progress_bar.addClass("fast");
-      this.playback_progress_bar.attr("role", "progressbar");
-      this.playback_progress_bar.attr("aria-valuemin", "0");
-      this.playback_progress_bar.attr("aria-valuemax", "100");
+      this.playback_progress_bar = $("<input>");
+      this.playback_progress_bar.attr("id", "progressBar");
+      this.playback_progress_bar.attr("type", "range");
+      this.playback_progress_bar.attr("min", "0");
+      this.playback_progress_bar.attr("max", "0");
+      this.playback_progress_bar.attr("step", "1");
       this.playback_progress_bar.css("width", "100%");
+      this.playback_progress_bar.on("input", () => this.on_progress_input());
       bar.append(this.playback_progress_bar);
       bar_parent.append(bar);
       this.playback_progress_bar_text = $("<span>");
@@ -239,6 +239,14 @@ class Player {
     this.end();
   }
 
+  on_progress_input() {
+    this.pause();
+    this.reset_speed();
+    this.cur_frame = parseInt(this.playback_progress_bar.prop("value"), 10);
+    this.real_cur_frame = this.cur_frame;
+    this.drawCurFrame();
+  }
+
   export_gif(){
     this.pause();
     // show_loading();
@@ -347,6 +355,7 @@ class Player {
     this.stop();
     this.replay_frames = frames;
     this.replay_vars = vars;
+    this.playback_progress_bar.prop({"min": 1, "max": this.replay_frames.length});
     this.play();
   }
 
@@ -407,8 +416,8 @@ class Player {
 
   drawCurFrame() {
     if (this.cur_frame >= 0 && this.cur_frame < this.replay_frames.length) {
-      this.playback_progress_bar.css("width", (this.cur_frame / (this.replay_frames.length - 1)) * 100 + "%");
-      this.playback_progress_bar_text.html("Frame " + (this.cur_frame + 1) + " of " + (this.replay_frames.length));
+      this.playback_progress_bar.prop("value", this.cur_frame);
+      this.playback_progress_bar_text.html("Frame " + this.cur_frame + " of " + (this.replay_frames.length));
       this.draw_func(this.canvas[0], this.replay_frames[this.cur_frame]);
       if (this.show_debug_table) {
         this.create_var_table(this.replay_vars[this.cur_frame]);
