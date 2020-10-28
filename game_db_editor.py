@@ -1,13 +1,15 @@
-#!/usr/bin/python
-from __future__ import print_function
+#!/usr/bin/env python3
 import os
 import sys
+from typing import Optional, List, Tuple
+
+from click import Choice, prompt
 from CYLGame.Database import GameDB
 from builtins import input
 
-gamedb = None
-cur_school = None
-cur_comp = None
+gamedb: Optional[GameDB] = None
+cur_school: Optional[str] = None
+cur_comp: Optional[str] = None
 
 
 def clear():
@@ -26,12 +28,25 @@ def get_input(prompt="", validator=lambda x: x, error_msg=""):
     return inp
 
 
-def print_menu(options=[], title=""):
+def print_menu(options: List[Tuple], title: str, enable_no_selection=True) -> Optional:
+    """
+    options should be in the form [(name, value)] example: [("School #1", "ABC")]
+    """
     clear()
     print(title)
-    for index, option in enumerate(options):
+    if enable_no_selection:
+        print("0: Return without selecting an option")
+    for index, (option, value) in enumerate(options):
         print(str(index+1)+":", option)
-    return int(get_input("Select an item: ", lambda x: int(x) in range(1,len(options)+1), "Invalid Selection. Try Again."))-1
+    start_index = 0 if enable_no_selection else 1
+    choices = Choice(list(map(str, range(start_index, len(options)+1))))
+    choice = prompt("Select an item", type=choices)
+
+    if choice == '0':
+        print("Selecting None")
+        return None
+    print(options)
+    return options[int(choice)-1][1]
 
 
 def clear_selection():
@@ -68,30 +83,28 @@ def add_competition():
 
 
 def select_competition():
-    # TODO(derpferd): implement
     global gamedb, cur_comp
     options = []
-    options_to_tokens = {}
     for i, comp_tk in enumerate(gamedb.get_comp_tokens()):
-        options += [gamedb.get_name(comp_tk)]
-        options_to_tokens[i] = comp_tk
+        options += [(gamedb.get_name(comp_tk), comp_tk)]
     clear_selection()
-    cur_comp = options_to_tokens[print_menu(options, "Select Competition")]
+    cur_comp = print_menu(options, "Select Competition")
     print("Current Competition Set to:", cur_comp)
 
 
 def add_school_to_comp():
     global gamedb, cur_comp
     options = []
-    options_to_tokens = {}
     for i, school_tk in enumerate(gamedb.get_school_tokens()):
-        options += [gamedb.get_name(school_tk)]
-        options_to_tokens[i] = school_tk
-    selection = options_to_tokens[print_menu(options, "Select School")]
-    gamedb.add_school_to_comp(cur_comp, selection)
-    print("School added")
-    print("Don't forget to run competition sim script with the following token:", cur_comp)
-    pause()
+        options += [(gamedb.get_name(school_tk), school_tk)]
+    selection = print_menu(options, "Select School")
+    if selection is None:
+        print("No School added")
+    else:
+        gamedb.add_school_to_comp(cur_comp, selection)
+        print("School added")
+        print("Don't forget to run competition sim script with the following token:", cur_comp)
+        pause()
 
 
 def list_schools_in_comp():
@@ -118,12 +131,10 @@ def add_school():
 def select_school():
     global gamedb, cur_school
     options = []
-    options_to_tokens = {}
     for i, school_tk in enumerate(gamedb.get_school_tokens()):
-        options += [gamedb.get_name(school_tk)]
-        options_to_tokens[i] = school_tk
+        options += [(gamedb.get_name(school_tk), school_tk)]
     clear_selection()
-    cur_school = options_to_tokens[print_menu(options, "Select School")]
+    cur_school = print_menu(options, "Select School")
     print("Current School Set to:", cur_school)
 
 
@@ -184,7 +195,8 @@ def main():
     option = ""
     while option != "Quit":
         options = get_main_menu_options()
-        option = options[print_menu(options, get_main_menu_title())]
+        options = [(x, x) for x in options]
+        option = print_menu(options, get_main_menu_title(), enable_no_selection=False)
         print("You selected:", option)
         if option == "Select School":
             select_school()
