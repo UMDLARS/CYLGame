@@ -438,9 +438,18 @@ class Player {
     let row = $("<tr>").append($("<th>").html("Name")).append($("<th>").html("Value"));
     this.debug_table.html("").append(row);
     keys.forEach((item, index) => {
-        let row = $("<tr>").append($("<td>").html(item)).append($("<td>").html(vars[item]));
+        let value = this.var_to_string(vars[item]);
+        let row = $("<tr>").append($("<td>").html(item)).append($("<td>")
+            .text(value));
         this.debug_table.append(row);
     });
+  }
+
+  var_to_string(value) {
+    if (Array.isArray(value)) {
+      return "[" + value.map((val) => {return this.var_to_string(val);}).join(",") + "]"
+    }
+    return value.toString();
   }
 }
 
