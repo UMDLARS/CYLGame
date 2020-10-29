@@ -8,6 +8,8 @@ from builtins import str as text
 
 import msgpack
 
+from CYLGame.Utils import hash_stream
+
 
 def write_json(o, filename):
     with gzip.open(filename, "w") as fp:
@@ -78,7 +80,10 @@ class GameDB(object):
     /data/TOKEN                 => A directory containing data for the user with the token TOKEN.
     /data/TOKEN/avg_score       => File containing a single float representing the average score for the user.
     /data/TOKEN/name            => File containing the name for the user.
-    /data/TOKEN/code.lp         => The last code submitted for the user.
+    /data/TOKEN/code            => Directory containing all code submitted by the user.
+    /data/TOKEN/code/CTIME_HASH => The code submitted or played at CTIME.
+    /data/TOKEN/code/CTIME_HASH/code.lp
+    /data/TOKEN/code/CTIME_HASH/options.mp.gz
     /data/TOKEN/games           => A directory related games.
     /data/TOKEN/games/GTOKEN    => An empty file representing that the users bot was used in game GTOKEN.
     /games                      => Stores game related data.
@@ -88,6 +93,12 @@ class GameDB(object):
                                     recreated on each restart.
     """
     TOKEN_LEN = 8
+
+    ACTIVE_CODE_KEY = "active_code"
+
+    CODE_DIR = "code"
+    CODE_FILENAME = "code.lp"
+    OPTIONS_FILENAME = "options.mp.gz"
 
     def __init__(self, root_dir):
         self.root_dir = os.path.abspath(root_dir)
@@ -342,19 +353,40 @@ class GameDB(object):
         else:
             return None
 
-    def save_code(self, token, code, options=None):
+    def save_code(self, token, code, options=None, set_as_active=True):
         """Save a user's code under their token.
 
         Args:
             token (str): The user's token.
             code (str): The user's code.
             options (json-able object): The user's options.
+            set_as_active (bool): Whether to set the saved code as the active code for the token.
         """
         assert os.path.exists(self.__get_dir_for_token(token))
-        with io.open(self.__get_dir_for_token(token, "code.lp"), "w", encoding="utf8") as fp:
+        code_dir = self.__get_dir_for_token(token, self.CODE_DIR)
+        if not os.path.exists(code_dir):
+            os.makedirs(code_dir, exist_ok=True)
+
+        # Create Code id.
+        ctime = int(time.time())
+        buf = io.BytesIO()
+        buf.write(bytes(code, encoding='utf8'))
+        if options:
+            msgpack.dump(options, buf)
+        buf.seek(0)
+        code_hash = hash_stream(buf)
+        code_path_name = f"{ctime}_{code_hash}"
+        os.mkdir(os.path.join(code_dir, code_path_name))
+
+        # Write code
+        with io.open(os.path.join(code_dir, code_path_name, self.CODE_FILENAME), "w", encoding="utf8") as fp:
             fp.write(text(code))
         if options:
-            write_json(options, self.__get_dir_for_token(token, "options.mp.gz"))
+            write_json(options, os.path.join(code_dir, code_path_name, self.OPTIONS_FILENAME))
+
+        # Update code to be active if needed
+        if set_as_active:
+            self.save_value(token=token, key=self.ACTIVE_CODE_KEY, value=code_path_name)
 
     def save_name(self, token, name):
         """Save a user's name under their token.
@@ -465,13 +497,25 @@ class GameDB(object):
             return self.__get_comp_game_tokens(token)
         raise ValueError("Invalid token")
 
-    def get_code_and_options(self, token):
+    def get_active_code_and_options(self, token):
         code, options = None, {}
-        if os.path.exists(self.__get_dir_for_token(token, "code.lp")):
-            with io.open(self.__get_dir_for_token(token, "code.lp"), "r", encoding="utf8") as fp:
+        code_hash = self.get_value(token=token, key=self.ACTIVE_CODE_KEY)
+        should_save_code = False
+        if code_hash:
+            base_path = self.__get_dir_for_token(token, [self.CODE_DIR, code_hash])
+        else:
+            base_path = self.__get_dir_for_token(token)
+            should_save_code = True  # The code is stored in an older style. Upgrade it to the new style.
+
+        code_path = os.path.join(base_path, self.CODE_FILENAME)
+        options_path = os.path.join(base_path, self.OPTIONS_FILENAME)
+        if os.path.exists(code_path):
+            with io.open(code_path, "r", encoding="utf8") as fp:
                 code = fp.read()
-        if os.path.exists(self.__get_dir_for_token(token, "options.mp.gz")):
-            options = read_json(self.__get_dir_for_token(token, "options.mp.gz"))
+        if os.path.exists(options_path):
+            options = read_json(options_path)
+        if should_save_code and (code or options):
+            self.save_code(token, code, options)
         return code, options
 
     def get_name(self, token):

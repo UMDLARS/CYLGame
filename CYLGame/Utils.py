@@ -1,5 +1,7 @@
 from __future__ import division
 
+import hashlib
+import io
 import math
 import string
 import warnings
@@ -118,3 +120,21 @@ def deprecated(message=""):
             return func(*args, **kwargs)
         return new_func
     return deprecated_decorator
+
+
+def hash_string(s, encoding='utf8'):
+    buf = io.BytesIO()
+    buf.write(bytes(s, encoding=encoding))
+    buf.seek(0)
+    return hash_stream(buf)
+
+
+def hash_stream(fp):
+    BUF_SIZE = 65536
+    sha = hashlib.sha1()
+    while True:
+        data = fp.read(BUF_SIZE)
+        if not data:
+            break
+        sha.update(data)
+    return sha.hexdigest()

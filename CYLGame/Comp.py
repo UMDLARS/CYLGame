@@ -30,7 +30,7 @@ def create_room(gamedb, bot, compiler, size):
     bots = [bot]
     while True:
         token = choice(pool)
-        code, options = gamedb.get_code_and_options(token)
+        code, options = gamedb.get_active_code_and_options(token)
         try:
             prog = compiler.compile(code)
             prog.options = options
@@ -251,7 +251,7 @@ class MultiplayerComp(object):
         try:
             if debug:
                 print("Making bot for '" + token + "'")
-            code, options = gamedb.get_code_and_options(token)
+            code, options = gamedb.get_active_code_and_options(token)
             name = gamedb.get_name(token)
             if not code:
                 return
@@ -513,7 +513,7 @@ class RollingMultiplayerCompRunner(Process):
         try:
             if self.debug:
                 print("Making bot for '" + token + "'")
-            code, options = self.gamedb.get_code_and_options(token)
+            code, options = self.gamedb.get_active_code_and_options(token)
             name = self.gamedb.get_name(token)
             if not code:
                 return

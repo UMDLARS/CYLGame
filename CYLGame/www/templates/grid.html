@@ -136,11 +136,17 @@
             });
         }
         function testCode(opponents) {
+            let token_value;
+            if (!localStorage.user_token) {
+                token_value = "";
+            } else {
+                token_value = localStorage.user_token;
+            }
             $("#debugTable").html("");
             $.ajax({
                 type: "POST",
                 url: $SCRIPT_ROOT + 'sim',
-                data: JSON.stringify({code: editor.getValue(), seed: window.seed, opponents: opponents}),
+                data: JSON.stringify({code: editor.getValue(), token:token_value, seed: window.seed, opponents: opponents}),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function(data) {
