@@ -15,7 +15,7 @@ Install ``python3.7`` and ``pip``
 
 ::
 
-   sudo add-apt-repository ppa:deadsnakes/ppa  # Only needed for Ubuntu and 16.04
+   sudo add-apt-repository ppa:deadsnakes/ppa  # Only needed for Ubuntu 16.04
    sudo apt-get update
    sudo apt-get install python3-pip libssl-dev python3.7 python3.7-dev 
 
@@ -41,6 +41,16 @@ Clone the game repository (insert your game here)
    git clone https://github.com/UMDLARS/applehunt.git     # or a different game of your choice
    cd applehunt                                           # or the directory created in the previous line
    pipenv install
+
+.. note::
+   If you are using a newer (or older) version of python than ``3.7``, follow
+   these instructions to upgrade the env. Note that changing python versions
+   may require different versions of dependencies that things **may break**.
+   If you already ran the ``pipenv install`` command above run ``pipenv --rm``.
+   Open ``Pipfile`` with your favorite editor and change the line
+   ``python_version = "3.7"`` to ``python_version = "YOUR_PYTHON_VERSION"``.
+   Now run ``pipenv install --skip-lock`. You should now be ready to continue
+   with the next step.
 
 Running a Game Server on Localhost
 ~~~~~~~
@@ -81,6 +91,7 @@ follow the above instructions, then:
 
 ::
 
+   $ sudo apt-get install python3-pygame
    $ pipenv install --dev
 
 To play the game:
