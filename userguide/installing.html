@@ -44,7 +44,7 @@ appropriate values.</p>
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="install-python3-7-and-pip">
 <h3>Install <code class="docutils literal notranslate"><span class="pre">python3.7</span></code> and <code class="docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#install-python3-7-and-pip" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">deadsnakes</span><span class="o">/</span><span class="n">ppa</span>  <span class="c1"># Only needed for Ubuntu and 16.04</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">deadsnakes</span><span class="o">/</span><span class="n">ppa</span>  <span class="c1"># Only needed for Ubuntu 16.04</span>
 <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
 <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">libssl</span><span class="o">-</span><span class="n">dev</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span><span class="o">-</span><span class="n">dev</span>
 </pre></div>
@@ -68,6 +68,17 @@ appropriate values.</p>
 <span class="n">cd</span> <span class="n">applehunt</span>                                           <span class="c1"># or the directory created in the previous line</span>
 <span class="n">pipenv</span> <span class="n">install</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you are using a newer (or older) version of python than <code class="docutils literal notranslate"><span class="pre">3.7</span></code>, follow
+these instructions to upgrade the env. Note that changing python versions
+may require different versions of dependencies that things <strong>may break</strong>.
+If you already ran the <code class="docutils literal notranslate"><span class="pre">pipenv</span> <span class="pre">install</span></code> command above run <code class="docutils literal notranslate"><span class="pre">pipenv</span> <span class="pre">--rm</span></code>.
+Open <code class="docutils literal notranslate"><span class="pre">Pipfile</span></code> with your favorite editor and change the line
+<code class="docutils literal notranslate"><span class="pre">python_version</span> <span class="pre">=</span> <span class="pre">&quot;3.7&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">python_version</span> <span class="pre">=</span> <span class="pre">&quot;YOUR_PYTHON_VERSION&quot;</span></code>.
+Now run <a href="#id1"><span class="problematic" id="id2">``</span></a>pipenv install –skip-lock`. You should now be ready to continue
+with the next step.</p>
 </div>
 </div>
 <div class="section" id="running-a-game-server-on-localhost">
@@ -97,7 +108,8 @@ port for the game server, use:</p>
 <p>If you’re developing or testing the game, you may want to play the game
 on your own monitor (rather than through the web interface). To do this,
 follow the above instructions, then:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pipenv install --dev
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install python3-pygame
+$ pipenv install --dev
 </pre></div>
 </div>
 <p>To play the game:</p>
