@@ -42,23 +42,51 @@ repository and directories described in this document with the
 appropriate values.</p>
 <div class="section" id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="install-python3-7-and-pip">
-<h3>Install <code class="docutils literal notranslate"><span class="pre">python3.7</span></code> and <code class="docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#install-python3-7-and-pip" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">deadsnakes</span><span class="o">/</span><span class="n">ppa</span>  <span class="c1"># Only needed for Ubuntu 16.04</span>
-<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
-<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">libssl</span><span class="o">-</span><span class="n">dev</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span><span class="o">-</span><span class="n">dev</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="install-git">
 <h3>Install <code class="docutils literal notranslate"><span class="pre">git</span></code><a class="headerlink" href="#install-git" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">git</span>
 </pre></div>
 </div>
 </div>
+<div class="section" id="install-pyenv">
+<h3>Install <code class="docutils literal notranslate"><span class="pre">pyenv</span></code><a class="headerlink" href="#install-pyenv" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>curl https://pyenv.run | bash  # Don&#39;t forget to follow the instructions to add commands to your rc file.
+exec $SHELL
+pyenv update
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-python-build-dependencies">
+<h3>Install Python Build dependencies<a class="headerlink" href="#install-python-build-dependencies" title="Permalink to this headline">¶</a></h3>
+<p>Go to <a class="reference external" href="https://github.com/pyenv/pyenv/wiki#suggested-build-environment">https://github.com/pyenv/pyenv/wiki#suggested-build-environment</a> and find
+the commands to install the needed dependencies. For Ubuntu this is the following command.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span><span class="p">;</span> <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">install</span><span class="o">-</span><span class="n">recommends</span> <span class="n">make</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">libssl</span><span class="o">-</span><span class="n">dev</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libreadline</span><span class="o">-</span><span class="n">dev</span> <span class="n">libsqlite3</span><span class="o">-</span><span class="n">dev</span> <span class="n">wget</span> <span class="n">curl</span> <span class="n">llvm</span> <span class="n">libncurses5</span><span class="o">-</span><span class="n">dev</span> <span class="n">xz</span><span class="o">-</span><span class="n">utils</span> <span class="n">tk</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxml2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxmlsec1</span><span class="o">-</span><span class="n">dev</span> <span class="n">libffi</span><span class="o">-</span><span class="n">dev</span> <span class="n">liblzma</span><span class="o">-</span><span class="n">dev</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-python">
+<h3>Install Python<a class="headerlink" href="#install-python" title="Permalink to this headline">¶</a></h3>
+<p>First you should figure out which version of python you need. (It is fine if
+you don’t want to figure this out, just skip to the below commands and use
+version <code class="docutils literal notranslate"><span class="pre">3.8</span></code>.) To find the needed python version checkout the <code class="docutils literal notranslate"><span class="pre">Pipfile</span></code>
+inside the game’s repository to figure out the version of python needed (It
+will be in the format of <code class="docutils literal notranslate"><span class="pre">python_version</span> <span class="pre">=</span> <span class="pre">&quot;X.Y&quot;</span></code>).
+Note that you can install as many versions of python as you would like so don’t
+worry about conflicting versions across games. If you need a different version
+for a new game run the following commands again for the needed version (or
+pipenv will ask to do it for you).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyenv</span> <span class="n">install</span> <span class="o">--</span><span class="nb">list</span> <span class="o">|</span> <span class="n">less</span>  <span class="c1"># use this to find the latest micro version of the python you want.</span>
+<span class="n">pyenv</span> <span class="n">install</span> <span class="n">X</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">Z</span>  <span class="c1"># where X.Y are the &quot;major.minor&quot; version require and Z is the latest mirco version.</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="install-pipenv">
 <h3>Install <code class="docutils literal notranslate"><span class="pre">pipenv</span></code><a class="headerlink" href="#install-pipenv" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">pipenv</span>
+<p>This step you only have to do with first version you install.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pyenv global X.Y.Z  # you only need to do this once
+python3 --version   # Should print out the version you just installed.
+python3 -m pip install pipenv
+exec $SHELL
 </pre></div>
 </div>
 </div>
@@ -71,14 +99,11 @@ appropriate values.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you are using a newer (or older) version of python than <code class="docutils literal notranslate"><span class="pre">3.7</span></code>, follow
-these instructions to upgrade the env. Note that changing python versions
-may require different versions of dependencies that things <strong>may break</strong>.
-If you already ran the <code class="docutils literal notranslate"><span class="pre">pipenv</span> <span class="pre">install</span></code> command above run <code class="docutils literal notranslate"><span class="pre">pipenv</span> <span class="pre">--rm</span></code>.
-Open <code class="docutils literal notranslate"><span class="pre">Pipfile</span></code> with your favorite editor and change the line
-<code class="docutils literal notranslate"><span class="pre">python_version</span> <span class="pre">=</span> <span class="pre">&quot;3.7&quot;</span></code> to <code class="docutils literal notranslate"><span class="pre">python_version</span> <span class="pre">=</span> <span class="pre">&quot;YOUR_PYTHON_VERSION&quot;</span></code>.
-Now run <a href="#id1"><span class="problematic" id="id2">``</span></a>pipenv install –skip-lock`. You should now be ready to continue
-with the next step.</p>
+<p>If you didn’t install the needed version of python pipenv should display a
+message like: <code class="docutils literal notranslate"><span class="pre">Warning:</span> <span class="pre">Python</span> <span class="pre">X.Y</span> <span class="pre">was</span> <span class="pre">not</span> <span class="pre">found</span> <span class="pre">on</span> <span class="pre">your</span> <span class="pre">system...</span></code>
+followed by <code class="docutils literal notranslate"><span class="pre">Would</span> <span class="pre">you</span> <span class="pre">like</span> <span class="pre">us</span> <span class="pre">to</span> <span class="pre">install</span> <span class="pre">CPython</span> <span class="pre">X.Y.Z</span> <span class="pre">with</span> <span class="pre">Pyenv?</span>
+<span class="pre">[Y/n]:</span></code>. Answer <code class="docutils literal notranslate"><span class="pre">y</span></code> otherwise you will need to manually install the
+correct python version.</p>
 </div>
 </div>
 <div class="section" id="running-a-game-server-on-localhost">
