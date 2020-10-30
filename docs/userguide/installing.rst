@@ -51,7 +51,7 @@ pipenv will ask to do it for you).
 
 ::
 
-   pyenv isntall --list | less  # use this to find the latest micro version of the python you want.
+   pyenv install --list | less  # use this to find the latest micro version of the python you want.
    pyenv install X.Y.Z  # where X.Y are the "major.minor" version require and Z is the latest mirco version.
 
 
