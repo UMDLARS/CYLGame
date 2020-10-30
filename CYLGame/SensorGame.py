@@ -4,6 +4,7 @@ from CYLGame.Frame import GameFrame
 from CYLGame import GameLanguage
 import math
 import random
+import re
 
 TAU = 2.0 * math.pi;
 SEP = "---------------------------------------"
@@ -92,7 +93,6 @@ class SensorSanitizers(object):
 
         return bool(t)
 
-    import re
     color_re = re.compile(r'#[0-9A-Fa-f]{6}')
     @staticmethod
     def san_color(c):
