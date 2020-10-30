@@ -10,15 +10,6 @@ appropriate values.
 Getting Started
 ---------------
 
-Install ``python3.7`` and ``pip``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-   sudo add-apt-repository ppa:deadsnakes/ppa  # Only needed for Ubuntu 16.04
-   sudo apt-get update
-   sudo apt-get install python3-pip libssl-dev python3.7 python3.7-dev 
-
 Install ``git``
 ~~~~~~~~~~~~~~~
 
@@ -26,12 +17,55 @@ Install ``git``
 
    sudo apt-get install git
 
-Install ``pipenv``
-~~~~~~~~~~~~~~~~~~
+Install ``pyenv``
+~~~~~~~~~~~~~~~~~
 
 ::
 
-   sudo python3.7 -m pip install pipenv
+   curl https://pyenv.run | bash  # Don't forget to follow the instructions to add commands to your rc file.
+   exec $SHELL
+   pyenv update
+
+
+Install Python Build dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Go to https://github.com/pyenv/pyenv/wiki#suggested-build-environment and find
+the commands to install the needed dependencies. For Ubuntu this is the following command.
+
+::
+
+   sudo apt-get update; sudo apt-get install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+
+Install Python
+~~~~~~~~~~~~~~
+
+First you should figure out which version of python you need. (It is fine if
+you don't want to figure this out, just skip to the below commands and use
+version ``3.8``.) To find the needed python version checkout the ``Pipfile``
+inside the game's repository to figure out the version of python needed (It
+will be in the format of ``python_version = "X.Y"``).
+Note that you can install as many versions of python as you would like so don't
+worry about conflicting versions across games. If you need a different version
+for a new game run the following commands again for the needed version (or
+pipenv will ask to do it for you).
+
+::
+
+   pyenv isntall --list | less  # use this to find the latest micro version of the python you want.
+   pyenv install X.Y.Z  # where X.Y are the "major.minor" version require and Z is the latest mirco version.
+
+
+Install ``pipenv``
+~~~~~~~~~~~~~~~~~~
+
+This step you only have to do with first version you install.
+
+::
+
+   pyenv global X.Y.Z  # you only need to do this once
+   python3 --version   # Should print out the version you just installed.
+   python3 -m pip install pipenv
+   exec $SHELL
 
 Clone the game repository (insert your game here)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,14 +77,11 @@ Clone the game repository (insert your game here)
    pipenv install
 
 .. note::
-   If you are using a newer (or older) version of python than ``3.7``, follow
-   these instructions to upgrade the env. Note that changing python versions
-   may require different versions of dependencies that things **may break**.
-   If you already ran the ``pipenv install`` command above run ``pipenv --rm``.
-   Open ``Pipfile`` with your favorite editor and change the line
-   ``python_version = "3.7"`` to ``python_version = "YOUR_PYTHON_VERSION"``.
-   Now run ``pipenv install --skip-lock`. You should now be ready to continue
-   with the next step.
+   If you didn't install the needed version of python pipenv should display a
+   message like: ``Warning: Python X.Y was not found on your system...``
+   followed by ``Would you like us to install CPython X.Y.Z with Pyenv?
+   [Y/n]:``. Answer ``y`` otherwise you will need to manually install the
+   correct python version.
 
 Running a Game Server on Localhost
 ~~~~~~~
