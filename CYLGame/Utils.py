@@ -131,7 +131,7 @@ def hash_string(s, encoding='utf8'):
 
 def hash_stream(fp):
     BUF_SIZE = 65536
-    sha = hashlib.sha1()
+    sha = hashlib.sha256()
     while True:
         data = fp.read(BUF_SIZE)
         if not data:

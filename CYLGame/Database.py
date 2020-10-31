@@ -110,16 +110,11 @@ class GameDB(object):
         self.__load()
 
     def __load(self):
-        if not os.path.exists(self.root_dir):
-            os.mkdir(self.root_dir)
-        if not os.path.exists(self.game_dir):
-            os.mkdir(self.game_dir)
-        if not os.path.exists(self.data_dir):
-            os.mkdir(self.data_dir)
-        if not os.path.exists(self.schools_dir):
-            os.mkdir(self.schools_dir)
-        if not os.path.exists(self.competitions_dir):
-            os.mkdir(self.competitions_dir)
+        os.makedirs(self.root_dir, exist_ok=True)
+        os.makedirs(self.game_dir, exist_ok=True)
+        os.makedirs(self.data_dir, exist_ok=True)
+        os.makedirs(self.schools_dir, exist_ok=True)
+        os.makedirs(self.competitions_dir, exist_ok=True)
 
     def __get_user_tokens(self):
         return os.listdir(self.data_dir)
@@ -218,8 +213,8 @@ class GameDB(object):
             pass
 
         # Create token dir
-        os.mkdir(os.path.join(self.data_dir, token))
-        os.mkdir(os.path.join(self.data_dir, token, "games"))
+        os.makedirs(os.path.join(self.data_dir, token))
+        os.makedirs(os.path.join(self.data_dir, token, "games"))
         return token
 
     def add_new_school(self, name="", _token=None):  # Don't use `_token` unless you know what you are doing.
@@ -227,8 +222,8 @@ class GameDB(object):
         if _token is None:
             token = self.__get_new_token(self.__get_school_tokens(), prefix="S")
 
-        os.mkdir(os.path.join(self.schools_dir, token))
-        os.mkdir(os.path.join(self.schools_dir, token, "tokens"))
+        os.makedirs(os.path.join(self.schools_dir, token))
+        os.makedirs(os.path.join(self.schools_dir, token, "tokens"))
 
         with io.open(os.path.join(self.schools_dir, token, "name"), "w", encoding="utf8") as fp:
             fp.write(text(name))
@@ -240,9 +235,9 @@ class GameDB(object):
         if token is None:
             token = self.__get_new_token(self.__get_comp_tokens(), prefix="P")
 
-        os.mkdir(os.path.join(self.competitions_dir, token))
-        os.mkdir(os.path.join(self.competitions_dir, token, "schools"))
-        os.mkdir(os.path.join(self.competitions_dir, token, "games"))
+        os.makedirs(os.path.join(self.competitions_dir, token))
+        os.makedirs(os.path.join(self.competitions_dir, token, "schools"))
+        os.makedirs(os.path.join(self.competitions_dir, token, "games"))
 
         with io.open(os.path.join(self.competitions_dir, token, "name"), "w", encoding="utf8") as fp:
             fp.write(text(name))
@@ -257,8 +252,8 @@ class GameDB(object):
 
         token = self.__get_new_token(self.__get_game_tokens(), prefix="G")
 
-        os.mkdir(os.path.join(self.game_dir, token))
-        os.mkdir(os.path.join(self.game_dir, token, "players"))
+        os.makedirs(os.path.join(self.game_dir, token))
+        os.makedirs(os.path.join(self.game_dir, token, "players"))
 
         if frames is not None:
             self.save_game_frames(token, frames)
@@ -281,7 +276,7 @@ class GameDB(object):
 
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         if not os.path.exists(school_dir):
-            os.mkdir(school_dir)
+            os.makedirs(school_dir)
 
     # TODO(derpferd): add function to remove a school
 
@@ -291,7 +286,7 @@ class GameDB(object):
 
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
         if not os.path.exists(school_dir):
-            os.mkdir(school_dir)
+            os.makedirs(school_dir)
 
         with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
             fp.write(text(code))
@@ -303,7 +298,7 @@ class GameDB(object):
     #
     #     school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
     #     if not os.path.exists(school_dir):
-    #         os.mkdir(school_dir)
+    #         os.makedirs(school_dir)
     #     with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
     #         code = self.get_code(utoken)
     #         assert code is not None
@@ -376,7 +371,7 @@ class GameDB(object):
         buf.seek(0)
         code_hash = hash_stream(buf)
         code_path_name = f"{ctime}_{code_hash}"
-        os.mkdir(os.path.join(code_dir, code_path_name))
+        os.makedirs(os.path.join(code_dir, code_path_name))
 
         # Write code
         with io.open(os.path.join(code_dir, code_path_name, self.CODE_FILENAME), "w", encoding="utf8") as fp:
@@ -444,10 +439,10 @@ class GameDB(object):
         assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
         assert self.is_user_token(token), "Token '{}' must be a user token".format(token)
         if not os.path.exists(self.__get_dir_for_token(token, "games")):
-            os.mkdir(self.__get_dir_for_token(token, "games"))
+            os.makedirs(self.__get_dir_for_token(token, "games"))
         assert os.path.exists(self.__get_dir_for_token(token, "games")), "Player token must have a games directory."
 
-        os.mkdir(self.__get_dir_for_token(gtoken, ["players", token]))
+        os.makedirs(self.__get_dir_for_token(gtoken, ["players", token]))
 
         write_json(data, self.__get_dir_for_token(gtoken, ["players", token, "data.mp.gz"]))
 
@@ -462,7 +457,7 @@ class GameDB(object):
         os.remove(self.__get_dir_for_token(ctoken, ["games", gtoken]))
 
     def replace_games_in_comp(self, ctoken, new_gtokens, cleanup=True):
-        os.mkdir(os.path.join(self.competitions_dir, ctoken, "new_games"))
+        os.makedirs(os.path.join(self.competitions_dir, ctoken, "new_games"))
         for gtoken in new_gtokens:
             with open(self.__get_dir_for_token(ctoken, ["new_games", gtoken]), "w"):
                 pass
