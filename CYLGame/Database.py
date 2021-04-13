@@ -275,8 +275,7 @@ class GameDB(object):
         assert self.is_school_token(stoken)
 
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
-        if not os.path.exists(school_dir):
-            os.makedirs(school_dir)
+        os.makedirs(school_dir, exist_ok=True)
 
     # TODO(derpferd): add function to remove a school
 
@@ -285,8 +284,7 @@ class GameDB(object):
         assert self.is_school_token(stoken)
 
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
-        if not os.path.exists(school_dir):
-            os.makedirs(school_dir)
+        os.makedirs(school_dir, exist_ok=True)
 
         with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
             fp.write(text(code))
@@ -359,11 +357,10 @@ class GameDB(object):
         """
         assert os.path.exists(self.__get_dir_for_token(token))
         code_dir = self.__get_dir_for_token(token, self.CODE_DIR)
-        if not os.path.exists(code_dir):
-            os.makedirs(code_dir, exist_ok=True)
+        os.makedirs(code_dir, exist_ok=True)
 
         # Create Code id.
-        ctime = int(time.time())
+        ctime = int(time.time_ns())
         buf = io.BytesIO()
         buf.write(bytes(code, encoding='utf8'))
         if options:
@@ -371,7 +368,10 @@ class GameDB(object):
         buf.seek(0)
         code_hash = hash_stream(buf)
         code_path_name = f"{ctime}_{code_hash}"
-        os.makedirs(os.path.join(code_dir, code_path_name))
+        try:
+            os.makedirs(os.path.join(code_dir, code_path_name))
+        except OSError:
+            raise ValueError("Duplicate Request!")
 
         # Write code
         with io.open(os.path.join(code_dir, code_path_name, self.CODE_FILENAME), "w", encoding="utf8") as fp:
@@ -438,8 +438,7 @@ class GameDB(object):
     def set_game_player(self, gtoken, token, data=None):
         assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
         assert self.is_user_token(token), "Token '{}' must be a user token".format(token)
-        if not os.path.exists(self.__get_dir_for_token(token, "games")):
-            os.makedirs(self.__get_dir_for_token(token, "games"))
+        os.makedirs(self.__get_dir_for_token(token, "games"), exist_ok=True)
         assert os.path.exists(self.__get_dir_for_token(token, "games")), "Player token must have a games directory."
 
         os.makedirs(self.__get_dir_for_token(gtoken, ["players", token]))
