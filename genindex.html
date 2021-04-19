@@ -59,6 +59,8 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="CYLGame.html#CYLGame.Database.GameDB.ACTIVE_CODE_KEY">ACTIVE_CODE_KEY (CYLGame.Database.GameDB attribute)</a>
+</li>
       <li><a href="CYLGame.html#CYLGame.Panels.Map.add">add() (CYLGame.Panels.Map method)</a>
 
       <ul>
@@ -131,6 +133,10 @@
 </li>
       <li><a href="CYLGame.html#CYLGame.Panels.MessagePanel.clear">clear() (CYLGame.Panels.MessagePanel method)</a>
 </li>
+      <li><a href="CYLGame.html#CYLGame.Database.GameDB.CODE_DIR">CODE_DIR (CYLGame.Database.GameDB attribute)</a>
+</li>
+      <li><a href="CYLGame.html#CYLGame.Database.GameDB.CODE_FILENAME">CODE_FILENAME (CYLGame.Database.GameDB attribute)</a>
+</li>
       <li><a href="CYLGame.html#CYLGame.SensorGame.SensorSanitizers.color_re">color_re (CYLGame.SensorGame.SensorSanitizers attribute)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.Server.GameServer.comp_scoreboards">comp_scoreboards() (CYLGame.Server.GameServer method)</a>
@@ -157,6 +163,8 @@
       </ul></li>
       <li><a href="CYLGame.html#CYLGame.Comp.create_room">create_room() (in module CYLGame.Comp)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     CYLGame
 
@@ -164,8 +172,6 @@
         <li><a href="CYLGame.html#module-CYLGame">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     CYLGame.Comp
 
@@ -356,6 +362,8 @@
 </li>
       <li><a href="CYLGame.html#CYLGame.Server.GameServer">GameServer (class in CYLGame.Server)</a>
 </li>
+      <li><a href="CYLGame.html#CYLGame.Database.GameDB.get_active_code_and_options">get_active_code_and_options() (CYLGame.Database.GameDB method)</a>
+</li>
       <li><a href="CYLGame.html#CYLGame.Database.GameDB.get_all_comp_tokens">get_all_comp_tokens() (CYLGame.Database.GameDB method)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.Database.GameDB.get_all_game_tokens">get_all_game_tokens() (CYLGame.Database.GameDB method)</a>
@@ -365,8 +373,6 @@
       <li><a href="CYLGame.html#CYLGame.Database.GameDB.get_avg_score">get_avg_score() (CYLGame.Database.GameDB method)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.Panels.Map.get_char_at">get_char_at() (CYLGame.Panels.Map method)</a>
-</li>
-      <li><a href="CYLGame.html#CYLGame.Database.GameDB.get_code_and_options">get_code_and_options() (CYLGame.Database.GameDB method)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.Database.GameDB.get_comp_avg_score">get_comp_avg_score() (CYLGame.Database.GameDB method)</a>
 </li>
@@ -482,8 +488,12 @@
         <li><a href="CYLGame.html#CYLGame.Panels.PanelPadding.has_side">(CYLGame.Panels.PanelPadding method)</a>
 </li>
       </ul></li>
+      <li><a href="CYLGame.html#CYLGame.Utils.hash_stream">hash_stream() (in module CYLGame.Utils)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="CYLGame.html#CYLGame.Utils.hash_string">hash_string() (in module CYLGame.Utils)</a>
+</li>
       <li><a href="CYLGame.html#CYLGame.Server.GameServer.host">host (CYLGame.Server.GameServer attribute)</a>
 </li>
       <li><a href="CYLGame.html#CYLGame.Game.PlayGameState.human_player">human_player (CYLGame.Game.PlayGameState attribute)</a>
@@ -631,14 +641,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="CYLGame.html#CYLGame.Utils.OnlineMean">OnlineMean (class in CYLGame.Utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="CYLGame.html#CYLGame.Game.Game.OPTIONS">OPTIONS (CYLGame.Game.Game attribute)</a>
 
       <ul>
         <li><a href="CYLGame.html#CYLGame.SensorGame.SensorGame.OPTIONS">(CYLGame.SensorGame.SensorGame attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="CYLGame.html#CYLGame.Database.GameDB.OPTIONS_FILENAME">OPTIONS_FILENAME (CYLGame.Database.GameDB attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -973,7 +985,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -63,7 +63,7 @@
     <span class="n">bots</span> <span class="o">=</span> <span class="p">[</span><span class="n">bot</span><span class="p">]</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">token</span> <span class="o">=</span> <span class="n">choice</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
-        <span class="n">code</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="n">gamedb</span><span class="o">.</span><span class="n">get_code_and_options</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="n">code</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="n">gamedb</span><span class="o">.</span><span class="n">get_active_code_and_options</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">prog</span> <span class="o">=</span> <span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
             <span class="n">prog</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
@@ -284,7 +284,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Making bot for &#39;&quot;</span> <span class="o">+</span> <span class="n">token</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
-            <span class="n">code</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="n">gamedb</span><span class="o">.</span><span class="n">get_code_and_options</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="n">code</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="n">gamedb</span><span class="o">.</span><span class="n">get_active_code_and_options</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">gamedb</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">code</span><span class="p">:</span>
                 <span class="k">return</span>
@@ -546,7 +546,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Making bot for &#39;&quot;</span> <span class="o">+</span> <span class="n">token</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
-            <span class="n">code</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_code_and_options</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="n">code</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_active_code_and_options</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
             <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">get_name</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">code</span><span class="p">:</span>
                 <span class="k">return</span>
@@ -660,7 +660,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
