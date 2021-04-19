@@ -8,6 +8,8 @@ from builtins import str as text
 
 import msgpack
 
+from CYLGame.Utils import hash_stream
+
 
 def write_json(o, filename):
     with gzip.open(filename, "w") as fp:
@@ -70,7 +72,33 @@ class WWWCache:
 
 # TODO(derpferd): Use the move function to prevent RACE on files
 class GameDB(object):
+    """
+    This is the database that stores all persisted data. This database is a file based DB.
+
+    /                           => Root game directory
+    /data                       => Should be named something like "users". This stores user related data.
+    /data/TOKEN                 => A directory containing data for the user with the token TOKEN.
+    /data/TOKEN/avg_score       => File containing a single float representing the average score for the user.
+    /data/TOKEN/name            => File containing the name for the user.
+    /data/TOKEN/code            => Directory containing all code submitted by the user.
+    /data/TOKEN/code/CTIME_HASH => The code submitted or played at CTIME.
+    /data/TOKEN/code/CTIME_HASH/code.lp
+    /data/TOKEN/code/CTIME_HASH/options.mp.gz
+    /data/TOKEN/games           => A directory related games.
+    /data/TOKEN/games/GTOKEN    => An empty file representing that the users bot was used in game GTOKEN.
+    /games                      => Stores game related data.
+    /schools                    => Stores school related data.
+    /competitions               => Stores competition related data.
+    /www                        => Stores static and template files for the server. This is a cache that is deleted and
+                                    recreated on each restart.
+    """
     TOKEN_LEN = 8
+
+    ACTIVE_CODE_KEY = "active_code"
+
+    CODE_DIR = "code"
+    CODE_FILENAME = "code.lp"
+    OPTIONS_FILENAME = "options.mp.gz"
 
     def __init__(self, root_dir):
         self.root_dir = os.path.abspath(root_dir)
@@ -82,16 +110,11 @@ class GameDB(object):
         self.__load()
 
     def __load(self):
-        if not os.path.exists(self.root_dir):
-            os.mkdir(self.root_dir)
-        if not os.path.exists(self.game_dir):
-            os.mkdir(self.game_dir)
-        if not os.path.exists(self.data_dir):
-            os.mkdir(self.data_dir)
-        if not os.path.exists(self.schools_dir):
-            os.mkdir(self.schools_dir)
-        if not os.path.exists(self.competitions_dir):
-            os.mkdir(self.competitions_dir)
+        os.makedirs(self.root_dir, exist_ok=True)
+        os.makedirs(self.game_dir, exist_ok=True)
+        os.makedirs(self.data_dir, exist_ok=True)
+        os.makedirs(self.schools_dir, exist_ok=True)
+        os.makedirs(self.competitions_dir, exist_ok=True)
 
     def __get_user_tokens(self):
         return os.listdir(self.data_dir)
@@ -190,8 +213,8 @@ class GameDB(object):
             pass
 
         # Create token dir
-        os.mkdir(os.path.join(self.data_dir, token))
-        os.mkdir(os.path.join(self.data_dir, token, "games"))
+        os.makedirs(os.path.join(self.data_dir, token))
+        os.makedirs(os.path.join(self.data_dir, token, "games"))
         return token
 
     def add_new_school(self, name="", _token=None):  # Don't use `_token` unless you know what you are doing.
@@ -199,8 +222,8 @@ class GameDB(object):
         if _token is None:
             token = self.__get_new_token(self.__get_school_tokens(), prefix="S")
 
-        os.mkdir(os.path.join(self.schools_dir, token))
-        os.mkdir(os.path.join(self.schools_dir, token, "tokens"))
+        os.makedirs(os.path.join(self.schools_dir, token))
+        os.makedirs(os.path.join(self.schools_dir, token, "tokens"))
 
         with io.open(os.path.join(self.schools_dir, token, "name"), "w", encoding="utf8") as fp:
             fp.write(text(name))
@@ -212,9 +235,9 @@ class GameDB(object):
         if token is None:
             token = self.__get_new_token(self.__get_comp_tokens(), prefix="P")
 
-        os.mkdir(os.path.join(self.competitions_dir, token))
-        os.mkdir(os.path.join(self.competitions_dir, token, "schools"))
-        os.mkdir(os.path.join(self.competitions_dir, token, "games"))
+        os.makedirs(os.path.join(self.competitions_dir, token))
+        os.makedirs(os.path.join(self.competitions_dir, token, "schools"))
+        os.makedirs(os.path.join(self.competitions_dir, token, "games"))
 
         with io.open(os.path.join(self.competitions_dir, token, "name"), "w", encoding="utf8") as fp:
             fp.write(text(name))
@@ -229,8 +252,8 @@ class GameDB(object):
 
         token = self.__get_new_token(self.__get_game_tokens(), prefix="G")
 
-        os.mkdir(os.path.join(self.game_dir, token))
-        os.mkdir(os.path.join(self.game_dir, token, "players"))
+        os.makedirs(os.path.join(self.game_dir, token))
+        os.makedirs(os.path.join(self.game_dir, token, "players"))
 
         if frames is not None:
             self.save_game_frames(token, frames)
@@ -252,8 +275,7 @@ class GameDB(object):
         assert self.is_school_token(stoken)
 
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
-        if not os.path.exists(school_dir):
-            os.mkdir(school_dir)
+        os.makedirs(school_dir, exist_ok=True)
 
     # TODO(derpferd): add function to remove a school
 
@@ -262,8 +284,7 @@ class GameDB(object):
         assert self.is_school_token(stoken)
 
         school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
-        if not os.path.exists(school_dir):
-            os.mkdir(school_dir)
+        os.makedirs(school_dir, exist_ok=True)
 
         with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
             fp.write(text(code))
@@ -275,7 +296,7 @@ class GameDB(object):
     #
     #     school_dir = self.__get_dir_for_token(ctoken, ["schools", stoken])
     #     if not os.path.exists(school_dir):
-    #         os.mkdir(school_dir)
+    #         os.makedirs(school_dir)
     #     with io.open(os.path.join(school_dir, "code.lp"), "w", encoding="utf8") as fp:
     #         code = self.get_code(utoken)
     #         assert code is not None
@@ -325,19 +346,42 @@ class GameDB(object):
         else:
             return None
 
-    def save_code(self, token, code, options=None):
+    def save_code(self, token, code, options=None, set_as_active=True):
         """Save a user's code under their token.
 
         Args:
             token (str): The user's token.
             code (str): The user's code.
             options (json-able object): The user's options.
+            set_as_active (bool): Whether to set the saved code as the active code for the token.
         """
         assert os.path.exists(self.__get_dir_for_token(token))
-        with io.open(self.__get_dir_for_token(token, "code.lp"), "w", encoding="utf8") as fp:
+        code_dir = self.__get_dir_for_token(token, self.CODE_DIR)
+        os.makedirs(code_dir, exist_ok=True)
+
+        # Create Code id.
+        ctime = int(time.time_ns())
+        buf = io.BytesIO()
+        buf.write(bytes(code, encoding='utf8'))
+        if options:
+            msgpack.dump(options, buf)
+        buf.seek(0)
+        code_hash = hash_stream(buf)
+        code_path_name = f"{ctime}_{code_hash}"
+        try:
+            os.makedirs(os.path.join(code_dir, code_path_name))
+        except OSError:
+            raise ValueError("Duplicate Request!")
+
+        # Write code
+        with io.open(os.path.join(code_dir, code_path_name, self.CODE_FILENAME), "w", encoding="utf8") as fp:
             fp.write(text(code))
         if options:
-            write_json(options, self.__get_dir_for_token(token, "options.mp.gz"))
+            write_json(options, os.path.join(code_dir, code_path_name, self.OPTIONS_FILENAME))
+
+        # Update code to be active if needed
+        if set_as_active:
+            self.save_value(token=token, key=self.ACTIVE_CODE_KEY, value=code_path_name)
 
     def save_name(self, token, name):
         """Save a user's name under their token.
@@ -394,11 +438,10 @@ class GameDB(object):
     def set_game_player(self, gtoken, token, data=None):
         assert os.path.exists(self.__get_dir_for_token(gtoken, "players"))
         assert self.is_user_token(token), "Token '{}' must be a user token".format(token)
-        if not os.path.exists(self.__get_dir_for_token(token, "games")):
-            os.mkdir(self.__get_dir_for_token(token, "games"))
+        os.makedirs(self.__get_dir_for_token(token, "games"), exist_ok=True)
         assert os.path.exists(self.__get_dir_for_token(token, "games")), "Player token must have a games directory."
 
-        os.mkdir(self.__get_dir_for_token(gtoken, ["players", token]))
+        os.makedirs(self.__get_dir_for_token(gtoken, ["players", token]))
 
         write_json(data, self.__get_dir_for_token(gtoken, ["players", token, "data.mp.gz"]))
 
@@ -413,7 +456,7 @@ class GameDB(object):
         os.remove(self.__get_dir_for_token(ctoken, ["games", gtoken]))
 
     def replace_games_in_comp(self, ctoken, new_gtokens, cleanup=True):
-        os.mkdir(os.path.join(self.competitions_dir, ctoken, "new_games"))
+        os.makedirs(os.path.join(self.competitions_dir, ctoken, "new_games"))
         for gtoken in new_gtokens:
             with open(self.__get_dir_for_token(ctoken, ["new_games", gtoken]), "w"):
                 pass
@@ -448,13 +491,25 @@ class GameDB(object):
             return self.__get_comp_game_tokens(token)
         raise ValueError("Invalid token")
 
-    def get_code_and_options(self, token):
+    def get_active_code_and_options(self, token):
         code, options = None, {}
-        if os.path.exists(self.__get_dir_for_token(token, "code.lp")):
-            with io.open(self.__get_dir_for_token(token, "code.lp"), "r", encoding="utf8") as fp:
+        code_hash = self.get_value(token=token, key=self.ACTIVE_CODE_KEY)
+        should_save_code = False
+        if code_hash:
+            base_path = self.__get_dir_for_token(token, [self.CODE_DIR, code_hash])
+        else:
+            base_path = self.__get_dir_for_token(token)
+            should_save_code = True  # The code is stored in an older style. Upgrade it to the new style.
+
+        code_path = os.path.join(base_path, self.CODE_FILENAME)
+        options_path = os.path.join(base_path, self.OPTIONS_FILENAME)
+        if os.path.exists(code_path):
+            with io.open(code_path, "r", encoding="utf8") as fp:
                 code = fp.read()
-        if os.path.exists(self.__get_dir_for_token(token, "options.mp.gz")):
-            options = read_json(self.__get_dir_for_token(token, "options.mp.gz"))
+        if os.path.exists(options_path):
+            options = read_json(options_path)
+        if should_save_code and (code or options):
+            self.save_code(token, code, options)
         return code, options
 
     def get_name(self, token):

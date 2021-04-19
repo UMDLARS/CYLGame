@@ -215,6 +215,7 @@ class GameServer(flask_classful.FlaskView):
     def sim(self):
         code = flask.request.get_json(silent=True).get('code', '')
         seed_str = flask.request.get_json(silent=True).get('seed', '')
+        token = flask.request.get_json(silent=True).get('token', '').upper()
         opponents = flask.request.get_json(silent=True).get('opponents', None)
         options = flask.request.get_json(silent=True).get('options', None)
         if options is None:
@@ -232,6 +233,8 @@ class GameServer(flask_classful.FlaskView):
             prog.name = "Your bot"
         except:
             return flask.jsonify(error="Code did not compile")
+        if self.gamedb.is_user_token(token):
+            self.gamedb.save_code(token=token, code=code, options=options, set_as_active=False)
         room = Room(bots=[prog], seed=seed)
         if self.game.MULTIPLAYER:
             players = []
@@ -275,7 +278,7 @@ class GameServer(flask_classful.FlaskView):
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         else:
-            code, options = self.gamedb.get_code_and_options(token)
+            code, options = self.gamedb.get_active_code_and_options(token)
             return flask.jsonify(code=code, options=options)
 
     @flask_classful.route('/play', methods=['POST'])
