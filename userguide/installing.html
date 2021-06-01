@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Installing (and Playing) a Game &#8212; CYLGame  documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
@@ -32,38 +33,38 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="installing-and-playing-a-game">
+  <section id="installing-and-playing-a-game">
 <h1>Installing (and Playing) a Game<a class="headerlink" href="#installing-and-playing-a-game" title="Permalink to this headline">¶</a></h1>
 <p>This document explains how to install and play a generic CYLGame game on
 a clean install of Ubuntu Linux. We will use the basic ‘Applehunt’ game,
 but if you wish to install a different CYLGame modules, replace the git
 repository and directories described in this document with the
 appropriate values.</p>
-<div class="section" id="getting-started">
+<section id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="install-git">
+<section id="install-git">
 <h3>Install <code class="docutils literal notranslate"><span class="pre">git</span></code><a class="headerlink" href="#install-git" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">git</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="install-pyenv">
+</section>
+<section id="install-pyenv">
 <h3>Install <code class="docutils literal notranslate"><span class="pre">pyenv</span></code><a class="headerlink" href="#install-pyenv" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>curl https://pyenv.run | bash  # Don&#39;t forget to follow the instructions to add commands to your rc file.
 exec $SHELL
 pyenv update
 </pre></div>
 </div>
-</div>
-<div class="section" id="install-python-build-dependencies">
+</section>
+<section id="install-python-build-dependencies">
 <h3>Install Python Build dependencies<a class="headerlink" href="#install-python-build-dependencies" title="Permalink to this headline">¶</a></h3>
 <p>Go to <a class="reference external" href="https://github.com/pyenv/pyenv/wiki#suggested-build-environment">https://github.com/pyenv/pyenv/wiki#suggested-build-environment</a> and find
 the commands to install the needed dependencies. For Ubuntu this is the following command.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span><span class="p">;</span> <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">install</span><span class="o">-</span><span class="n">recommends</span> <span class="n">make</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">libssl</span><span class="o">-</span><span class="n">dev</span> <span class="n">zlib1g</span><span class="o">-</span><span class="n">dev</span> <span class="n">libbz2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libreadline</span><span class="o">-</span><span class="n">dev</span> <span class="n">libsqlite3</span><span class="o">-</span><span class="n">dev</span> <span class="n">wget</span> <span class="n">curl</span> <span class="n">llvm</span> <span class="n">libncurses5</span><span class="o">-</span><span class="n">dev</span> <span class="n">xz</span><span class="o">-</span><span class="n">utils</span> <span class="n">tk</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxml2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxmlsec1</span><span class="o">-</span><span class="n">dev</span> <span class="n">libffi</span><span class="o">-</span><span class="n">dev</span> <span class="n">liblzma</span><span class="o">-</span><span class="n">dev</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="install-python">
+</section>
+<section id="install-python">
 <h3>Install Python<a class="headerlink" href="#install-python" title="Permalink to this headline">¶</a></h3>
 <p>First you should figure out which version of python you need. (It is fine if
 you don’t want to figure this out, just skip to the below commands and use
@@ -78,8 +79,8 @@ pipenv will ask to do it for you).</p>
 <span class="n">pyenv</span> <span class="n">install</span> <span class="n">X</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">Z</span>  <span class="c1"># where X.Y are the &quot;major.minor&quot; version require and Z is the latest mirco version.</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="install-pipenv">
+</section>
+<section id="install-pipenv">
 <h3>Install <code class="docutils literal notranslate"><span class="pre">pipenv</span></code><a class="headerlink" href="#install-pipenv" title="Permalink to this headline">¶</a></h3>
 <p>This step you only have to do with first version you install.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>pyenv global X.Y.Z  # you only need to do this once
@@ -88,8 +89,8 @@ python3 -m pip install pipenv
 exec $SHELL
 </pre></div>
 </div>
-</div>
-<div class="section" id="clone-the-game-repository-insert-your-game-here">
+</section>
+<section id="clone-the-game-repository-insert-your-game-here">
 <h3>Clone the game repository (insert your game here)<a class="headerlink" href="#clone-the-game-repository-insert-your-game-here" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">UMDLARS</span><span class="o">/</span><span class="n">applehunt</span><span class="o">.</span><span class="n">git</span>     <span class="c1"># or a different game of your choice</span>
 <span class="n">cd</span> <span class="n">applehunt</span>                                           <span class="c1"># or the directory created in the previous line</span>
@@ -104,8 +105,8 @@ followed by <code class="docutils literal notranslate"><span class="pre">Would</
 <span class="pre">[Y/n]:</span></code>. Answer <code class="docutils literal notranslate"><span class="pre">y</span></code> otherwise you will need to manually install the
 correct python version.</p>
 </div>
-</div>
-<div class="section" id="running-a-game-server-on-localhost">
+</section>
+<section id="running-a-game-server-on-localhost">
 <h3>Running a Game Server on Localhost<a class="headerlink" href="#running-a-game-server-on-localhost" title="Permalink to this headline">¶</a></h3>
 <p>From within the directory of the game in question (e.g., <code class="docutils literal notranslate"><span class="pre">applehunt</span></code>),
 run:</p>
@@ -126,8 +127,8 @@ port for the game server, use:</p>
 </div>
 <p>If you have any questions feel free to contact the devteam at
 <a class="reference external" href="mailto:umdcyl-dev&#37;&#52;&#48;d&#46;umn&#46;edu">umdcyl-dev<span>&#64;</span>d<span>&#46;</span>umn<span>&#46;</span>edu</a></p>
-</div>
-<div class="section" id="playing-the-game-on-screen">
+</section>
+<section id="playing-the-game-on-screen">
 <h3>Playing the Game On Screen<a class="headerlink" href="#playing-the-game-on-screen" title="Permalink to this headline">¶</a></h3>
 <p>If you’re developing or testing the game, you may want to play the game
 on your own monitor (rather than through the web interface). To do this,
@@ -140,9 +141,9 @@ $ pipenv install --dev
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pipenv run python game.py play
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -209,7 +210,7 @@ $ pipenv install --dev
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
