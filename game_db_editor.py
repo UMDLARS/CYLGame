@@ -160,6 +160,21 @@ def list_tokens():
     pause()
 
 
+def view_exceptions():
+    global gamedb
+    clear()
+
+    options = []
+    for token in gamedb.get_exception_tokens():
+        options.append((token, token))
+    selection = print_menu(options, "Select Exception")
+    clear()
+    if selection:
+        print(gamedb.get_exception(selection))
+
+    pause()
+
+
 def get_main_menu_options():
     global cur_school
     options = ["Add New School", "Select School", "Add New Competition", "Select Competition"]
@@ -168,6 +183,7 @@ def get_main_menu_options():
     if cur_comp is not None:
         # TODO(derpferd): implement
         options += ["Add School to Competition", "List Schools in Competition"]
+    options.append("View Exceptions")
     return options + ["Quit"]
 
 
@@ -214,6 +230,8 @@ def main():
             get_new_tokens()
         elif option == "List current Tokens":
             list_tokens()
+        elif option == "View Exceptions":
+            view_exceptions()
 
 
 if __name__ == '__main__':
