@@ -13,6 +13,7 @@ import shutil
 import traceback
 import flask_classful
 from cachetools import LRUCache
+from datetime import datetime
 from flask import escape, has_request_context
 from flask_request_id_header.middleware import RequestID
 
@@ -385,6 +386,17 @@ class GameServer(flask_classful.FlaskView):
         RequestID(cls.app)
         cls.register(cls.app)
         cls.__load_language()
+
+        @cls.app.errorhandler(500)
+        def page_not_found(error):
+            exception_str = "".join(traceback.TracebackException.from_exception(error.original_exception).format())
+            token = cls.gamedb.save_exception({
+                'exception': exception_str,
+                'url': flask.request.base_url,
+                'request': flask.request.get_json(silent=True),
+                'timestamp': datetime.utcnow().timestamp()
+            })
+            return f"Internal Server Exception. Exception Report {token}", 500
 
         print("Starting server at {}:{}".format(cls.host, cls.port))
 

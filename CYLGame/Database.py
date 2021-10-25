@@ -106,6 +106,7 @@ class GameDB(object):
         self.game_dir = os.path.join(self.root_dir, "games")
         self.schools_dir = os.path.join(self.root_dir, "schools")
         self.competitions_dir = os.path.join(self.root_dir, "competitions")
+        self.exception_dir = os.path.join(self.root_dir, "exceptions")
         self.www_cache = WWWCache(os.path.join(self.root_dir, "www"))
         self.__load()
 
@@ -115,6 +116,7 @@ class GameDB(object):
         os.makedirs(self.data_dir, exist_ok=True)
         os.makedirs(self.schools_dir, exist_ok=True)
         os.makedirs(self.competitions_dir, exist_ok=True)
+        os.makedirs(self.exception_dir, exist_ok=True)
 
     def __get_user_tokens(self):
         return os.listdir(self.data_dir)
@@ -127,6 +129,9 @@ class GameDB(object):
 
     def __get_comp_tokens(self):
         return os.listdir(self.competitions_dir)
+
+    def __get_exception_tokens(self):
+        return os.listdir(self.exception_dir)
 
     def __get_school_user_tokens(self, school_tk):
         if self.is_school_token(school_tk):
@@ -155,13 +160,15 @@ class GameDB(object):
             token = new_token()
         return token
 
-    def __get_dir_for_token(self, token, fns=[]):
+    def __get_dir_for_token(self, token, fns=None):
         """Get the file path for a given token and optionally an additional path after the token dir.
 
         Args:
             token (str): The user's token.
             fns (str or list): The file or files to add after the token directory.
         """
+        if fns is None:
+            fns = list()
         if isinstance(fns, str):
             fns = [fns]
         else:
@@ -174,6 +181,8 @@ class GameDB(object):
             return os.path.join(self.schools_dir, token, *fns)
         elif self.is_comp_token(token):
             return os.path.join(self.competitions_dir, token, *fns)
+        elif self.is_exception_token(token):
+            return os.path.join(self.exception_dir, token, *fns)
         return None
 
     def __get_cur_code_for_token(self, token):
@@ -200,6 +209,11 @@ class GameDB(object):
     def is_game_token(self, gtoken):
         gtks = self.__get_game_tokens()
         return gtoken in gtks
+
+    def is_exception_token(self, token):
+        if len(token) > 0 and token[0] == "E":
+            return token in self.__get_exception_tokens()
+        return False
 
     def get_new_token(self, school_tk, _token=None):  # Don't use `_token` unless you know what you are doing.
         # Is name needed?
@@ -554,6 +568,9 @@ class GameDB(object):
     def get_all_comp_tokens(self):
         return self.__get_comp_tokens()
 
+    def get_exception_tokens(self):
+        return self.__get_exception_tokens()
+
     def delete_game(self, gtoken):
         # TODO: add a test for this method
         assert self.is_game_token(gtoken)
@@ -562,3 +579,20 @@ class GameDB(object):
         if gtoken in self.get_games_for_token("P00000000"):  # TODO: remove game from all comps where it is used.
             self.remove_game_from_comp("P00000000", gtoken)
         shutil.rmtree(self.__get_dir_for_token(gtoken))
+
+    def save_exception(self, exception_report):
+        token = self.__get_new_token(self.__get_exception_tokens(), prefix="E")
+
+        os.makedirs(os.path.join(self.exception_dir, token))
+
+        p = self.__get_dir_for_token(token, "report.mp.gz")
+        write_json(exception_report, p)
+
+        return token
+
+    def get_exception(self, token):
+        assert self.is_exception_token(token)
+        self.__get_dir_for_token(token)
+
+        if os.path.exists(self.__get_dir_for_token(token, "report.mp.gz")):
+            return read_json(self.__get_dir_for_token(token, "report.mp.gz"))
