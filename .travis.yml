@@ -1,8 +1,7 @@
 language: python
 
-dist: xenial
+dist: focal
 python:
-  - "3.6"
   - "3.7"
   - "3.8"
   - "3.9"
@@ -11,8 +10,11 @@ install:
   - pip install -e .
   - pip install pytest-cov
   - pip install codecov
+  - pip install mypy
+  - mypy --install-types --non-interactive CYLGame
 
 script:
+  - mypy --config-file pyproject.toml CYLGame
   - python setup.py test
   - py.test --cov=CYLGame
   - pip install sphinx; cd docs; make html; touch _build/html/.nojekyll; cd ..
