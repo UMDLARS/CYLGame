@@ -308,6 +308,16 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Database.GameDB.get_exception">
+<span class="sig-name descname"><span class="pre">get_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Database.html#GameDB.get_exception"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Database.GameDB.get_exception" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Database.GameDB.get_exception_tokens">
+<span class="sig-name descname"><span class="pre">get_exception_tokens</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Database.html#GameDB.get_exception_tokens"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Database.GameDB.get_exception_tokens" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Database.GameDB.get_game_frames">
 <span class="sig-name descname"><span class="pre">get_game_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gtoken</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Database.html#GameDB.get_game_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Database.GameDB.get_game_frames" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -368,6 +378,11 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Database.GameDB.is_exception_token">
+<span class="sig-name descname"><span class="pre">is_exception_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Database.html#GameDB.is_exception_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Database.GameDB.is_exception_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Database.GameDB.is_game_token">
 <span class="sig-name descname"><span class="pre">is_game_token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gtoken</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Database.html#GameDB.is_game_token"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Database.GameDB.is_game_token" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -421,6 +436,11 @@
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Database.GameDB.save_exception">
+<span class="sig-name descname"><span class="pre">save_exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exception_report</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Database.html#GameDB.save_exception"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Database.GameDB.save_exception" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Database.GameDB.save_game_frames">
@@ -756,12 +776,12 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Game.GameRunner.init_game">
-<span class="sig-name descname"><span class="pre">init_game</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#CYLGame.Game.PlayGameState" title="CYLGame.Game.PlayGameState"><span class="pre">CYLGame.Game.PlayGameState</span></a><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.init_game"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.init_game" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">init_game</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#CYLGame.Game.PlayGameState" title="CYLGame.Game.PlayGameState"><span class="pre">CYLGame.Game.PlayGameState</span></a></span></span><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.init_game"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.init_game" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Game.GameRunner.move_game">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">move_game</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#CYLGame.Game.PlayGameState" title="CYLGame.Game.PlayGameState"><span class="pre">CYLGame.Game.PlayGameState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">move</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#CYLGame.Game.PlayGameState" title="CYLGame.Game.PlayGameState"><span class="pre">CYLGame.Game.PlayGameState</span></a><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.move_game"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.move_game" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">move_game</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#CYLGame.Game.PlayGameState" title="CYLGame.Game.PlayGameState"><span class="pre">CYLGame.Game.PlayGameState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">move</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#CYLGame.Game.PlayGameState" title="CYLGame.Game.PlayGameState"><span class="pre">CYLGame.Game.PlayGameState</span></a></span></span><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner.move_game"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.GameRunner.move_game" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1573,7 +1593,7 @@ of the x and y coord.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="CYLGame.Server.GameServer.play_game_cache">
-<span class="sig-name descname"><span class="pre">play_game_cache</span></span><em class="property"><span class="pre">:</span> <span class="pre">cachetools.lru.LRUCache</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#CYLGame.Server.GameServer.play_game_cache" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">play_game_cache</span></span><em class="property"><span class="pre">:</span> <span class="pre">cachetools.LRUCache</span></em><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#CYLGame.Server.GameServer.play_game_cache" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1723,7 +1743,7 @@ of the x and y coord.</p>
 <li class="toctree-l1"><a class="reference internal" href="userguide/pipeline.html">CYLGame pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="userguide/release.html">Releasing a Build</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Source Docs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Source Docs:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">CYLGame</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">CYLGame package</a></li>
@@ -1745,7 +1765,7 @@ of the x and y coord.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1767,7 +1787,7 @@ of the x and y coord.</p>
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -46,6 +46,7 @@
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">flask_classful</span>
 <span class="kn">from</span> <span class="nn">cachetools</span> <span class="kn">import</span> <span class="n">LRUCache</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">escape</span><span class="p">,</span> <span class="n">has_request_context</span>
 <span class="kn">from</span> <span class="nn">flask_request_id_header.middleware</span> <span class="kn">import</span> <span class="n">RequestID</span>
 
@@ -419,6 +420,17 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">app</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">__load_language</span><span class="p">()</span>
 
+        <span class="nd">@cls</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">page_not_found</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+            <span class="n">exception_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">TracebackException</span><span class="o">.</span><span class="n">from_exception</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">original_exception</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">())</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">save_exception</span><span class="p">({</span>
+                <span class="s1">&#39;exception&#39;</span><span class="p">:</span> <span class="n">exception_str</span><span class="p">,</span>
+                <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">base_url</span><span class="p">,</span>
+                <span class="s1">&#39;request&#39;</span><span class="p">:</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span>
+            <span class="p">})</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Internal Server Exception. Exception Report </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">500</span>
+
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting server at </span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span> <span class="ow">and</span> <span class="n">multiplayer_scoring_interval</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -481,7 +493,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../userguide/pipeline.html">CYLGame pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../userguide/release.html">Releasing a Build</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Source Docs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Source Docs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../modules.html">CYLGame</a></li>
 </ul>
@@ -499,7 +511,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -521,7 +533,7 @@
       &copy;2019, UMD LARS Lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
