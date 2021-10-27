@@ -56,7 +56,7 @@ class GameServer(flask_classful.FlaskView):
     _avg_game_func = None
     charset = None
     gamedb = None
-    play_game_cache: LRUCache = None
+    play_game_cache: LRUCache
     # log: Logger = None
     route_base = '/'
 

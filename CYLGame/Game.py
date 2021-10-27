@@ -46,8 +46,11 @@ class Game(object):
     SCREEN_WIDTH = 0
     SCREEN_HEIGHT = 0
     GAME_TITLE = ""
-    OPTIONS = None
+    OPTIONS: Optional[str] = None
     MULTIPLAYER = False  # TODO: document
+
+    def __init__(self, random):
+        self.random = random
 
     def is_running(self):
         """This is how the game runner knows if the game is over.
@@ -379,7 +382,7 @@ class GameRunner(object):
                 display.update(frame_buffer)
                 frame_updated = False
 
-    def init_game(self, seed: Optional[int]=None) -> PlayGameState:
+    def init_game(self, seed: int) -> PlayGameState:
         game = self.game_class(random.Random(seed))
 
         game.init_board()
