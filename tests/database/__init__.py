@@ -1,11 +1,13 @@
 import pytest
+
 from CYLGame.Database import GameDB
 
 
 @pytest.fixture
 def temp_dir():
-    import tempfile
     import shutil
+    import tempfile
+
     dir_name = tempfile.mkdtemp()
     yield dir_name
     shutil.rmtree(dir_name)

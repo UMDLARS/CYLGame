@@ -1,10 +1,11 @@
 #!/usr/bin/python
 import sys
+
 from apple_game import AppleFinder
 from littlepython import Compiler
-from CYLGame.Database import GameDB
-from CYLGame.Comp import sim_competition
 
+from CYLGame.Comp import sim_competition
+from CYLGame.Database import GameDB
 
 assert len(sys.argv) >= 2
 

@@ -10,7 +10,7 @@ class FrameBuffer(object):
 
 
 class GridFrameBuffer(FrameBuffer):
-    def __init__(self, width, height, charset=None, init_value='\x00'):
+    def __init__(self, width, height, charset=None, init_value="\x00"):
         """
         Args:
             width(int):
@@ -25,7 +25,7 @@ class GridFrameBuffer(FrameBuffer):
         self.charset = charset
         self.arr = []
         for i in range(height):
-            self.arr += [[ord(init_value)]*width]
+            self.arr += [[ord(init_value)] * width]
 
     @classmethod
     def from_string_array(cls, frame):

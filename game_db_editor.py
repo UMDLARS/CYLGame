@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
+from typing import List, Optional, Tuple
+
 import os
 import sys
-from typing import Optional, List, Tuple
+from builtins import input
 
 from click import Choice, prompt
+
 from CYLGame.Database import GameDB
-from builtins import input
 
 gamedb: Optional[GameDB] = None
 cur_school: Optional[str] = None
@@ -37,16 +39,16 @@ def print_menu(options: List[Tuple], title: str, enable_no_selection=True) -> Op
     if enable_no_selection:
         print("0: Return without selecting an option")
     for index, (option, value) in enumerate(options):
-        print(str(index+1)+":", option)
+        print(str(index + 1) + ":", option)
     start_index = 0 if enable_no_selection else 1
-    choices = Choice(list(map(str, range(start_index, len(options)+1))))
+    choices = Choice(list(map(str, range(start_index, len(options) + 1))))
     choice = prompt("Select an item", type=choices)
 
-    if choice == '0':
+    if choice == "0":
         print("Selecting None")
         return None
     print(options)
-    return options[int(choice)-1][1]
+    return options[int(choice) - 1][1]
 
 
 def clear_selection():
@@ -191,9 +193,9 @@ def get_main_menu_title():
     global gamedb, cur_school, cur_comp
     title = "Main Menu"
     if cur_school is not None:
-        title += "\n\nSelected School: "+gamedb.get_name(cur_school)+" ("+cur_school+")"
+        title += "\n\nSelected School: " + gamedb.get_name(cur_school) + " (" + cur_school + ")"
     if cur_comp is not None:
-        title += "\n\nSelected Competition: "+gamedb.get_name(cur_comp)+" ("+cur_comp+")"
+        title += "\n\nSelected Competition: " + gamedb.get_name(cur_comp) + " (" + cur_comp + ")"
     return title
 
 
@@ -206,7 +208,13 @@ def main():
         game_path = os.path.abspath(sys.argv[1])
         print("You choose", game_path, "as a game path.")
     else:
-        game_path = os.path.abspath(get_input("Your current dir is '"+os.path.abspath(os.curdir)+"'\nEnter path to game dir: ", lambda x: os.path.exists(x), error_msg="Invalid Game Directory. Try Again."))
+        game_path = os.path.abspath(
+            get_input(
+                "Your current dir is '" + os.path.abspath(os.curdir) + "'\nEnter path to game dir: ",
+                lambda x: os.path.exists(x),
+                error_msg="Invalid Game Directory. Try Again.",
+            )
+        )
     gamedb = GameDB(game_path)
     option = ""
     while option != "Quit":
@@ -234,5 +242,5 @@ def main():
             view_exceptions()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

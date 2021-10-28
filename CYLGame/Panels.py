@@ -5,7 +5,7 @@ from functools import reduce
 
 from CYLGame.Utils import deprecated
 
-DEFAULT_CHAR = ' '
+DEFAULT_CHAR = " "
 
 
 def is_char(c):
@@ -188,16 +188,32 @@ class PanelBorder(object):
     RIGHT = 2
     LEFT = 4
     BOTTOM = 8
-    DEFAULT_CHARS = {TOP: chr(196), BOTTOM: chr(196), RIGHT: chr(179), LEFT: chr(179),
-                     TOP | RIGHT: chr(191), TOP | LEFT: chr(218), BOTTOM | RIGHT: chr(217), BOTTOM | LEFT: chr(192)}
+    DEFAULT_CHARS = {
+        TOP: chr(196),
+        BOTTOM: chr(196),
+        RIGHT: chr(179),
+        LEFT: chr(179),
+        TOP | RIGHT: chr(191),
+        TOP | LEFT: chr(218),
+        BOTTOM | RIGHT: chr(217),
+        BOTTOM | LEFT: chr(192),
+    }
 
     def __init__(self, sides=0, char=None):
         self.sides = sides
         self.style = {self.sides: char}
 
     @staticmethod
-    def create(top=False, bottom=False, right=False, left=False, top_right=False, top_left=False, bottom_right=False,
-               bottom_left=False):
+    def create(
+        top=False,
+        bottom=False,
+        right=False,
+        left=False,
+        top_right=False,
+        top_left=False,
+        bottom_right=False,
+        bottom_left=False,
+    ):
         """
         Use this method for an easy way to create nice borders. Set any side to true to create a border with the default
         characters. You can also set any side to a character which will create a border with that character instead.
@@ -321,26 +337,31 @@ class Panel(Map):
                     frame_buffer.set(self.real_x, self.real_y + i, self.border[PanelBorder.LEFT])
             if PanelBorder.BOTTOM in self.border:
                 for i in range(self.real_w):
-                    frame_buffer.set(self.real_x + i, self.real_y + self.real_h - 1,
-                                     self.border[PanelBorder.BOTTOM])
+                    frame_buffer.set(self.real_x + i, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM])
             if PanelBorder.RIGHT in self.border:
                 for i in range(self.real_h):
-                    frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + i,
-                                     self.border[PanelBorder.RIGHT])
+                    frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + i, self.border[PanelBorder.RIGHT])
             if PanelBorder.TOP in self.border and PanelBorder.LEFT in self.border:
                 frame_buffer.set(self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT])
             if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
-                frame_buffer.set(self.real_x, self.real_y + self.real_h - 1,
-                                 self.border[PanelBorder.BOTTOM | PanelBorder.LEFT])
+                frame_buffer.set(
+                    self.real_x, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM | PanelBorder.LEFT]
+                )
             if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
-                frame_buffer.set(self.real_x + self.real_w - 1, self.real_y,
-                                 self.border[PanelBorder.TOP | PanelBorder.RIGHT])
+                frame_buffer.set(
+                    self.real_x + self.real_w - 1, self.real_y, self.border[PanelBorder.TOP | PanelBorder.RIGHT]
+                )
             if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
-                frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + self.real_h - 1,
-                                 self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT])
+                frame_buffer.set(
+                    self.real_x + self.real_w - 1,
+                    self.real_y + self.real_h - 1,
+                    self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
+                )
         except IndexError:
-            raise IndexError("Out of bounds while drawing border. This is normally caused by the forgetting that the"
-                             "x,y adn width, height of a Panel doesn't include the border.")
+            raise IndexError(
+                "Out of bounds while drawing border. This is normally caused by the forgetting that the"
+                "x,y adn width, height of a Panel doesn't include the border."
+            )
 
 
 class MapPanel(Panel):
@@ -382,32 +403,34 @@ class MapPanel(Panel):
 
 
 class MessagePanel(Panel):
-    """ This panel contains messages to be displayed to the user. It acts as a scrolling text log.
-        This means that the first message is display on the first line and some on till you have
-        enough messages to fill the height. Then the next message added will push all the other
-        messages up and the first message will be discarded.
+    """This panel contains messages to be displayed to the user. It acts as a scrolling text log.
+    This means that the first message is display on the first line and some on till you have
+    enough messages to fill the height. Then the next message added will push all the other
+    messages up and the first message will be discarded.
 
-        Example:
-            A MessagePanel with height of 3. Add messages "A", "B" and "C". It will display like the following:
-                A
-                B
-                C
-            Add message "D" and it will display like the following:
-                B
-                C
-                D
+    Example:
+        A MessagePanel with height of 3. Add messages "A", "B" and "C". It will display like the following:
+            A
+            B
+            C
+        Add message "D" and it will display like the following:
+            B
+            C
+            D
 
-        Note:
-            The following is deprecated:
-            >>> m = MessagePanel()
-            >>> m += ["Hi"]
-            You should do this instead:
-            >>> m = MessagePanel()
-            >>> m.add("Hi")
+    Note:
+        The following is deprecated:
+        >>> m = MessagePanel()
+        >>> m += ["Hi"]
+        You should do this instead:
+        >>> m = MessagePanel()
+        >>> m.add("Hi")
 
     """
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(),
-                 padding=PanelPadding.create(*[1] * 4)):
+
+    def __init__(
+        self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding.create(*[1] * 4)
+    ):
         super(MessagePanel, self).__init__(x, y, w, h, default_char, border, padding)
         self.msgs = []
         self.rows = self.h
@@ -438,7 +461,7 @@ class MessagePanel(Panel):
         return item in self.msgs
 
     def add(self, messages):
-        assert isinstance(messages, str) or hasattr(messages, '__iter__')
+        assert isinstance(messages, str) or hasattr(messages, "__iter__")
         if isinstance(messages, str):
             messages = [messages]
         for message in messages:
@@ -448,7 +471,7 @@ class MessagePanel(Panel):
         self.msgs = []
 
     def get_current_messages(self):
-        return self.msgs[-self.rows:]
+        return self.msgs[-self.rows :]
 
     def redraw(self, frame_buffer):
         super(MessagePanel, self).redraw(frame_buffer)
@@ -470,8 +493,9 @@ class MessagePanel(Panel):
 
 
 class StatusPanel(MessagePanel):
-    def __init__(self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(),
-                 padding=PanelPadding().create(*[1] * 4)):
+    def __init__(
+        self, x, y, w, h, default_char=DEFAULT_CHAR, border=PanelBorder(), padding=PanelPadding().create(*[1] * 4)
+    ):
         super(StatusPanel, self).__init__(x, y, w, h, default_char, border, padding)
         self.info = {}
 

@@ -1,11 +1,11 @@
 from __future__ import division
 
+import functools
 import hashlib
 import io
 import math
 import string
 import warnings
-import functools
 
 from Crypto.Cipher import AES
 
@@ -51,11 +51,13 @@ class OnlineMean:
 
 
 def choose(n, k):
-    return math.factorial(n)/(math.factorial(k)*math.factorial(n-k))
+    return math.factorial(n) / (math.factorial(k) * math.factorial(n - k))
 
 
 # From: http://stackoverflow.com/a/2267446/4441526
 digs = string.digits + string.ascii_lowercase
+
+
 def int2base(x, base):
     """This function converts an int to a str using a specific base.
 
@@ -63,7 +65,7 @@ def int2base(x, base):
           convert ints to base 2, 8, 16 it is better to use bin, oct, hex method respectively.
     """
     if len(digs) < base or base < 2:
-        raise ValueError(f'int2base only supports bases between {2} and {len(digs)}')
+        raise ValueError(f"int2base only supports bases between {2} and {len(digs)}")
     if x < 0:
         sign = -1
     elif x == 0:
@@ -79,11 +81,11 @@ def int2base(x, base):
         x //= base
 
     if sign < 0:
-        digits.append('-')
+        digits.append("-")
 
     digits.reverse()
 
-    return ''.join(digits)
+    return "".join(digits)
 
 
 def encrypt_token_list(tokens, key):
@@ -110,19 +112,24 @@ def deprecated(message=""):
         """This is a decorator which can be used to mark functions
         as deprecated. It will result in a warning being emitted
         when the function is used."""
+
         @functools.wraps(func)
         def new_func(*args, **kwargs):
-            warnings.simplefilter('always', DeprecationWarning)  # turn off filter
-            warnings.warn("{} is a deprecated function. {}".format(func.__name__, message),
-                          category=DeprecationWarning,
-                          stacklevel=2)
-            warnings.simplefilter('default', DeprecationWarning)  # reset filter
+            warnings.simplefilter("always", DeprecationWarning)  # turn off filter
+            warnings.warn(
+                "{} is a deprecated function. {}".format(func.__name__, message),
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+            warnings.simplefilter("default", DeprecationWarning)  # reset filter
             return func(*args, **kwargs)
+
         return new_func
+
     return deprecated_decorator
 
 
-def hash_string(s, encoding='utf8'):
+def hash_string(s, encoding="utf8"):
     buf = io.BytesIO()
     buf.write(bytes(s, encoding=encoding))
     buf.seek(0)

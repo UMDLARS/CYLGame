@@ -43,6 +43,7 @@ class PyGameDisplay(Display):
             # Init pygame
             global pygame
             import pygame
+
             pygame.init()
             PYGAME_SCREEN = pygame.display.set_mode((self.width, self.height))
             if self.title:
@@ -79,8 +80,12 @@ class CharSet(object):
         row = char % 16
         col = char // 16
 
-        crop_dim = (row * self.char_width, col * self.char_height,
-                    (row+1) *self.char_width, (col+1) * self.char_height)
+        crop_dim = (
+            row * self.char_width,
+            col * self.char_height,
+            (row + 1) * self.char_width,
+            (col + 1) * self.char_height,
+        )
         img = pygame.Surface((self.char_width, self.char_height), flags=pygame.SRCALPHA)
         img.blit(self.img, (0, 0), crop_dim)
 

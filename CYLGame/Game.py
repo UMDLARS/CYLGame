@@ -1,12 +1,14 @@
 from __future__ import division
+
+from typing import List, Optional
+
 import os.path
 import random
 import sys
 from dataclasses import dataclass
-from typing import List, Optional
 
 from CYLGame.Frame import GridFrameBuffer
-from CYLGame.Player import UserProg, Player
+from CYLGame.Player import Player, UserProg
 from CYLGame.Utils import int2base
 
 FPS = 30
@@ -14,11 +16,13 @@ FPS = 30
 
 def scorer(func):
     """This function is a decorator for a scoring function.
-       This is hack a to get around self being passed as the first argument to the scoring function."""
+    This is hack a to get around self being passed as the first argument to the scoring function."""
+
     def wrapped(a, b=None):
         if b is not None:
             return func(b)
         return func(a)
+
     return wrapped
 
 
@@ -217,8 +221,7 @@ class GridGame(Game):
         raise Exception("Not implemented!")
 
     def create_new_player(self, prog):  # TODO: add option to create computer, user or bot players.
-        """ TODO: write this
-        """
+        """TODO: write this"""
         raise Exception("Not Implemented!")
 
     def do_turn(self):
@@ -227,7 +230,7 @@ class GridGame(Game):
 
     def draw_screen(self, frame_buffer):
         """WARNING: There MUST NOT be any game logic in this function since it isn't called when simulating the game
-                    during the competitions.
+        during the competitions.
         """
         raise Exception("Not implemented!")
 
@@ -238,8 +241,7 @@ class GridGame(Game):
         return self.__frame_buffer.dump()
 
     def get_vars(self, player):
-        """ TODO: write this
-        """
+        """TODO: write this"""
         raise Exception("Not implemented!")
 
     def get_score(self):
@@ -260,8 +262,18 @@ class GridGame(Game):
 
     @staticmethod
     def get_move_consts():
-        return ConstMapping({"north": ord("w"), "south": ord("s"), "west": ord("a"), "east": ord("d"),
-                "northeast": ord("e"), "southeast": ord("c"), "northwest": ord("q"), "southwest": ord("z")})
+        return ConstMapping(
+            {
+                "north": ord("w"),
+                "south": ord("s"),
+                "west": ord("a"),
+                "east": ord("d"),
+                "northeast": ord("e"),
+                "southeast": ord("c"),
+                "northwest": ord("q"),
+                "southwest": ord("z"),
+            }
+        )
 
 
 @dataclass
@@ -346,10 +358,13 @@ class GameRunner(object):
         """
         # This import statement is here so pygame is only imported if needed.
         from CYLGame import Display
+
         game = self.game_class(random.Random(seed))
 
         charset = Display.CharSet(self.game_class.CHAR_SET, self.game_class.CHAR_WIDTH, self.game_class.CHAR_HEIGHT)
-        display = Display.PyGameDisplay(*charset.char_size_to_pix((game.SCREEN_WIDTH, game.SCREEN_HEIGHT)), title=game.GAME_TITLE)
+        display = Display.PyGameDisplay(
+            *charset.char_size_to_pix((game.SCREEN_WIDTH, game.SCREEN_HEIGHT)), title=game.GAME_TITLE
+        )
 
         clock = Display.get_clock()
 
@@ -394,7 +409,9 @@ class GameRunner(object):
         player = game.create_new_player(UserProg())
 
         game.start_game()
-        return PlayGameState(game=game, computer_players=players, human_player=player, seed=seed, moves='', frame=game.get_frame())
+        return PlayGameState(
+            game=game, computer_players=players, human_player=player, seed=seed, moves="", frame=game.get_frame()
+        )
 
     @staticmethod
     def move_game(state: PlayGameState, move: str) -> PlayGameState:
@@ -419,11 +436,20 @@ def run(game_class, avg_game_func=average):
     def serve(args):
         print("I am going to serve")
         from .Server import serve
+
         reuse_addr = True
         if args.no_addr_reuse:
             reuse_addr = None
-        serve(game_class, host=args.host, port=args.port, game_data_path=args.dbfile, avg_game_func=avg_game_func,
-              debug=args.debug, multiplayer_scoring_interval=args.scoring_time, reuse_addr=reuse_addr)
+        serve(
+            game_class,
+            host=args.host,
+            port=args.port,
+            game_data_path=args.dbfile,
+            avg_game_func=avg_game_func,
+            debug=args.debug,
+            multiplayer_scoring_interval=args.scoring_time,
+            reuse_addr=reuse_addr,
+        )
 
     def play(args):
         print("Playing...")
@@ -431,25 +457,52 @@ def run(game_class, avg_game_func=average):
 
     import argparse
 
-    parser = argparse.ArgumentParser(prog=game_class.GAME_TITLE, description='Play ' + game_class.GAME_TITLE + '.')
-    subparsers = parser.add_subparsers(help='What do you what to do?')
+    parser = argparse.ArgumentParser(prog=game_class.GAME_TITLE, description="Play " + game_class.GAME_TITLE + ".")
+    subparsers = parser.add_subparsers(help="What do you what to do?")
     subparsers.required = True
     subparsers.dest = "command"
-    parser_play = subparsers.add_parser('play', help='Play ' + game_class.GAME_TITLE + ' with a GUI')
-    parser_play.add_argument('-s', '--seed', nargs="?", type=str, help='Manually set the random seed.',
-                             default=int2base(random.randint(0, sys.maxsize), 36))
+    parser_play = subparsers.add_parser("play", help="Play " + game_class.GAME_TITLE + " with a GUI")
+    parser_play.add_argument(
+        "-s",
+        "--seed",
+        nargs="?",
+        type=str,
+        help="Manually set the random seed.",
+        default=int2base(random.randint(0, sys.maxsize), 36),
+    )
     parser_play.set_defaults(func=play)
-    parser_serve = subparsers.add_parser('serve', help='Serve ' + game_class.GAME_TITLE + ' to the web.')
-    parser_serve.add_argument('-p', '--port', nargs="?", type=int, help='Port to serve on', default=5000)
-    parser_serve.add_argument('-db', '--dbfile', nargs="?", type=str, help='The root path of the game database', default="temp_game")
-    parser_serve.add_argument('--debug-log', nargs="?", type=str, help='The file path to use for the debug log.'
-                                                                       '"{dbname}" in the path will be replaced by the path to the game database', default="{dbfile}/log/debug.log")
-    parser_serve.add_argument('--error-log', nargs="?", type=str, help='The file path to use for the error log.'
-                                                                       '"{dbname}" in the path will be replaced by the path to the game database', default="{dbfile}/log/error.log")
-    parser_serve.add_argument('--host', nargs="?", type=str, help='The mask to host to', default='127.0.0.1')
-    parser_serve.add_argument('--no-addr-reuse', action='store_true')
-    parser_serve.add_argument('--debug', action='store_true')
-    parser_serve.add_argument('-s', '--scoring_time', nargs="?", type=int, help='The number of seconds between re-scoring all the bots.', default=60)
+    parser_serve = subparsers.add_parser("serve", help="Serve " + game_class.GAME_TITLE + " to the web.")
+    parser_serve.add_argument("-p", "--port", nargs="?", type=int, help="Port to serve on", default=5000)
+    parser_serve.add_argument(
+        "-db", "--dbfile", nargs="?", type=str, help="The root path of the game database", default="temp_game"
+    )
+    parser_serve.add_argument(
+        "--debug-log",
+        nargs="?",
+        type=str,
+        help="The file path to use for the debug log."
+        '"{dbname}" in the path will be replaced by the path to the game database',
+        default="{dbfile}/log/debug.log",
+    )
+    parser_serve.add_argument(
+        "--error-log",
+        nargs="?",
+        type=str,
+        help="The file path to use for the error log."
+        '"{dbname}" in the path will be replaced by the path to the game database',
+        default="{dbfile}/log/error.log",
+    )
+    parser_serve.add_argument("--host", nargs="?", type=str, help="The mask to host to", default="127.0.0.1")
+    parser_serve.add_argument("--no-addr-reuse", action="store_true")
+    parser_serve.add_argument("--debug", action="store_true")
+    parser_serve.add_argument(
+        "-s",
+        "--scoring_time",
+        nargs="?",
+        type=int,
+        help="The number of seconds between re-scoring all the bots.",
+        default=60,
+    )
     parser_serve.set_defaults(func=serve)
 
     args = parser.parse_args()

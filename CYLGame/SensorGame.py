@@ -1,34 +1,41 @@
-from CYLGame.Game import NonGridGame
-from CYLGame.Player import Player
-from CYLGame.Frame import GameFrame
-from CYLGame import GameLanguage
 import math
 import random
 import re
 
-TAU = 2.0 * math.pi;
+from CYLGame import GameLanguage
+from CYLGame.Frame import GameFrame
+from CYLGame.Game import NonGridGame
+from CYLGame.Player import Player
+
+TAU = 2.0 * math.pi
 SEP = "---------------------------------------"
 
 DEBUG = False
+
+
 def dprint(string):
     if DEBUG:
         print(string)
-    
+
 
 def deg2rad(deg):
     return float(deg) * TAU / 360.0
+
+
 def rad2deg(rad):
     return float(rad) * 360.0 / TAU
+
 
 def rotate_point(angle, point):
     cos_ = math.cos(angle)
     sin_ = math.sin(angle)
 
     newp = [0, 0]
-    newp[0] = float(point[0])*cos_ - float(point[1])*sin_
-    newp[1] = float(point[0])*sin_ + float(point[1])*cos_
+    newp[0] = float(point[0]) * cos_ - float(point[1]) * sin_
+    newp[1] = float(point[0]) * sin_ + float(point[1]) * cos_
 
     return newp
+
 
 def compute_vector(start, end, screen_width, screen_height):
     """
@@ -51,7 +58,8 @@ def compute_vector(start, end, screen_width, screen_height):
     elif vector[1] < -half_height:
         vector[1] += screen_height
 
-    return vector[0]**2 + vector[1]**2, vector
+    return vector[0] ** 2 + vector[1] ** 2, vector
+
 
 class SensorSanitizers(object):
     # sensor sanitize/validate functions
@@ -93,7 +101,8 @@ class SensorSanitizers(object):
 
         return bool(t)
 
-    color_re = re.compile(r'#[0-9A-Fa-f]{6}')
+    color_re = re.compile(r"#[0-9A-Fa-f]{6}")
+
     @staticmethod
     def san_color(c):
         if not c:
@@ -103,8 +112,8 @@ class SensorSanitizers(object):
         else:
             return None
 
-class SensorPlayer(Player):
 
+class SensorPlayer(Player):
     def add_sensor(self, _range, angle, width, turret):
         """
         Adds a sensor to this player.
@@ -130,10 +139,10 @@ class SensorPlayer(Player):
             return
 
         # check if they are in our max sensor range
-        if dist_sq > (tank_sensor_range + other.radius)**2:
+        if dist_sq > (tank_sensor_range + other.radius) ** 2:
             return
-        #print("sensor_calc")
-        #print(dist_sq, vector, self.angle)
+        # print("sensor_calc")
+        # print(dist_sq, vector, self.angle)
         # Now calculate sensors
         for i, sensor in enumerate(self.sensors):
             if sensor["range"] <= 0:
@@ -143,12 +152,12 @@ class SensorPlayer(Player):
                 # sensor already firing
                 continue
 
-            if dist_sq > (sensor["range"] + other.radius)**2:
+            if dist_sq > (sensor["range"] + other.radius) ** 2:
                 # out of range
                 continue
 
             theta = self.angle + sensor["angle"]
-            #print(sensor["angle"])
+            # print(sensor["angle"])
             if sensor["turret"]:
                 theta += self.turret_current
 
@@ -161,12 +170,12 @@ class SensorPlayer(Player):
             # compute inverse slope of our sensor
             m_s = 1.0 / math.tan(sensor["width"] / 2.0)
             # compute slope to other
-            m_r = rotated_point[0] / rotated_point[1] 
-            
+            m_r = rotated_point[0] / rotated_point[1]
+
             # if our inverse slope is less than other, they're inside
             # the arc
             if m_r >= m_s:
-                #print("triggered", i)
+                # print("triggered", i)
                 sensor["triggered"] |= other.obj_type
                 continue
 
@@ -174,9 +183,8 @@ class SensorPlayer(Player):
             # this just like with firing
             rotated_point = rotate_point(sensor["width"] / -2.0, rotated_point)
             if rotated_point[0] > 0 and abs(rotated_point[1]) < other.radius:
-                #print("triggered", i)
+                # print("triggered", i)
                 sensor["triggered"] |= other.obj_type
-
 
 
 class SensorGame(NonGridGame):
@@ -199,8 +207,6 @@ class SensorGame(NonGridGame):
                     continue
                 dist_sq, vector = compute_vector(players[i], players[j], self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
                 players[i].sensor_calc(players[j], dist_sq, vector, self.MAX_SENSOR_RANGE)
-                vector[0] = -vector[0];
-                vector[1] = -vector[1];
+                vector[0] = -vector[0]
+                vector[1] = -vector[1]
                 players[j].sensor_calc(players[i], dist_sq, vector, self.MAX_SENSOR_RANGE)
-
-
