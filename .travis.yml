@@ -8,12 +8,12 @@ python:
 
 install:
   - pip install -e .
-  - pip install pytest-cov
-  - pip install codecov
-  - pip install mypy
+  - pip install pytest-cov codecov mypy black isort[colors]
   - mypy --install-types --non-interactive CYLGame
 
 script:
+  - isort --diff --check-only --settings-path pyproject.toml .
+  - black --diff --check --config pyproject.toml .
   - mypy --config-file pyproject.toml CYLGame
   - python setup.py test
   - py.test --cov=CYLGame
