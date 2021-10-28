@@ -1,18 +1,16 @@
-from __future__ import print_function
-from __future__ import division
+from __future__ import division, print_function
 
-import sys
-from itertools import islice
-from random import randint, choice, shuffle
-
-from multiprocessing import Process, Event, Pool
-
-import time
-
-import math
 from typing import Dict
 
+import math
+import sys
+import time
+from itertools import islice
+from multiprocessing import Event, Pool, Process
+from random import choice, randint, shuffle
+
 from CYLGame.Utils import OnlineMean, choose
+
 from .Game import GameRunner
 from .Player import Room
 
@@ -25,6 +23,7 @@ def create_room(gamedb, bot, compiler, size):
 
     if len(pool) == 0:
         from copy import deepcopy
+
         return Room([bot] + [deepcopy(bot) for _ in range(size - 1)])
 
     bots = [bot]
@@ -55,7 +54,11 @@ def sim_prog_for_score(game, compiler, code, options, seed, debug=True):
         sys.stdout.flush()
         return score
     except:
-        print("There was an error simulating the game. Make sure this isn't a bug with the program.\n  Seed: {}\n  Code: '''{}'''".format(seed, code))
+        print(
+            "There was an error simulating the game. Make sure this isn't a bug with the program.\n  Seed: {}\n  Code: '''{}'''".format(
+                seed, code
+            )
+        )
         return 0
 
 
@@ -99,9 +102,11 @@ def sim_competition(compiler, game, gamedb, token, runs, ncores=None, debug=Fals
             if debug:
                 print("Simulating {} games...".format(runs))
 
-#             # TODO: make this able to run in a pool of threads (so it can be run on multiple CPUs)
+            #             # TODO: make this able to run in a pool of threads (so it can be run on multiple CPUs)
             with Pool(processes=ncores) as pool:
-                scores = pool.starmap(sim_prog_for_score, [(game, compiler, code, options, seed, debug) for seed in seeds])
+                scores = pool.starmap(
+                    sim_prog_for_score, [(game, compiler, code, options, seed, debug) for seed in seeds]
+                )
 
             score = score_func(scores)
             if debug:
@@ -191,7 +196,7 @@ class MultiplayerComp(object):
 
         l = list(self.scores.keys())
         shuffle(l)
-        p = l[:self.room_size + 1]
+        p = l[: self.room_size + 1]
         while len(p) < self.room_size:
             p += [self.default_bot_class()]
         room = Room(p)
@@ -303,8 +308,8 @@ class MultiplayerComp(object):
         start_time = time.time()
         for i, room in enumerate(tourney):
             if debug:
-                time_taken = time.time()-start_time
-                estimate_total_time = time_taken * (tourney.total_runs/(i+1))
+                time_taken = time.time() - start_time
+                estimate_total_time = time_taken * (tourney.total_runs / (i + 1))
                 eta = estimate_total_time - time_taken
                 print(f"Eta: ~{eta:.0f} secs Cur Room: {room}")
             gamerunner = GameRunner(game)
@@ -356,10 +361,10 @@ class MultiplayerCompRunner(Process):
         start_time = time.time()
         gtokens = []
         for s_token in self.gamedb.get_school_tokens():
-            gtokens += MultiplayerComp.sim_multiplayer(s_token, self.gamedb, self.game, self.compiler,
-                                                       save_games=True, debug=self.debug)
-        self.gamedb.replace_games_in_comp(ctoken="P00000000",  # TODO: un hardcode this.
-                                          new_gtokens=gtokens)
+            gtokens += MultiplayerComp.sim_multiplayer(
+                s_token, self.gamedb, self.game, self.compiler, save_games=True, debug=self.debug
+            )
+        self.gamedb.replace_games_in_comp(ctoken="P00000000", new_gtokens=gtokens)  # TODO: un hardcode this.
         print("Finished scoring in {0:.2f} secs...".format(time.time() - start_time))
 
 
@@ -416,7 +421,7 @@ class RollingMultiplayerComp(object):
     def next(self):
         l = list(self.scores.keys())
         shuffle(l)
-        p = l[:self.room_size + 1]
+        p = l[: self.room_size + 1]
         while len(p) < self.room_size:
             p += [self.default_bot_class()]
         room = Room(p)
@@ -451,7 +456,9 @@ class RollingMultiplayerCompRunner(Process):
         self.end = Event()
 
         self.comps = {}  # type: Dict[str, RollingMultiplayerComp]
-        self.i = -1  # This is to make the clean happen on the first run. This way it will run at least every time you start the server.
+        self.i = (
+            -1
+        )  # This is to make the clean happen on the first run. This way it will run at least every time you start the server.
 
     def stop(self):
         self.start_run.set()
@@ -470,9 +477,11 @@ class RollingMultiplayerCompRunner(Process):
         # gtokens = []
         for s_token in self.gamedb.get_school_tokens():
             if s_token not in self.comps:
-                self.comps[s_token] = RollingMultiplayerComp(room_size=self.game.get_number_of_players(),
-                                                             default_bot_class=self.game.default_prog_for_computer(),
-                                                             rolling_n=self.rolling_n)
+                self.comps[s_token] = RollingMultiplayerComp(
+                    room_size=self.game.get_number_of_players(),
+                    default_bot_class=self.game.default_prog_for_computer(),
+                    rolling_n=self.rolling_n,
+                )
         for s_token, comp in self.comps.items():
             # First make sure all the bots in the school are in the comp.
             student_tokens = self.gamedb.get_tokens_for_school(s_token)
@@ -543,7 +552,7 @@ class RollingMultiplayerCompRunner(Process):
                     # We need to pick the newest ones
                     games = list(games)
                     games.sort(key=lambda x: self.gamedb.get_ctime_for_game(x), reverse=True)
-                    games_player_needs = games[:self.rolling_n]
+                    games_player_needs = games[: self.rolling_n]
                     games_to_delete = games_to_delete - set(games_player_needs)
 
         if self.debug:
@@ -563,4 +572,3 @@ class RollingMultiplayerCompRunner(Process):
     #         for game_token in self.gamedb.get_games_for_token(token):
     #             if game_token not in all_recorded_games:
     #                 print("This is bad!!!")
-

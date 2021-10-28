@@ -71,6 +71,7 @@ class Player(ABC):
 
 class DefaultGridPlayer(Player):
     """Make sure that all bot_vars are updated in game.do_turn"""
+
     def __init__(self, prog, bot_consts):
         """
         Args:
@@ -133,8 +134,7 @@ class Room(object):
         """
         if self.screen_cap is None:
             raise Exception("You must run this room before trying to save it.")
-        game_data = {"screen": self.screen_cap,
-                     "seed": int2base(self.seed, 36)}
+        game_data = {"screen": self.screen_cap, "seed": int2base(self.seed, 36)}
         player_data = {}
         for player in self.bots:
             if hasattr(player, "token") and player.token is not None:

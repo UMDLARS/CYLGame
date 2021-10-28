@@ -10,10 +10,6 @@ def test_edges():
     panel.add("3", (0, 1))
     panel.add("4", (1, 1))
     panel.redraw(frame)
-    exp = ["     ",
-           " 12  ",
-           " 34  ",
-           "     ",
-           "     "]
+    exp = ["     ", " 12  ", " 34  ", "     ", "     "]
     exp_frame = GridFrameBuffer.from_string_array(exp)
     assert frame == exp_frame

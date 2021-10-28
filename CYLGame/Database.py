@@ -26,8 +26,7 @@ class WWWCache:
         self.root_dir = root_dir
 
     def safe_replace_cache(self, www_dir):
-        """This function safely replaces the current www cached data with the data found in `www_dir`
-        """
+        """This function safely replaces the current www cached data with the data found in `www_dir`"""
         if not os.path.exists(self.root_dir):
             # no old cache
             shutil.copytree(www_dir, self.root_dir)
@@ -92,6 +91,7 @@ class GameDB(object):
     /www                        => Stores static and template files for the server. This is a cache that is deleted and
                                     recreated on each restart.
     """
+
     TOKEN_LEN = 8
 
     ACTIVE_CODE_KEY = "active_code"
@@ -149,7 +149,6 @@ class GameDB(object):
         return []
 
     def __get_new_token(self, tokens=None, prefix=""):
-
         def new_token():
             return prefix + "".join([random.choice("0123456789ABCDEF") for _ in range(self.TOKEN_LEN)])
 
@@ -376,7 +375,7 @@ class GameDB(object):
         # Create Code id.
         ctime = int(time.time_ns())
         buf = io.BytesIO()
-        buf.write(bytes(code, encoding='utf8'))
+        buf.write(bytes(code, encoding="utf8"))
         if options:
             msgpack.dump(options, buf)
         buf.seek(0)
@@ -481,10 +480,14 @@ class GameDB(object):
 
         has_old_games = os.path.exists(os.path.join(self.competitions_dir, ctoken, "games"))
         if has_old_games:
-            os.rename(os.path.join(self.competitions_dir, ctoken, "games"),
-                      os.path.join(self.competitions_dir, ctoken, "old_games"))
-        os.rename(os.path.join(self.competitions_dir, ctoken, "new_games"),
-                  os.path.join(self.competitions_dir, ctoken, "games"))
+            os.rename(
+                os.path.join(self.competitions_dir, ctoken, "games"),
+                os.path.join(self.competitions_dir, ctoken, "old_games"),
+            )
+        os.rename(
+            os.path.join(self.competitions_dir, ctoken, "new_games"),
+            os.path.join(self.competitions_dir, ctoken, "games"),
+        )
         shutil.rmtree(os.path.join(self.competitions_dir, ctoken, "old_games"))
 
         for gtoken in cleanup_gtokens:

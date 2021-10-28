@@ -1,6 +1,5 @@
 from locust import HttpLocust, TaskSet, task
 
-
 bot = """# random bot
 a = rand % 4
 
@@ -21,7 +20,7 @@ if a is 3 {
 
 class UserBehavior(TaskSet):
     def on_start(self):
-        """ on_start is called when a Locust start before any task is scheduled """
+        """on_start is called when a Locust start before any task is scheduled"""
         self.login()
 
     def login(self):

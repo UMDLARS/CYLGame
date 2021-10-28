@@ -1,6 +1,8 @@
 import pytest
+
 from CYLGame.Database import GameDB
-from . import temp_dir, ex_db
+
+from . import ex_db, temp_dir
 
 
 def test_simple_str(ex_db: GameDB):
