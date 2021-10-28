@@ -8,10 +8,16 @@ sphinx = "*"
 pygame = "*"
 sphinxcontrib-versioning = "*"
 mypy = "*"
+black = "*"
+isort = {extras = ["colors"],version = "*"}
 
 [packages]
 cylgame = {editable = true,path = "."}
 sphinx = "*"
+black = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
