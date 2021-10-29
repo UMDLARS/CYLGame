@@ -21,7 +21,7 @@ from CYLGame.Comp import MultiplayerCompRunner, RollingMultiplayerCompRunner
 from .Database import GameDB
 from .Game import GameLanguage, GameRunner, GridGame, average
 from .Log import setup_logging
-from .Player import Room
+from .Player import LittlePythonProg, Prog, Room
 from .Utils import int2base
 
 ANONYMOUS_COMP = "P00000000"
@@ -97,6 +97,13 @@ class GameServer(flask_classful.FlaskView):
         new_charset_path = os.path.join(fonts_dir, charset_name)
         shutil.copyfile(charset, new_charset_path)
         return charset_name
+
+    def _compile(self, code: str, options: dict, token: str = None, name: str = None, code_hash: str = "N/A") -> Prog:
+        if self.language == GameLanguage.LITTLEPY:
+            return LittlePythonProg(
+                self.compiler.compile(code), options=options, token=token, name=name, code_hash=code_hash
+            )
+        raise Exception(f"No compiler found for language {self.language}")
 
     def before_request(self, name, **kwarg):
         if has_request_context():
@@ -208,11 +215,11 @@ class GameServer(flask_classful.FlaskView):
         # TODO: create this to run the game 100 times returning the average score to the user.
         code = flask.request.get_json(silent=True).get("code", "")
         token = flask.request.get_json(silent=True).get("token", "").upper()
-        options = flask.request.get_json(silent=True).get("options", None)
+        options = flask.request.get_json(silent=True).get("options", {})
         if not self.gamedb.is_user_token(token):
             return flask.jsonify(error="Invalid Token")
         try:
-            prog = self.compiler.compile(code)
+            prog = self._compile(code=code, options=options)
         except:
             return flask.jsonify(error="Code did not compile")
         if self.game.MULTIPLAYER:
@@ -255,11 +262,7 @@ class GameServer(flask_classful.FlaskView):
             except:
                 return flask.jsonify(error="Invalid Seed")
         try:
-            prog = self.compiler.compile(code)
-            prog.options = options
-            prog.token = ANONYMOUS_USER  # anonymous user
-            prog.name = "Your bot"
-            prog.code_hash = "N/A"
+            prog = self._compile(code=code, options=options, token=ANONYMOUS_USER, name="Your bot")
         except:
             return flask.jsonify(error="Code did not compile")
         if self.gamedb.is_user_token(token):
@@ -274,9 +277,7 @@ class GameServer(flask_classful.FlaskView):
             else:
                 for opponent in opponents:
                     if opponent == ANONYMOUS_USER:
-                        opponent_prog = self.compiler.compile(code)
-                        opponent_prog.options = options
-                        opponent_prog.name = "Your other bot"
+                        opponent_prog = self._compile(code=code, options=options, name="Your other bot")
                         players += [opponent_prog]
                     else:
                         return flask.jsonify(error="Not implemented yet :(")
@@ -465,13 +466,13 @@ class GameServer(flask_classful.FlaskView):
 
         print("Starting server at {}:{}".format(cls.host, cls.port))
 
+        scoring_process = None
         if cls.game.MULTIPLAYER and multiplayer_scoring_interval >= 0:
             if debug:
                 print("Starting scoring process...")
             scoring_process = RollingMultiplayerCompRunner(
                 multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug
             )
-            # scoring_process = MultiplayerCompRunner(multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug)
             scoring_process.start()
 
         if debug:
@@ -498,7 +499,7 @@ class GameServer(flask_classful.FlaskView):
             serve_forever(listener)
 
         print("Dying...")
-        if cls.game.MULTIPLAYER:
+        if scoring_process:
             scoring_process.stop()
         print("All good :)")
 
