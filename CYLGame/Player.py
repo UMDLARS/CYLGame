@@ -1,32 +1,43 @@
-import random
+from typing import List, Optional
+
 import sys
-import traceback
 from abc import ABC, abstractmethod
+from random import Random, randint
 
-from littlepython import Compiler, ExecutionCountExceededException
 from littlepython.error import LittlePythonBaseExcetion
+from littlepython.interpreter import LPProg
 
+# A template class for the Prog for the Player.
+from CYLGame.structures.const_mapping import ConstMapping
 from CYLGame.Utils import int2base
 
 
-# A template class for the Prog for the Player.
-class Prog(object):
-    def __init__(self):
+class Prog(ABC):
+    def __init__(
+        self, options: dict, token: Optional[str] = None, name: Optional[str] = None, code_hash: Optional[str] = None
+    ):
         # The `options`, `token` and `name` attributes are reserved for the GameRunner
-        self.options = {}
-        self.token = None
-        self.name = None
-        self.code_hash = None
+        self.options = options
+        self.token = token
+        self.name = name
+        self.code_hash = code_hash
 
-    def run(self, state=None, max_op_count=-1, random=None):
+    @abstractmethod
+    def run(self, state: dict, max_op_count: int = -1, random=None):
         pass
 
 
 class LittlePythonProg(Prog):
-    def __init__(self, prog, name="Computer"):
-        super().__init__()
-        self.prog = Compiler().compile(prog)
-        self.name = name
+    def __init__(
+        self,
+        prog: LPProg,
+        options: dict,
+        token: Optional[str] = None,
+        name: Optional[str] = None,
+        code_hash: Optional[str] = None,
+    ):
+        super().__init__(options=options, token=token, name=name, code_hash=code_hash)
+        self.prog = prog
 
     def run(self, *args, **kargs):
         return self.prog.run(*args, **kargs)
@@ -34,8 +45,7 @@ class LittlePythonProg(Prog):
 
 class UserProg(Prog):
     def __init__(self):
-        super().__init__()
-        self.name = "You"
+        super().__init__(name="You", options={})
         self.key = None
 
     def run(self, *args, **kwargs):
@@ -43,14 +53,14 @@ class UserProg(Prog):
 
 
 class Player(ABC):
-    def __init__(self, prog):
+    def __init__(self, prog: Prog):
         self.prog = prog
-        self.prev_vars = {}
+        self.prev_vars: dict = {}
         self.debugging = prog.options.get("debug", False)
-        self.debug_vars = []  # TODO: Maybe make this into a class.
+        self.debug_vars: list = []  # TODO: Maybe make this into a class.
         self.running = True
 
-    def run_turn(self, random, max_ops=1000000):
+    def run_turn(self, random: Random, max_ops: int = 1000000):
         if self.running:
             try:
                 nxt_state = self.prog.run(self.get_state(), max_op_count=max_ops, random=random)
@@ -62,35 +72,30 @@ class Player(ABC):
                 self.prev_vars = {}
 
     @abstractmethod
-    def get_state(self):
+    def get_state(self) -> dict:
         pass
 
     @abstractmethod
-    def update_state(self, new_state):
+    def update_state(self, new_state: dict):
         pass
 
 
 class DefaultGridPlayer(Player):
     """Make sure that all bot_vars are updated in game.do_turn"""
 
-    def __init__(self, prog, bot_consts):
-        """
-        Args:
-             prog(Prog):
-             bot_consts(ConstMapping):
-        """
+    def __init__(self, prog: Prog, bot_consts: ConstMapping):
         super(DefaultGridPlayer, self).__init__(prog)
         self.bot_consts = bot_consts
-        self.bot_vars = {}
-        self.move = None
+        self.bot_vars: dict = {}
+        self.move: Optional[str] = None
 
-    def get_state(self):
+    def get_state(self) -> dict:
         state = dict(self.prev_vars)
         state.update(self.bot_consts)
         state.update(self.bot_vars)
         return state
 
-    def update_state(self, state):
+    def update_state(self, state: dict):
         # remove consts
         for key in self.bot_consts.names:
             state.pop(key, None)
@@ -112,16 +117,16 @@ class DefaultGridPlayer(Player):
 
 
 class Room(object):
-    def __init__(self, bots=None, seed=None):
+    def __init__(self, bots: List[Prog] = None, seed=None):
         self.bots = bots
         if bots is None:
             self.bots = []
 
         self.seed = seed
         if seed is None:
-            self.seed = random.randint(0, sys.maxsize)
+            self.seed = randint(0, sys.maxsize)
 
-        self.debug_vars = {}
+        self.debug_vars: dict = {}
         self.screen_cap = None
 
     def save(self, gamedb):
