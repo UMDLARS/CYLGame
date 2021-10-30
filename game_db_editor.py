@@ -177,6 +177,25 @@ def view_exceptions():
     pause()
 
 
+def view_code_from_hash():
+    global gamedb
+    clear()
+
+    code_hash = get_input("Enter Code hash: ")
+
+    code = gamedb.get_code_by_hash(code_hash)
+    if isinstance(code, list):
+        options = [(x, x) for x in code]
+        option = print_menu(options, "There were multiple matches, select one:")
+        if not option:
+            return
+        code = gamedb.get_code_by_hash(option)
+
+    clear()
+    print(code)
+    pause()
+
+
 def get_main_menu_options():
     global cur_school
     options = ["Add New School", "Select School", "Add New Competition", "Select Competition"]
@@ -186,6 +205,7 @@ def get_main_menu_options():
         # TODO(derpferd): implement
         options += ["Add School to Competition", "List Schools in Competition"]
     options.append("View Exceptions")
+    options.append("Code from Hash")
     return options + ["Quit"]
 
 
@@ -240,6 +260,8 @@ def main():
             list_tokens()
         elif option == "View Exceptions":
             view_exceptions()
+        elif option == "Code from Hash":
+            view_code_from_hash()
 
 
 if __name__ == "__main__":

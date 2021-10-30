@@ -256,10 +256,11 @@ class GameServer(flask_classful.FlaskView):
             prog.options = options
             prog.token = ANONYMOUS_USER  # anonymous user
             prog.name = "Your bot"
+            prog.code_hash = "N/A"
         except:
             return flask.jsonify(error="Code did not compile")
         if self.gamedb.is_user_token(token):
-            self.gamedb.save_code(token=token, code=code, options=options, set_as_active=False)
+            prog.code_hash = self.gamedb.save_code(token=token, code=code, options=options, set_as_active=False)
         room = Room(bots=[prog], seed=seed)
         if self.game.MULTIPLAYER:
             players = []
