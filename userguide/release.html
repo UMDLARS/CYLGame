@@ -39,12 +39,12 @@
 <ol class="arabic simple">
 <li><p>Version Bump</p>
 <ol class="arabic simple">
-<li><p>Change the version number in <code class="docutils literal notranslate"><span class="pre">CYLGame/version.py</span></code> to the version
+<li><p>Change the version number in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> to the version
 you wish to release. (Note: for bug fixes simply add one to the
 last number ex. <code class="docutils literal notranslate"><span class="pre">1.6.22</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">1.6.23</span></code>)</p></li>
 <li><p>Commit this change using git and the the following message:
 <code class="docutils literal notranslate"><span class="pre">Version</span> <span class="pre">Bump</span></code> (Example command
-<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">CYLGame/version.py</span> <span class="pre">-m</span> <span class="pre">&quot;Version</span> <span class="pre">Bump&quot;</span></code>)</p></li>
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">pyproject.toml</span> <span class="pre">-m</span> <span class="pre">&quot;Version</span> <span class="pre">Bump&quot;</span></code>)</p></li>
 <li><p>Create a tag for the version in git. (Example command
 <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">tag</span> <span class="pre">v1.6.23</span></code>)</p></li>
 <li><p>Push the commit and tag to github. (Example command
@@ -53,14 +53,14 @@ last number ex. <code class="docutils literal notranslate"><span class="pre">1.6
 </li>
 <li><p>Check build</p>
 <ol class="arabic simple">
-<li><p><strong>Check</strong> <a class="reference external" href="https://travis-ci.com/UMDLARS/CYLGame">https://travis-ci.com/UMDLARS/CYLGame</a> <strong>to make sure
+<li><p><strong>Check</strong> <a class="reference external" href="https://github.com/UMDLARS/CYLGame">https://github.com/UMDLARS/CYLGame</a> <strong>to make sure
 the build passes.</strong></p></li>
 </ol>
 </li>
 <li><p>Compile and Upload</p>
 <ol class="arabic simple">
-<li><p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">sdist</span></code> to compile.</p></li>
-<li><p>Run <code class="docutils literal notranslate"><span class="pre">twine</span> <span class="pre">upload</span> <span class="pre">dist/*</span></code> to upload the
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">build</span></code> to compile.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">publish</span></code> to upload the
 build to the Python Package Index (aka. the Cheese Shop).</p></li>
 </ol>
 </li>

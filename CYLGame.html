@@ -529,8 +529,100 @@
 <dd></dd></dl>
 
 </section>
-<section id="cylgame-display-module">
-<h2>CYLGame.Display module<a class="headerlink" href="#cylgame-display-module" title="Permalink to this headline">¶</a></h2>
+<section id="module-CYLGame.Display">
+<span id="cylgame-display-module"></span><h2>CYLGame.Display module<a class="headerlink" href="#module-CYLGame.Display" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Display.</span></span><span class="sig-name descname"><span class="pre">CharSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_height</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.char_size_to_pix">
+<span class="sig-name descname"><span class="pre">char_size_to_pix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet.char_size_to_pix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet.char_size_to_pix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.create_char_img">
+<span class="sig-name descname"><span class="pre">create_char_img</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet.create_char_img"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet.create_char_img" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.get_img">
+<span class="sig-name descname"><span class="pre">get_img</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet.get_img"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet.get_img" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.pix_size_to_char">
+<span class="sig-name descname"><span class="pre">pix_size_to_char</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet.pix_size_to_char"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet.pix_size_to_char" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CYLGame.Display.Display">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Display.</span></span><span class="sig-name descname"><span class="pre">Display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#Display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.Display" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.Display.get_keys">
+<span class="sig-name descname"><span class="pre">get_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#Display.get_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.Display.get_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the keys that were press since last time you called this function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Key</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.Display.get_size">
+<span class="sig-name descname"><span class="pre">get_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#Display.get_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.Display.get_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.Display.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_buffer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#Display.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.Display.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the display with the buffer given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>frame_buffer</strong> (<a class="reference internal" href="#CYLGame.Frame.FrameBuffer" title="CYLGame.Frame.FrameBuffer"><em>FrameBuffer</em></a>) – The buffer to use when redrawing the screen.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="CYLGame.Display.PyGameDisplay">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Display.</span></span><span class="sig-name descname"><span class="pre">PyGameDisplay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#PyGameDisplay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.PyGameDisplay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CYLGame.Display.Display" title="CYLGame.Display.Display"><code class="xref py py-class docutils literal notranslate"><span class="pre">CYLGame.Display.Display</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.PyGameDisplay.get_keys">
+<span class="sig-name descname"><span class="pre">get_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#PyGameDisplay.get_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.PyGameDisplay.get_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the keys that were press since last time you called this function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Key</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.PyGameDisplay.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_buffer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#PyGameDisplay.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.PyGameDisplay.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the display with the buffer given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>frame_buffer</strong> (<a class="reference internal" href="#CYLGame.Frame.FrameBuffer" title="CYLGame.Frame.FrameBuffer"><em>FrameBuffer</em></a>) – The buffer to use when redrawing the screen.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="CYLGame.Display.get_clock">
+<span class="sig-prename descclassname"><span class="pre">CYLGame.Display.</span></span><span class="sig-name descname"><span class="pre">get_clock</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#get_clock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.get_clock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-CYLGame.Frame">
 <span id="cylgame-frame-module"></span><h2>CYLGame.Frame module<a class="headerlink" href="#module-CYLGame.Frame" title="Permalink to this headline">¶</a></h2>
@@ -838,7 +930,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="CYLGame.Game.GridGame.CHAR_SET">
-<span class="sig-name descname"><span class="pre">CHAR_SET</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'/home/travis/build/UMDLARS/CYLGame/CYLGame/data/fonts/terminal8x8_gs_ro.png'</span></em><a class="headerlink" href="#CYLGame.Game.GridGame.CHAR_SET" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">CHAR_SET</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'/home/runner/work/CYLGame/CYLGame/CYLGame/data/fonts/terminal8x8_gs_ro.png'</span></em><a class="headerlink" href="#CYLGame.Game.GridGame.CHAR_SET" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -974,7 +1066,7 @@ during the competitions.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="CYLGame.Game.PlayGameState">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Game.</span></span><span class="sig-name descname"><span class="pre">PlayGameState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">game</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#CYLGame.Game.Game" title="CYLGame.Game.Game"><span class="pre">CYLGame.Game.Game</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">computer_players</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#CYLGame.Player.Player" title="CYLGame.Player.Player"><span class="pre">CYLGame.Player.Player</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">human_player</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#CYLGame.Player.Player" title="CYLGame.Player.Player"><span class="pre">CYLGame.Player.Player</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moves</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">NoneType</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#PlayGameState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.PlayGameState" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Game.</span></span><span class="sig-name descname"><span class="pre">PlayGameState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">game</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#CYLGame.Game.Game" title="CYLGame.Game.Game"><span class="pre">CYLGame.Game.Game</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">computer_players</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#CYLGame.Player.Player" title="CYLGame.Player.Player"><span class="pre">CYLGame.Player.Player</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">human_player</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#CYLGame.Player.Player" title="CYLGame.Player.Player"><span class="pre">CYLGame.Player.Player</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moves</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#PlayGameState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.PlayGameState" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="CYLGame.Game.PlayGameState.computer_players">
