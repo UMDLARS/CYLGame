@@ -49,6 +49,10 @@ class Player {
       this.seed_text = $("<span>");
       this.seed_text.css("float", "right");
       bar_parent.append(this.seed_text);
+      this.code_hash_text = $("<span>");
+      this.code_hash_text.css("float", "right");
+      this.code_hash_text.css("padding-right", "1em");
+      bar_parent.append(this.code_hash_text);
       this.parent_div.append(bar_parent);
       this.parent_div.append($("<br>"));
     }
@@ -164,8 +168,9 @@ class Player {
         if (data["error"]) {
           alert(data["error"]);
         } else {
-          this.drawFrames(data["screen"], data["player"]);
+          this.drawFrames(data["screen"], data["player"]["debug_vars"]);
           this.setSeed(data["seed"]);
+          this.setCodeHash(data["player"]["code_hash"]);
           this.enable_btn_bar();
         }
       },
@@ -429,6 +434,10 @@ class Player {
 
   setSeed(seed) {
     this.seed_text.html("Map: " + seed);
+  }
+
+  setCodeHash(code_hash) {
+    this.code_hash_text.html("Code: " + code_hash.substring(0,8));
   }
 
   create_var_table(vars) {

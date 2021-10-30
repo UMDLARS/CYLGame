@@ -396,6 +396,8 @@ class GameDB(object):
         if set_as_active:
             self.save_value(token=token, key=self.ACTIVE_CODE_KEY, value=code_path_name)
 
+        return code_hash
+
     def save_name(self, token, name):
         """Save a user's name under their token.
 

@@ -16,6 +16,7 @@ class Prog(object):
         self.options = {}
         self.token = None
         self.name = None
+        self.code_hash = None
 
     def run(self, state=None, max_op_count=-1, random=None):
         pass
@@ -138,7 +139,7 @@ class Room(object):
         player_data = {}
         for player in self.bots:
             if hasattr(player, "token") and player.token is not None:
-                player_data[player.token] = self.debug_vars[player]
+                player_data[player.token] = {"debug_vars": self.debug_vars[player], "code_hash": player.code_hash}
         return gamedb.add_new_game(game_data, per_player_data=player_data)
 
     @property
