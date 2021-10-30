@@ -32,14 +32,16 @@
             
   <h1>Source code for CYLGame.Game</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">CYLGame.Frame</span> <span class="kn">import</span> <span class="n">GridFrameBuffer</span>
-<span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="kn">import</span> <span class="n">UserProg</span><span class="p">,</span> <span class="n">Player</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="kn">import</span> <span class="n">Player</span><span class="p">,</span> <span class="n">UserProg</span>
 <span class="kn">from</span> <span class="nn">CYLGame.Utils</span> <span class="kn">import</span> <span class="n">int2base</span>
 
 <span class="n">FPS</span> <span class="o">=</span> <span class="mi">30</span>
@@ -47,11 +49,13 @@
 
 <div class="viewcode-block" id="scorer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.scorer">[docs]</a><span class="k">def</span> <span class="nf">scorer</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This function is a decorator for a scoring function.</span>
-<span class="sd">       This is hack a to get around self being passed as the first argument to the scoring function.&quot;&quot;&quot;</span>
+<span class="sd">    This is hack a to get around self being passed as the first argument to the scoring function.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">wrapped</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">wrapped</span></div>
 
 
@@ -79,8 +83,11 @@
     <span class="n">SCREEN_WIDTH</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">SCREEN_HEIGHT</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">GAME_TITLE</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">OPTIONS</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">OPTIONS</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">MULTIPLAYER</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># TODO: document</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random</span> <span class="o">=</span> <span class="n">random</span>
 
 <div class="viewcode-block" id="Game.is_running"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.Game.is_running">[docs]</a>    <span class="k">def</span> <span class="nf">is_running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This is how the game runner knows if the game is over.</span>
@@ -247,8 +254,7 @@
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GridGame.create_new_player"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.create_new_player">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_player</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prog</span><span class="p">):</span>  <span class="c1"># TODO: add option to create computer, user or bot players.</span>
-        <span class="sd">&quot;&quot;&quot; TODO: write this</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;TODO: write this&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not Implemented!&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GridGame.do_turn"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.do_turn">[docs]</a>    <span class="k">def</span> <span class="nf">do_turn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -257,7 +263,7 @@
 
 <div class="viewcode-block" id="GridGame.draw_screen"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.draw_screen">[docs]</a>    <span class="k">def</span> <span class="nf">draw_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_buffer</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;WARNING: There MUST NOT be any game logic in this function since it isn&#39;t called when simulating the game</span>
-<span class="sd">                    during the competitions.</span>
+<span class="sd">        during the competitions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
 
@@ -268,8 +274,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__frame_buffer</span><span class="o">.</span><span class="n">dump</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="GridGame.get_vars"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.get_vars">[docs]</a>    <span class="k">def</span> <span class="nf">get_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; TODO: write this</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;TODO: write this&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not implemented!&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="GridGame.get_score"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.get_score">[docs]</a>    <span class="k">def</span> <span class="nf">get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -290,8 +295,18 @@
 
 <div class="viewcode-block" id="GridGame.get_move_consts"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame.get_move_consts">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_move_consts</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ConstMapping</span><span class="p">({</span><span class="s2">&quot;north&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="s2">&quot;south&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">),</span> <span class="s2">&quot;west&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">),</span> <span class="s2">&quot;east&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">),</span>
-                <span class="s2">&quot;northeast&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">),</span> <span class="s2">&quot;southeast&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">),</span> <span class="s2">&quot;northwest&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">),</span> <span class="s2">&quot;southwest&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">)})</span></div></div>
+        <span class="k">return</span> <span class="n">ConstMapping</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;north&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;south&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;west&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;east&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;northeast&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;southeast&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;northwest&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;southwest&quot;</span><span class="p">:</span> <span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PlayGameState"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.PlayGameState">[docs]</a><span class="nd">@dataclass</span>
@@ -376,10 +391,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># This import statement is here so pygame is only imported if needed.</span>
         <span class="kn">from</span> <span class="nn">CYLGame</span> <span class="kn">import</span> <span class="n">Display</span>
+
         <span class="n">game</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
 
         <span class="n">charset</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">CharSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="o">.</span><span class="n">CHAR_SET</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="o">.</span><span class="n">CHAR_WIDTH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="o">.</span><span class="n">CHAR_HEIGHT</span><span class="p">)</span>
-        <span class="n">display</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">PyGameDisplay</span><span class="p">(</span><span class="o">*</span><span class="n">charset</span><span class="o">.</span><span class="n">char_size_to_pix</span><span class="p">((</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span> <span class="n">game</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">)),</span> <span class="n">title</span><span class="o">=</span><span class="n">game</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">)</span>
+        <span class="n">display</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">PyGameDisplay</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">charset</span><span class="o">.</span><span class="n">char_size_to_pix</span><span class="p">((</span><span class="n">game</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span> <span class="n">game</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">)),</span> <span class="n">title</span><span class="o">=</span><span class="n">game</span><span class="o">.</span><span class="n">GAME_TITLE</span>
+        <span class="p">)</span>
 
         <span class="n">clock</span> <span class="o">=</span> <span class="n">Display</span><span class="o">.</span><span class="n">get_clock</span><span class="p">()</span>
 
@@ -412,7 +430,7 @@
                 <span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">frame_buffer</span><span class="p">)</span>
                 <span class="n">frame_updated</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="GameRunner.init_game"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.init_game">[docs]</a>    <span class="k">def</span> <span class="nf">init_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlayGameState</span><span class="p">:</span>
+<div class="viewcode-block" id="GameRunner.init_game"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.init_game">[docs]</a>    <span class="k">def</span> <span class="nf">init_game</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlayGameState</span><span class="p">:</span>
         <span class="n">game</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game_class</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
 
         <span class="n">game</span><span class="o">.</span><span class="n">init_board</span><span class="p">()</span>
@@ -424,7 +442,9 @@
         <span class="n">player</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">create_new_player</span><span class="p">(</span><span class="n">UserProg</span><span class="p">())</span>
 
         <span class="n">game</span><span class="o">.</span><span class="n">start_game</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">PlayGameState</span><span class="p">(</span><span class="n">game</span><span class="o">=</span><span class="n">game</span><span class="p">,</span> <span class="n">computer_players</span><span class="o">=</span><span class="n">players</span><span class="p">,</span> <span class="n">human_player</span><span class="o">=</span><span class="n">player</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">moves</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">PlayGameState</span><span class="p">(</span>
+            <span class="n">game</span><span class="o">=</span><span class="n">game</span><span class="p">,</span> <span class="n">computer_players</span><span class="o">=</span><span class="n">players</span><span class="p">,</span> <span class="n">human_player</span><span class="o">=</span><span class="n">player</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">moves</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="GameRunner.move_game"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.move_game">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">move_game</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PlayGameState</span><span class="p">,</span> <span class="n">move</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlayGameState</span><span class="p">:</span>
@@ -449,11 +469,20 @@
     <span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I am going to serve&quot;</span><span class="p">)</span>
         <span class="kn">from</span> <span class="nn">.Server</span> <span class="kn">import</span> <span class="n">serve</span>
+
         <span class="n">reuse_addr</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_addr_reuse</span><span class="p">:</span>
             <span class="n">reuse_addr</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">serve</span><span class="p">(</span><span class="n">game_class</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">game_data_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dbfile</span><span class="p">,</span> <span class="n">avg_game_func</span><span class="o">=</span><span class="n">avg_game_func</span><span class="p">,</span>
-              <span class="n">debug</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span> <span class="n">multiplayer_scoring_interval</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">scoring_time</span><span class="p">,</span> <span class="n">reuse_addr</span><span class="o">=</span><span class="n">reuse_addr</span><span class="p">)</span>
+        <span class="n">serve</span><span class="p">(</span>
+            <span class="n">game_class</span><span class="p">,</span>
+            <span class="n">host</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
+            <span class="n">game_data_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dbfile</span><span class="p">,</span>
+            <span class="n">avg_game_func</span><span class="o">=</span><span class="n">avg_game_func</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
+            <span class="n">multiplayer_scoring_interval</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">scoring_time</span><span class="p">,</span>
+            <span class="n">reuse_addr</span><span class="o">=</span><span class="n">reuse_addr</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Playing...&quot;</span><span class="p">)</span>
@@ -461,25 +490,52 @@
 
     <span class="kn">import</span> <span class="nn">argparse</span>
 
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Play &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
-    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;What do you what to do?&#39;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Play &quot;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;What do you what to do?&quot;</span><span class="p">)</span>
     <span class="n">subparsers</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">subparsers</span><span class="o">.</span><span class="n">dest</span> <span class="o">=</span> <span class="s2">&quot;command&quot;</span>
-    <span class="n">parser_play</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;play&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Play &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s1">&#39; with a GUI&#39;</span><span class="p">)</span>
-    <span class="n">parser_play</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--seed&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Manually set the random seed.&#39;</span><span class="p">,</span>
-                             <span class="n">default</span><span class="o">=</span><span class="n">int2base</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">),</span> <span class="mi">36</span><span class="p">))</span>
+    <span class="n">parser_play</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;play&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Play &quot;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s2">&quot; with a GUI&quot;</span><span class="p">)</span>
+    <span class="n">parser_play</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--seed&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Manually set the random seed.&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">int2base</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">),</span> <span class="mi">36</span><span class="p">),</span>
+    <span class="p">)</span>
     <span class="n">parser_play</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">play</span><span class="p">)</span>
-    <span class="n">parser_serve</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s1">&#39;serve&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Serve &#39;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s1">&#39; to the web.&#39;</span><span class="p">)</span>
-    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;--port&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Port to serve on&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
-    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-db&#39;</span><span class="p">,</span> <span class="s1">&#39;--dbfile&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The root path of the game database&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;temp_game&quot;</span><span class="p">)</span>
-    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--debug-log&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The file path to use for the debug log.&#39;</span>
-                                                                       <span class="s1">&#39;&quot;</span><span class="si">{dbname}</span><span class="s1">&quot; in the path will be replaced by the path to the game database&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{dbfile}</span><span class="s2">/log/debug.log&quot;</span><span class="p">)</span>
-    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--error-log&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The file path to use for the error log.&#39;</span>
-                                                                       <span class="s1">&#39;&quot;</span><span class="si">{dbname}</span><span class="s1">&quot; in the path will be replaced by the path to the game database&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{dbfile}</span><span class="s2">/log/error.log&quot;</span><span class="p">)</span>
-    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--host&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The mask to host to&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">)</span>
-    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--no-addr-reuse&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
-    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--debug&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
-    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--scoring_time&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of seconds between re-scoring all the bots.&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+    <span class="n">parser_serve</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;serve&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Serve &quot;</span> <span class="o">+</span> <span class="n">game_class</span><span class="o">.</span><span class="n">GAME_TITLE</span> <span class="o">+</span> <span class="s2">&quot; to the web.&quot;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--port&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Port to serve on&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-db&quot;</span><span class="p">,</span> <span class="s2">&quot;--dbfile&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The root path of the game database&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;temp_game&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--debug-log&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The file path to use for the debug log.&quot;</span>
+        <span class="s1">&#39;&quot;</span><span class="si">{dbname}</span><span class="s1">&quot; in the path will be replaced by the path to the game database&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{dbfile}</span><span class="s2">/log/debug.log&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--error-log&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The file path to use for the error log.&quot;</span>
+        <span class="s1">&#39;&quot;</span><span class="si">{dbname}</span><span class="s1">&quot; in the path will be replaced by the path to the game database&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{dbfile}</span><span class="s2">/log/error.log&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--host&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The mask to host to&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--no-addr-reuse&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--debug&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">parser_serve</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--scoring_time&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of seconds between re-scoring all the bots.&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">parser_serve</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">serve</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>

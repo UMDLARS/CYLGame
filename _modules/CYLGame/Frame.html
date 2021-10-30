@@ -43,7 +43,7 @@
 
 
 <div class="viewcode-block" id="GridFrameBuffer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Frame.GridFrameBuffer">[docs]</a><span class="k">class</span> <span class="nc">GridFrameBuffer</span><span class="p">(</span><span class="n">FrameBuffer</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init_value</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init_value</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            width(int):</span>
@@ -58,7 +58,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">charset</span> <span class="o">=</span> <span class="n">charset</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arr</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arr</span> <span class="o">+=</span> <span class="p">[[</span><span class="nb">ord</span><span class="p">(</span><span class="n">init_value</span><span class="p">)]</span><span class="o">*</span><span class="n">width</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arr</span> <span class="o">+=</span> <span class="p">[[</span><span class="nb">ord</span><span class="p">(</span><span class="n">init_value</span><span class="p">)]</span> <span class="o">*</span> <span class="n">width</span><span class="p">]</span>
 
 <div class="viewcode-block" id="GridFrameBuffer.from_string_array"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Frame.GridFrameBuffer.from_string_array">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_string_array</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>

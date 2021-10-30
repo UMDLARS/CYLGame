@@ -38,7 +38,7 @@
 
 <span class="kn">from</span> <span class="nn">CYLGame.Utils</span> <span class="kn">import</span> <span class="n">deprecated</span>
 
-<span class="n">DEFAULT_CHAR</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+<span class="n">DEFAULT_CHAR</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span>
 
 
 <div class="viewcode-block" id="is_char"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Panels.is_char">[docs]</a><span class="k">def</span> <span class="nf">is_char</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
@@ -221,16 +221,32 @@
     <span class="n">RIGHT</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">LEFT</span> <span class="o">=</span> <span class="mi">4</span>
     <span class="n">BOTTOM</span> <span class="o">=</span> <span class="mi">8</span>
-    <span class="n">DEFAULT_CHARS</span> <span class="o">=</span> <span class="p">{</span><span class="n">TOP</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">196</span><span class="p">),</span> <span class="n">BOTTOM</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">196</span><span class="p">),</span> <span class="n">RIGHT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">179</span><span class="p">),</span> <span class="n">LEFT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">179</span><span class="p">),</span>
-                     <span class="n">TOP</span> <span class="o">|</span> <span class="n">RIGHT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">191</span><span class="p">),</span> <span class="n">TOP</span> <span class="o">|</span> <span class="n">LEFT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">218</span><span class="p">),</span> <span class="n">BOTTOM</span> <span class="o">|</span> <span class="n">RIGHT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">217</span><span class="p">),</span> <span class="n">BOTTOM</span> <span class="o">|</span> <span class="n">LEFT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">192</span><span class="p">)}</span>
+    <span class="n">DEFAULT_CHARS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">TOP</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">196</span><span class="p">),</span>
+        <span class="n">BOTTOM</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">196</span><span class="p">),</span>
+        <span class="n">RIGHT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">179</span><span class="p">),</span>
+        <span class="n">LEFT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">179</span><span class="p">),</span>
+        <span class="n">TOP</span> <span class="o">|</span> <span class="n">RIGHT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">191</span><span class="p">),</span>
+        <span class="n">TOP</span> <span class="o">|</span> <span class="n">LEFT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">218</span><span class="p">),</span>
+        <span class="n">BOTTOM</span> <span class="o">|</span> <span class="n">RIGHT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">217</span><span class="p">),</span>
+        <span class="n">BOTTOM</span> <span class="o">|</span> <span class="n">LEFT</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">192</span><span class="p">),</span>
+    <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sides</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">char</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sides</span> <span class="o">=</span> <span class="n">sides</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sides</span><span class="p">:</span> <span class="n">char</span><span class="p">}</span>
 
 <div class="viewcode-block" id="PanelBorder.create"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Panels.PanelBorder.create">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">top_right</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">top_left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bottom_right</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-               <span class="n">bottom_left</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">bottom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">top_right</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">top_left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">bottom_right</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">bottom_left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use this method for an easy way to create nice borders. Set any side to true to create a border with the default</span>
 <span class="sd">        characters. You can also set any side to a character which will create a border with that character instead.</span>
@@ -354,26 +370,31 @@
                     <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">LEFT</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_w</span><span class="p">):</span>
-                    <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-                                     <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">])</span>
+                    <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_h</span><span class="p">):</span>
-                    <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span>
-                                     <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">])</span>
+                    <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">TOP</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span> <span class="ow">and</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">LEFT</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">:</span>
                 <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">TOP</span> <span class="o">|</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">LEFT</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span> <span class="ow">and</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">LEFT</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">:</span>
-                <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span> <span class="o">|</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">LEFT</span><span class="p">])</span>
+                <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">real_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span> <span class="o">|</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">LEFT</span><span class="p">]</span>
+                <span class="p">)</span>
             <span class="k">if</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">TOP</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span> <span class="ow">and</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">:</span>
-                <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span><span class="p">,</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">TOP</span> <span class="o">|</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">])</span>
+                <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">real_x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">TOP</span> <span class="o">|</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">]</span>
+                <span class="p">)</span>
             <span class="k">if</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span> <span class="ow">and</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">:</span>
-                <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-                                 <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span> <span class="o">|</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">])</span>
+                <span class="n">frame_buffer</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">real_x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">real_y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">border</span><span class="p">[</span><span class="n">PanelBorder</span><span class="o">.</span><span class="n">BOTTOM</span> <span class="o">|</span> <span class="n">PanelBorder</span><span class="o">.</span><span class="n">RIGHT</span><span class="p">],</span>
+                <span class="p">)</span>
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Out of bounds while drawing border. This is normally caused by the forgetting that the&quot;</span>
-                             <span class="s2">&quot;x,y adn width, height of a Panel doesn&#39;t include the border.&quot;</span><span class="p">)</span></div></div>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
+                <span class="s2">&quot;Out of bounds while drawing border. This is normally caused by the forgetting that the&quot;</span>
+                <span class="s2">&quot;x,y adn width, height of a Panel doesn&#39;t include the border.&quot;</span>
+            <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="MapPanel"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Panels.MapPanel">[docs]</a><span class="k">class</span> <span class="nc">MapPanel</span><span class="p">(</span><span class="n">Panel</span><span class="p">):</span>
@@ -415,32 +436,34 @@
 
 
 <div class="viewcode-block" id="MessagePanel"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Panels.MessagePanel">[docs]</a><span class="k">class</span> <span class="nc">MessagePanel</span><span class="p">(</span><span class="n">Panel</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; This panel contains messages to be displayed to the user. It acts as a scrolling text log.</span>
-<span class="sd">        This means that the first message is display on the first line and some on till you have</span>
-<span class="sd">        enough messages to fill the height. Then the next message added will push all the other</span>
-<span class="sd">        messages up and the first message will be discarded.</span>
+    <span class="sd">&quot;&quot;&quot;This panel contains messages to be displayed to the user. It acts as a scrolling text log.</span>
+<span class="sd">    This means that the first message is display on the first line and some on till you have</span>
+<span class="sd">    enough messages to fill the height. Then the next message added will push all the other</span>
+<span class="sd">    messages up and the first message will be discarded.</span>
 
-<span class="sd">        Example:</span>
-<span class="sd">            A MessagePanel with height of 3. Add messages &quot;A&quot;, &quot;B&quot; and &quot;C&quot;. It will display like the following:</span>
-<span class="sd">                A</span>
-<span class="sd">                B</span>
-<span class="sd">                C</span>
-<span class="sd">            Add message &quot;D&quot; and it will display like the following:</span>
-<span class="sd">                B</span>
-<span class="sd">                C</span>
-<span class="sd">                D</span>
+<span class="sd">    Example:</span>
+<span class="sd">        A MessagePanel with height of 3. Add messages &quot;A&quot;, &quot;B&quot; and &quot;C&quot;. It will display like the following:</span>
+<span class="sd">            A</span>
+<span class="sd">            B</span>
+<span class="sd">            C</span>
+<span class="sd">        Add message &quot;D&quot; and it will display like the following:</span>
+<span class="sd">            B</span>
+<span class="sd">            C</span>
+<span class="sd">            D</span>
 
-<span class="sd">        Note:</span>
-<span class="sd">            The following is deprecated:</span>
-<span class="sd">            &gt;&gt;&gt; m = MessagePanel()</span>
-<span class="sd">            &gt;&gt;&gt; m += [&quot;Hi&quot;]</span>
-<span class="sd">            You should do this instead:</span>
-<span class="sd">            &gt;&gt;&gt; m = MessagePanel()</span>
-<span class="sd">            &gt;&gt;&gt; m.add(&quot;Hi&quot;)</span>
+<span class="sd">    Note:</span>
+<span class="sd">        The following is deprecated:</span>
+<span class="sd">        &gt;&gt;&gt; m = MessagePanel()</span>
+<span class="sd">        &gt;&gt;&gt; m += [&quot;Hi&quot;]</span>
+<span class="sd">        You should do this instead:</span>
+<span class="sd">        &gt;&gt;&gt; m = MessagePanel()</span>
+<span class="sd">        &gt;&gt;&gt; m.add(&quot;Hi&quot;)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">default_char</span><span class="o">=</span><span class="n">DEFAULT_CHAR</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">PanelBorder</span><span class="p">(),</span>
-                 <span class="n">padding</span><span class="o">=</span><span class="n">PanelPadding</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">default_char</span><span class="o">=</span><span class="n">DEFAULT_CHAR</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">PanelBorder</span><span class="p">(),</span> <span class="n">padding</span><span class="o">=</span><span class="n">PanelPadding</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MessagePanel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">default_char</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span>
@@ -471,7 +494,7 @@
         <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span>
 
 <div class="viewcode-block" id="MessagePanel.add"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Panels.MessagePanel.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">messages</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">messages</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
@@ -481,7 +504,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 <div class="viewcode-block" id="MessagePanel.get_current_messages"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Panels.MessagePanel.get_current_messages">[docs]</a>    <span class="k">def</span> <span class="nf">get_current_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">:]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">msgs</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span> <span class="p">:]</span></div>
 
 <div class="viewcode-block" id="MessagePanel.redraw"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Panels.MessagePanel.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_buffer</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MessagePanel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">redraw</span><span class="p">(</span><span class="n">frame_buffer</span><span class="p">)</span>
@@ -503,8 +526,9 @@
 
 
 <div class="viewcode-block" id="StatusPanel"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Panels.StatusPanel">[docs]</a><span class="k">class</span> <span class="nc">StatusPanel</span><span class="p">(</span><span class="n">MessagePanel</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">default_char</span><span class="o">=</span><span class="n">DEFAULT_CHAR</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">PanelBorder</span><span class="p">(),</span>
-                 <span class="n">padding</span><span class="o">=</span><span class="n">PanelPadding</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">default_char</span><span class="o">=</span><span class="n">DEFAULT_CHAR</span><span class="p">,</span> <span class="n">border</span><span class="o">=</span><span class="n">PanelBorder</span><span class="p">(),</span> <span class="n">padding</span><span class="o">=</span><span class="n">PanelPadding</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">StatusPanel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">default_char</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
 

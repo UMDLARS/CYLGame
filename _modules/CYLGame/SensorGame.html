@@ -31,37 +31,44 @@
           <div class="body" role="main">
             
   <h1>Source code for CYLGame.SensorGame</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">CYLGame.Game</span> <span class="kn">import</span> <span class="n">NonGridGame</span>
-<span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="kn">import</span> <span class="n">Player</span>
-<span class="kn">from</span> <span class="nn">CYLGame.Frame</span> <span class="kn">import</span> <span class="n">GameFrame</span>
-<span class="kn">from</span> <span class="nn">CYLGame</span> <span class="kn">import</span> <span class="n">GameLanguage</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="n">TAU</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">;</span>
+<span class="kn">from</span> <span class="nn">CYLGame</span> <span class="kn">import</span> <span class="n">GameLanguage</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Frame</span> <span class="kn">import</span> <span class="n">GameFrame</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Game</span> <span class="kn">import</span> <span class="n">NonGridGame</span>
+<span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="kn">import</span> <span class="n">Player</span>
+
+<span class="n">TAU</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
 <span class="n">SEP</span> <span class="o">=</span> <span class="s2">&quot;---------------------------------------&quot;</span>
 
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="kc">False</span>
+
+
 <div class="viewcode-block" id="dprint"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.dprint">[docs]</a><span class="k">def</span> <span class="nf">dprint</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">string</span><span class="p">)</span></div>
-    
+
 
 <div class="viewcode-block" id="deg2rad"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.deg2rad">[docs]</a><span class="k">def</span> <span class="nf">deg2rad</span><span class="p">(</span><span class="n">deg</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">deg</span><span class="p">)</span> <span class="o">*</span> <span class="n">TAU</span> <span class="o">/</span> <span class="mf">360.0</span></div>
+
+
 <div class="viewcode-block" id="rad2deg"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.rad2deg">[docs]</a><span class="k">def</span> <span class="nf">rad2deg</span><span class="p">(</span><span class="n">rad</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">*</span> <span class="mf">360.0</span> <span class="o">/</span> <span class="n">TAU</span></div>
+
 
 <div class="viewcode-block" id="rotate_point"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.rotate_point">[docs]</a><span class="k">def</span> <span class="nf">rotate_point</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">point</span><span class="p">):</span>
     <span class="n">cos_</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
     <span class="n">sin_</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
 
     <span class="n">newp</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">newp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">cos_</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">sin_</span>
-    <span class="n">newp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">sin_</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">cos_</span>
+    <span class="n">newp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">cos_</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">sin_</span>
+    <span class="n">newp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">sin_</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">cos_</span>
 
     <span class="k">return</span> <span class="n">newp</span></div>
+
 
 <div class="viewcode-block" id="compute_vector"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.compute_vector">[docs]</a><span class="k">def</span> <span class="nf">compute_vector</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">screen_width</span><span class="p">,</span> <span class="n">screen_height</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -84,7 +91,8 @@
     <span class="k">elif</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">half_height</span><span class="p">:</span>
         <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">screen_height</span>
 
-    <span class="k">return</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">vector</span></div>
+    <span class="k">return</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">vector</span></div>
+
 
 <div class="viewcode-block" id="SensorSanitizers"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorSanitizers">[docs]</a><span class="k">class</span> <span class="nc">SensorSanitizers</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="c1"># sensor sanitize/validate functions</span>
@@ -126,7 +134,8 @@
 
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></div>
 
-    <span class="n">color_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;#[0-9A-Fa-f]</span><span class="si">{6}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">color_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;#[0-9A-Fa-f]</span><span class="si">{6}</span><span class="s2">&quot;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="SensorSanitizers.san_color"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorSanitizers.san_color">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">san_color</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="p">:</span>
@@ -136,8 +145,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div></div>
 
-<div class="viewcode-block" id="SensorPlayer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorPlayer">[docs]</a><span class="k">class</span> <span class="nc">SensorPlayer</span><span class="p">(</span><span class="n">Player</span><span class="p">):</span>
 
+<div class="viewcode-block" id="SensorPlayer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorPlayer">[docs]</a><span class="k">class</span> <span class="nc">SensorPlayer</span><span class="p">(</span><span class="n">Player</span><span class="p">):</span>
 <div class="viewcode-block" id="SensorPlayer.add_sensor"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorPlayer.add_sensor">[docs]</a>    <span class="k">def</span> <span class="nf">add_sensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_range</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">turret</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds a sensor to this player.</span>
@@ -163,10 +172,10 @@
             <span class="k">return</span>
 
         <span class="c1"># check if they are in our max sensor range</span>
-        <span class="k">if</span> <span class="n">dist_sq</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">tank_sensor_range</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dist_sq</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">tank_sensor_range</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="c1">#print(&quot;sensor_calc&quot;)</span>
-        <span class="c1">#print(dist_sq, vector, self.angle)</span>
+        <span class="c1"># print(&quot;sensor_calc&quot;)</span>
+        <span class="c1"># print(dist_sq, vector, self.angle)</span>
         <span class="c1"># Now calculate sensors</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sensors</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -176,12 +185,12 @@
                 <span class="c1"># sensor already firing</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="n">dist_sq</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dist_sq</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;range&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="c1"># out of range</span>
                 <span class="k">continue</span>
 
             <span class="n">theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">+</span> <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;angle&quot;</span><span class="p">]</span>
-            <span class="c1">#print(sensor[&quot;angle&quot;])</span>
+            <span class="c1"># print(sensor[&quot;angle&quot;])</span>
             <span class="k">if</span> <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;turret&quot;</span><span class="p">]:</span>
                 <span class="n">theta</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turret_current</span>
 
@@ -194,12 +203,12 @@
             <span class="c1"># compute inverse slope of our sensor</span>
             <span class="n">m_s</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
             <span class="c1"># compute slope to other</span>
-            <span class="n">m_r</span> <span class="o">=</span> <span class="n">rotated_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">rotated_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
-            
+            <span class="n">m_r</span> <span class="o">=</span> <span class="n">rotated_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">rotated_point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
             <span class="c1"># if our inverse slope is less than other, they&#39;re inside</span>
             <span class="c1"># the arc</span>
             <span class="k">if</span> <span class="n">m_r</span> <span class="o">&gt;=</span> <span class="n">m_s</span><span class="p">:</span>
-                <span class="c1">#print(&quot;triggered&quot;, i)</span>
+                <span class="c1"># print(&quot;triggered&quot;, i)</span>
                 <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;triggered&quot;</span><span class="p">]</span> <span class="o">|=</span> <span class="n">other</span><span class="o">.</span><span class="n">obj_type</span>
                 <span class="k">continue</span>
 
@@ -207,9 +216,8 @@
             <span class="c1"># this just like with firing</span>
             <span class="n">rotated_point</span> <span class="o">=</span> <span class="n">rotate_point</span><span class="p">(</span><span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">rotated_point</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">rotated_point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">rotated_point</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">:</span>
-                <span class="c1">#print(&quot;triggered&quot;, i)</span>
+                <span class="c1"># print(&quot;triggered&quot;, i)</span>
                 <span class="n">sensor</span><span class="p">[</span><span class="s2">&quot;triggered&quot;</span><span class="p">]</span> <span class="o">|=</span> <span class="n">other</span><span class="o">.</span><span class="n">obj_type</span></div></div>
-
 
 
 <div class="viewcode-block" id="SensorGame"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.SensorGame.SensorGame">[docs]</a><span class="k">class</span> <span class="nc">SensorGame</span><span class="p">(</span><span class="n">NonGridGame</span><span class="p">):</span>
@@ -232,11 +240,9 @@
                     <span class="k">continue</span>
                 <span class="n">dist_sq</span><span class="p">,</span> <span class="n">vector</span> <span class="o">=</span> <span class="n">compute_vector</span><span class="p">(</span><span class="n">players</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">players</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">SCREEN_WIDTH</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SCREEN_HEIGHT</span><span class="p">)</span>
                 <span class="n">players</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sensor_calc</span><span class="p">(</span><span class="n">players</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">dist_sq</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SENSOR_RANGE</span><span class="p">)</span>
-                <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-                <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+                <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">players</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">sensor_calc</span><span class="p">(</span><span class="n">players</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dist_sq</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SENSOR_RANGE</span><span class="p">)</span></div></div>
-
-
 </pre></div>
 
           </div>
