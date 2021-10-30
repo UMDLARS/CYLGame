@@ -601,3 +601,21 @@ class GameDB(object):
 
         if os.path.exists(self.__get_dir_for_token(token, "report.mp.gz")):
             return read_json(self.__get_dir_for_token(token, "report.mp.gz"))
+
+    def get_code_by_hash(self, code_hash_prefix):
+        """Returns the code for the code hash or a list of hashes if the code hash prefix matches multiple codes."""
+        matching_hashes_to_path = {}
+        for utoken in self.__get_user_tokens():
+            user_code_path = self.__get_dir_for_token(utoken, self.CODE_DIR)
+            if os.path.exists(user_code_path):
+                for code_key in os.listdir(user_code_path):
+                    timestamp, code_hash = code_key.split("_")
+                    if code_hash.startswith(code_hash_prefix):
+                        matching_hashes_to_path[code_hash] = self.__get_dir_for_token(utoken, [self.CODE_DIR, code_key])
+
+        if len(matching_hashes_to_path) == 1:
+            path = os.path.join(list(matching_hashes_to_path.values())[0], self.CODE_FILENAME)
+            with io.open(path, "r", encoding="utf8") as fp:
+                return fp.read()
+
+        return list(matching_hashes_to_path.keys())
