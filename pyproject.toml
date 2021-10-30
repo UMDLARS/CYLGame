@@ -1,3 +1,60 @@
+
+[tool.poetry]
+name = "CYLGame"
+version = "1.6.32"
+description = "UMDCYL Game Framework"
+authors = ["Jonathan Beaulieu <123.jonathan@gmail.com>", "Chandler Swift <chandler@chandlerswift.com>", "Peter A. H. Peterson <pahp@d.umn.edu>", "John Pan <pan00033@d.umn.edu>", "Al Straumann <alstraumann@gmail.com>", "Brandon Geraci <bran0847@d.umn.edu>", "Brandon Paulsen <pauls658@d.umn.edu>", "Scott Redig <Laremere@gmail.com>", "Julian Nowaczek <jnowaczek@noreply.users.github.com>"]
+maintainers = ["Jonathan Beaulieu <123.jonathan@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/UMDLARS/CYLGame"
+repository = "https://github.com/UMDLARS/CYLGame"
+packages = [
+    { include = 'CYLGame' },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+Flask = "^2.0.2"
+cachetools = "^4.2.4"
+click = "^8.0.3"
+future = "^0.18.2"
+Flask-Compress = "^1.10.1"
+Flask-Classful = "^0.14.2"
+flask-request-id-header = "^0.1.1"
+Flask-Markdown = "^0.3"
+littlepython = "^0.4.11"
+ujson = "^4.2.0"
+msgpack = "^1.0.2"
+gevent = "^21.8.0"
+pycryptodome = "^3.11.0"
+pygame = {version = "^2.0.2", optional = true}
+
+[tool.poetry.dev-dependencies]
+Sphinx = "^4.2.0"
+sphinxcontrib-versioning = "^2.2.1"
+mypy = "^0.910"
+isort = {extras = ["colors"], version = "^5.9.3"}
+black = "^21.9b0"
+pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
+types-ujson = "^4.2.0"
+types-setuptools = "^57.4.2"
+types-cachetools = "^4.2.4"
+types-Markdown = "^3.3.6"
+
+[tool.poetry.extras]
+playable = ["pygame"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.mypy]
 # https://mypy.readthedocs.io/en/latest/config_file.html#using-a-pyproject-toml-file
 python_version = 3.7
@@ -24,3 +81,9 @@ profile = "black"
 multi_line_output = 3
 indent = 4
 color_output = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests"
+]
