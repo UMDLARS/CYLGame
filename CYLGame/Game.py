@@ -6,9 +6,11 @@ import os.path
 import random
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 from CYLGame.Frame import GridFrameBuffer
 from CYLGame.Player import Player, UserProg
+from CYLGame.Sprite import SpriteSet
 from CYLGame.Utils import int2base
 
 FPS = 30
@@ -273,6 +275,16 @@ class GridGame(Game):
                 "northwest": ord("q"),
                 "southwest": ord("z"),
             }
+        )
+
+    @classmethod
+    def get_sprite_set(cls) -> SpriteSet:
+        return SpriteSet(
+            char_width=cls.CHAR_WIDTH,
+            char_height=cls.CHAR_HEIGHT,
+            char_rows=16,
+            char_columns=16,
+            image_filepath=Path(cls.CHAR_SET),
         )
 
 
