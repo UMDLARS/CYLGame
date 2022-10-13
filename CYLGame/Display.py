@@ -1,6 +1,8 @@
-from __future__ import division
+from dataclasses import dataclass
 
 import pygame
+
+from CYLGame.Sprite import SpriteSet
 
 PYGAME_SCREEN = None
 
@@ -9,7 +11,7 @@ def get_clock():
     return pygame.time.Clock()
 
 
-class Display(object):
+class Display:
     def __init__(self, width, height, title=None):
         self.width = width
         self.height = height
@@ -69,16 +71,25 @@ class PyGameDisplay(Display):
         pygame.display.flip()
 
 
-class CharSet(object):
-    def __init__(self, filename, char_width, char_height):
-        self.char_width = char_width
-        self.char_height = char_height
-        self.img = pygame.image.load(filename)
+@dataclass
+class CharSet(SpriteSet):
+    def __post_init__(self):
+        self.img = pygame.image.load(self.image_filepath)
         self.cache = {}
 
+    @classmethod
+    def from_sprite_set(cls, sprite_set):
+        return cls(
+            image_filepath=sprite_set.image_filepath,
+            char_width=sprite_set.char_width,
+            char_height=sprite_set.char_height,
+            char_rows=sprite_set.char_rows,
+            char_columns=sprite_set.char_columns,
+        )
+
     def create_char_img(self, char):
-        row = char % 16
-        col = char // 16
+        row = char % self.char_columns
+        col = char // self.char_columns
 
         crop_dim = (
             row * self.char_width,

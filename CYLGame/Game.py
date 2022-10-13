@@ -238,7 +238,7 @@ class GridGame(Game):
 
     def get_frame(self):
         if self.__frame_buffer is None:
-            self.__frame_buffer = GridFrameBuffer(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+            self.__frame_buffer = GridFrameBuffer(self.SCREEN_WIDTH, self.SCREEN_HEIGHT, charset=self.get_sprite_set())
         self.draw_screen(self.__frame_buffer)
         return self.__frame_buffer.dump()
 
@@ -372,8 +372,9 @@ class GameRunner(object):
         from CYLGame import Display
 
         game = self.game_class(random.Random(seed))
+        assert isinstance(game, GridGame)
 
-        charset = Display.CharSet(self.game_class.CHAR_SET, self.game_class.CHAR_WIDTH, self.game_class.CHAR_HEIGHT)
+        charset = Display.CharSet.from_sprite_set(game.get_sprite_set())
         display = Display.PyGameDisplay(
             *charset.char_size_to_pix((game.SCREEN_WIDTH, game.SCREEN_HEIGHT)), title=game.GAME_TITLE
         )
