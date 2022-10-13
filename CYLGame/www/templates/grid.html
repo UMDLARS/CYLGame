@@ -356,10 +356,12 @@
             var img=document.getElementById("chars");
             var char_height = {{ char_height }};
             var char_width = {{ char_width }};
+            var char_rows = {{ char_rows }};
+            var char_columns = {{ char_columns }};
 
             for (var i = 0; i < frame.length; i++) {
                 for (var j = 0; j < frame[i].length; j++) {
-                    draw_functions["char"](c,ctx,[frame[i][j],j,i,char_height,char_width]);
+                    draw_functions["char"](c,ctx,[frame[i][j],j,i,char_height,char_width,char_rows,char_columns]);
                 }
             }
         }

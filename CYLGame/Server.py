@@ -190,11 +190,14 @@ class GameServer(flask_classful.FlaskView):
 
     @flask_classful.route("/player")
     def get_player(self):
-        if self.game.GRID:
+        if isinstance(self.game, GridGame):
+            sprite_set = self.game.get_sprite_set()
             return flask.render_template(
                 "grid_player.html",
-                char_width=self.game.CHAR_WIDTH,
-                char_height=self.game.CHAR_HEIGHT,
+                char_width=sprite_set.char_width,
+                char_height=sprite_set.char_height,
+                char_rows=sprite_set.char_rows,
+                char_columns=sprite_set.char_columns,
                 screen_width=self.game.SCREEN_WIDTH,
                 screen_height=self.game.SCREEN_HEIGHT,
                 char_set=self.charset,
@@ -347,13 +350,16 @@ class GameServer(flask_classful.FlaskView):
 
     def index(self):
         intro = self.game.get_intro() + GameLanguage.get_language_description(self.language)
-        if self.game.GRID:
+        if isinstance(self.game, GridGame):
+            sprite_set = self.game.get_sprite_set()
             return flask.render_template(
                 "grid.html",
                 game_title=self.game.GAME_TITLE,
                 example_bot=self.game.default_prog_for_bot(self.language),
-                char_width=self.game.CHAR_WIDTH,
-                char_height=self.game.CHAR_HEIGHT,
+                char_width=sprite_set.char_width,
+                char_height=sprite_set.char_height,
+                char_rows=sprite_set.char_rows,
+                char_columns=sprite_set.char_columns,
                 screen_width=self.game.SCREEN_WIDTH,
                 screen_height=self.game.SCREEN_HEIGHT,
                 char_set=self.charset,

@@ -1,6 +1,6 @@
 from __future__ import division
 
-from typing import List, Optional
+from typing import List, Optional, Type
 
 import os.path
 import random
@@ -120,7 +120,6 @@ class Game(object):
 
 class NonGridGame(Game):
     WEBONLY = True
-    GRID = False
 
     def read_bot_state(self, state):
         raise Exception("Not Implemented!")
@@ -205,7 +204,6 @@ class ConstMapping:
 
 class GridGame(Game):
     WEBONLY = False
-    GRID = True
     SCREEN_WIDTH = 80
     SCREEN_HEIGHT = 25
     CHAR_WIDTH = 8
@@ -300,7 +298,7 @@ class PlayGameState:
 
 
 class GameRunner(object):
-    def __init__(self, game_class):
+    def __init__(self, game_class: Type[Game]):
         self.game_class = game_class  # type: Type[Game]
 
     def run(self, room, playback=True):
