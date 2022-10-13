@@ -41,7 +41,7 @@ sphinxcontrib-versioning = "^2.2.1"
 mypy = "^0.910"
 isort = {extras = ["colors"], version = "^5.9.3"}
 black = "^21.9b0"
-pytest = "^6.2.5"
+pytest = "^7.1"
 pytest-cov = "^3.0.0"
 types-ujson = "^4.2.0"
 types-setuptools = "^57.4.2"
@@ -87,3 +87,5 @@ minversion = "6.0"
 testpaths = [
     "tests"
 ]
+pythonpath = ["."]
+log_level = "DEBUG"
