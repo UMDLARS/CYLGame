@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from CYLGame.Frame import GridFrameBuffer
 from CYLGame.Game import ConstMapping, GridGame
 from CYLGame.Player import DefaultGridPlayer
@@ -29,24 +30,24 @@ class CustomCharSize(GridGame):
             char_columns=3,
             image_filepath=Path(cls.CHAR_SET),
         )
-    
+
     def __init__(self, random):
         super().__init__(random)
         self.running = True
-    
+
     def init_board(self):
         pass
 
     def create_new_player(self, prog):
         self.player = DefaultGridPlayer(prog, ConstMapping({}))
         return self.player
-    
+
     def start_game(self):
         pass
 
     def is_running(self):
         return self.running
-    
+
     def draw_screen(self, frame_buffer: GridFrameBuffer):
         frame_buffer.set(2, 1, 0)
         frame_buffer.set(3, 1, 1)
@@ -54,12 +55,11 @@ class CustomCharSize(GridGame):
         frame_buffer.set(2, 2, 3)
         frame_buffer.set(3, 2, 4)
         frame_buffer.set(4, 2, 5)
-    
+
     def do_turn(self):
         key = self.player.move
-        if key == 'q':
+        if key == "q":
             self.running = False
-
 
 
 if __name__ == "__main__":
