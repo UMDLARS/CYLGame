@@ -539,11 +539,31 @@
 <span id="cylgame-display-module"></span><h2>CYLGame.Display module<a class="headerlink" href="#module-CYLGame.Display" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="CYLGame.Display.CharSet">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Display.</span></span><span class="sig-name descname"><span class="pre">CharSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_height</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Display.</span></span><span class="sig-name descname"><span class="pre">CharSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_filepath</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_width</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_height</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_rows</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">char_columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">CYLGame.Sprite.SpriteSet</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.char_columns">
+<span class="sig-name descname"><span class="pre">char_columns</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#CYLGame.Display.CharSet.char_columns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.char_height">
+<span class="sig-name descname"><span class="pre">char_height</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#CYLGame.Display.CharSet.char_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.char_rows">
+<span class="sig-name descname"><span class="pre">char_rows</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#CYLGame.Display.CharSet.char_rows" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Display.CharSet.char_size_to_pix">
 <span class="sig-name descname"><span class="pre">char_size_to_pix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet.char_size_to_pix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet.char_size_to_pix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.char_width">
+<span class="sig-name descname"><span class="pre">char_width</span></span><em class="property"><span class="pre">:</span> <span class="pre">int</span></em><a class="headerlink" href="#CYLGame.Display.CharSet.char_width" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -552,8 +572,18 @@
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.from_sprite_set">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_sprite_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sprite_set</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet.from_sprite_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet.from_sprite_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Display.CharSet.get_img">
 <span class="sig-name descname"><span class="pre">get_img</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">char</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Display.html#CharSet.get_img"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Display.CharSet.get_img" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="CYLGame.Display.CharSet.image_filepath">
+<span class="sig-name descname"><span class="pre">image_filepath</span></span><em class="property"><span class="pre">:</span> <span class="pre">pathlib.Path</span></em><a class="headerlink" href="#CYLGame.Display.CharSet.image_filepath" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -870,7 +900,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="CYLGame.Game.GameRunner">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Game.</span></span><span class="sig-name descname"><span class="pre">GameRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">game_class</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.GameRunner" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Game.</span></span><span class="sig-name descname"><span class="pre">GameRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">game_class</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#CYLGame.Game.Game" title="CYLGame.Game.Game"><span class="pre">CYLGame.Game.Game</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#GameRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.GameRunner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Game.GameRunner.init_game">
@@ -950,11 +980,6 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="CYLGame.Game.GridGame.GRID">
-<span class="sig-name descname"><span class="pre">GRID</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#CYLGame.Game.GridGame.GRID" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="CYLGame.Game.GridGame.SCREEN_HEIGHT">
 <span class="sig-name descname"><span class="pre">SCREEN_HEIGHT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">25</span></em><a class="headerlink" href="#CYLGame.Game.GridGame.SCREEN_HEIGHT" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1023,6 +1048,11 @@ during the competitions.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="CYLGame.Game.GridGame.get_sprite_set">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_sprite_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CYLGame.Sprite.SpriteSet</span></span></span><a class="reference internal" href="_modules/CYLGame/Game.html#GridGame.get_sprite_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.GridGame.get_sprite_set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="CYLGame.Game.GridGame.get_vars">
 <span class="sig-name descname"><span class="pre">get_vars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">player</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#GridGame.get_vars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.GridGame.get_vars" title="Permalink to this definition">¶</a></dt>
 <dd><p>TODO: write this</p>
@@ -1048,11 +1078,6 @@ during the competitions.</p>
 <dt class="sig sig-object py" id="CYLGame.Game.NonGridGame">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">CYLGame.Game.</span></span><span class="sig-name descname"><span class="pre">NonGridGame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/CYLGame/Game.html#NonGridGame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#CYLGame.Game.NonGridGame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#CYLGame.Game.Game" title="CYLGame.Game.Game"><code class="xref py py-class docutils literal notranslate"><span class="pre">CYLGame.Game.Game</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="CYLGame.Game.NonGridGame.GRID">
-<span class="sig-name descname"><span class="pre">GRID</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#CYLGame.Game.NonGridGame.GRID" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="CYLGame.Game.NonGridGame.WEBONLY">
 <span class="sig-name descname"><span class="pre">WEBONLY</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#CYLGame.Game.NonGridGame.WEBONLY" title="Permalink to this definition">¶</a></dt>
