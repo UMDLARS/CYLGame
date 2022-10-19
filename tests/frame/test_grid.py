@@ -1,4 +1,7 @@
+import pytest
+
 from CYLGame.Frame import GridFrameBuffer
+from CYLGame.Sprite import SpriteSet
 
 
 def test_str_1x1():
@@ -68,3 +71,53 @@ def test_from_string_array():
     frame1.set(1, 1, "d")
     frame2 = GridFrameBuffer.from_string_array(["ab", "cd"])
     assert frame1 == frame2
+
+
+@pytest.mark.parametrize(
+    "width, height, x, y, char",
+    [
+        (1, 1, -1, 0, "a"),
+        (1, 1, 0, -1, "a"),
+        (1, 1, -100, -100, "a"),
+        (1, 1, 2, 0, "a"),
+        (1, 1, 100, 100, "a"),
+    ],
+)
+def test_out_of_bounds(width, height, x, y, char):
+    frame = GridFrameBuffer(width=width, height=height)
+    with pytest.raises(IndexError):
+        frame.set(x, y, char=char)
+
+
+@pytest.mark.parametrize(
+    "sprite_set, char",
+    [
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=1, char_columns=1), 0),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), 99),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), 50),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), 10),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), 9),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), 0),
+    ],
+)
+def test_valid_char(sprite_set, char):
+    frame = GridFrameBuffer(width=1, height=1, charset=sprite_set)
+    frame.set(0, 0, char)
+
+
+@pytest.mark.parametrize(
+    "sprite_set, char",
+    [
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=1, char_columns=1), 10),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=1, char_columns=1), 1),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=1, char_columns=1), -1),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), -1),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), -100),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), 100),
+        (SpriteSet(image_filepath=None, char_width=None, char_height=None, char_rows=10, char_columns=10), 321),
+    ],
+)
+def test_invalid_char(sprite_set, char):
+    frame = GridFrameBuffer(width=1, height=1, charset=sprite_set)
+    with pytest.raises(ValueError):
+        frame.set(0, 0, char)

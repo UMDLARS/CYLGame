@@ -14,8 +14,8 @@ var draw_char = function(canvas, ctx, args){
 	var y = args[2];
 	var char_height = args[3];
 	var char_width = args[4];
-    var rows = 16;
-    var cols = 16;
+    var rows = args[5];
+    var cols = args[6];
 
     if (window.charSetLayout == "col") {
         var sourceY = (char%rows)*char_width;

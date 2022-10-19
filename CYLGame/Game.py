@@ -1,14 +1,16 @@
 from __future__ import division
 
-from typing import List, Optional
+from typing import List, Optional, Type
 
 import os.path
 import random
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 from CYLGame.Frame import GridFrameBuffer
 from CYLGame.Player import Player, UserProg
+from CYLGame.Sprite import SpriteSet
 from CYLGame.Utils import int2base
 
 FPS = 30
@@ -118,7 +120,6 @@ class Game(object):
 
 class NonGridGame(Game):
     WEBONLY = True
-    GRID = False
 
     def read_bot_state(self, state):
         raise Exception("Not Implemented!")
@@ -203,7 +204,6 @@ class ConstMapping:
 
 class GridGame(Game):
     WEBONLY = False
-    GRID = True
     SCREEN_WIDTH = 80
     SCREEN_HEIGHT = 25
     CHAR_WIDTH = 8
@@ -236,7 +236,7 @@ class GridGame(Game):
 
     def get_frame(self):
         if self.__frame_buffer is None:
-            self.__frame_buffer = GridFrameBuffer(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+            self.__frame_buffer = GridFrameBuffer(self.SCREEN_WIDTH, self.SCREEN_HEIGHT, charset=self.get_sprite_set())
         self.draw_screen(self.__frame_buffer)
         return self.__frame_buffer.dump()
 
@@ -275,6 +275,16 @@ class GridGame(Game):
             }
         )
 
+    @classmethod
+    def get_sprite_set(cls) -> SpriteSet:
+        return SpriteSet(
+            char_width=cls.CHAR_WIDTH,
+            char_height=cls.CHAR_HEIGHT,
+            char_rows=16,
+            char_columns=16,
+            image_filepath=Path(cls.CHAR_SET),
+        )
+
 
 @dataclass
 class PlayGameState:
@@ -288,7 +298,7 @@ class PlayGameState:
 
 
 class GameRunner(object):
-    def __init__(self, game_class):
+    def __init__(self, game_class: Type[Game]):
         self.game_class = game_class  # type: Type[Game]
 
     def run(self, room, playback=True):
@@ -360,8 +370,9 @@ class GameRunner(object):
         from CYLGame import Display
 
         game = self.game_class(random.Random(seed))
+        assert isinstance(game, GridGame)
 
-        charset = Display.CharSet(self.game_class.CHAR_SET, self.game_class.CHAR_WIDTH, self.game_class.CHAR_HEIGHT)
+        charset = Display.CharSet.from_sprite_set(game.get_sprite_set())
         display = Display.PyGameDisplay(
             *charset.char_size_to_pix((game.SCREEN_WIDTH, game.SCREEN_HEIGHT)), title=game.GAME_TITLE
         )

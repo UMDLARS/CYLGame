@@ -63,6 +63,8 @@ class GridFrameBuffer(FrameBuffer):
             raise IndexError("Trying to draw out of bounds at ({}, {})".format(x, y))
         if not (0 <= y < self.y):
             raise IndexError("Trying to draw out of bounds at ({}, {})".format(x, y))
+        if self.charset and not self.charset.is_char_valid(char):
+            raise ValueError(f"Trying to draw invalid char {char}")
         self.arr[y][x] = char
 
     def draw_to_surface(self, surface):
