@@ -44,6 +44,7 @@
 <span class="kn">from</span> <span class="nn">CYLGame.Frame</span> <span class="kn">import</span> <span class="n">GridFrameBuffer</span>
 <span class="kn">from</span> <span class="nn">CYLGame.Player</span> <span class="kn">import</span> <span class="n">Player</span><span class="p">,</span> <span class="n">UserProg</span>
 <span class="kn">from</span> <span class="nn">CYLGame.Sprite</span> <span class="kn">import</span> <span class="n">SpriteSet</span>
+<span class="kn">from</span> <span class="nn">CYLGame.structures.const_mapping</span> <span class="kn">import</span> <span class="n">ConstMapping</span>
 <span class="kn">from</span> <span class="nn">CYLGame.Utils</span> <span class="kn">import</span> <span class="n">int2base</span>
 
 <span class="n">FPS</span> <span class="o">=</span> <span class="mi">30</span>
@@ -161,80 +162,6 @@
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not Implemented!&quot;</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ConstMapping"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.ConstMapping">[docs]</a><span class="k">class</span> <span class="nc">ConstMapping</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        dict() -&gt; new empty dictionary</span>
-<span class="sd">        dict(mapping) -&gt; new dictionary initialized from a mapping object&#39;s</span>
-<span class="sd">            (key, value) pairs</span>
-<span class="sd">        dict(iterable) -&gt; new dictionary initialized as if via:</span>
-<span class="sd">            d = {}</span>
-<span class="sd">            for k, v in iterable:</span>
-<span class="sd">                d[k] = v</span>
-<span class="sd">        dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs</span>
-<span class="sd">            in the keyword argument list.  For example:  dict(one=1, two=2)</span>
-<span class="sd">        # (copied from class doc)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">seq</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="bp">self</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
-        <span class="k">elif</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">seq</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
-
-<div class="viewcode-block" id="ConstMapping.update"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.ConstMapping.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="bp">self</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span></div>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-
-    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span> <span class="ow">or</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span>
-
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="c1"># TODO: assert key is a valid littlepython variable name.</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;Key must be a variable name&quot;</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;Only valid value is an int currently&quot;</span>
-
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">:</span>
-            <span class="n">old_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">[</span><span class="n">old_value</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">,</span> <span class="s2">&quot;This is a one-to-one mapping&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
-
-    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_to_name_mapping</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_to_val_mapping</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="GridGame"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GridGame">[docs]</a><span class="k">class</span> <span class="nc">GridGame</span><span class="p">(</span><span class="n">Game</span><span class="p">):</span>
     <span class="n">WEBONLY</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">SCREEN_WIDTH</span> <span class="o">=</span> <span class="mi">80</span>
@@ -324,6 +251,7 @@
     <span class="n">game</span><span class="p">:</span> <span class="n">Game</span>
     <span class="n">computer_players</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Player</span><span class="p">]</span>
     <span class="n">human_player</span><span class="p">:</span> <span class="n">Player</span>
+    <span class="n">human_prog</span><span class="p">:</span> <span class="n">UserProg</span>
     <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span>
 
     <span class="n">moves</span><span class="p">:</span> <span class="nb">str</span>
@@ -450,11 +378,18 @@
             <span class="n">computer_bot_class</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">default_prog_for_computer</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">game</span><span class="o">.</span><span class="n">get_number_of_players</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">players</span> <span class="o">+=</span> <span class="p">[</span><span class="n">game</span><span class="o">.</span><span class="n">create_new_player</span><span class="p">(</span><span class="n">computer_bot_class</span><span class="p">())]</span>
-        <span class="n">player</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">create_new_player</span><span class="p">(</span><span class="n">UserProg</span><span class="p">())</span>
+        <span class="n">user_prog</span> <span class="o">=</span> <span class="n">UserProg</span><span class="p">()</span>
+        <span class="n">player</span> <span class="o">=</span> <span class="n">game</span><span class="o">.</span><span class="n">create_new_player</span><span class="p">(</span><span class="n">user_prog</span><span class="p">)</span>
 
         <span class="n">game</span><span class="o">.</span><span class="n">start_game</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">PlayGameState</span><span class="p">(</span>
-            <span class="n">game</span><span class="o">=</span><span class="n">game</span><span class="p">,</span> <span class="n">computer_players</span><span class="o">=</span><span class="n">players</span><span class="p">,</span> <span class="n">human_player</span><span class="o">=</span><span class="n">player</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">moves</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span>
+            <span class="n">game</span><span class="o">=</span><span class="n">game</span><span class="p">,</span>
+            <span class="n">computer_players</span><span class="o">=</span><span class="n">players</span><span class="p">,</span>
+            <span class="n">human_player</span><span class="o">=</span><span class="n">player</span><span class="p">,</span>
+            <span class="n">human_prog</span><span class="o">=</span><span class="n">user_prog</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">moves</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">frame</span><span class="o">=</span><span class="n">game</span><span class="o">.</span><span class="n">get_frame</span><span class="p">(),</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="GameRunner.move_game"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Game.GameRunner.move_game">[docs]</a>    <span class="nd">@staticmethod</span>
@@ -462,8 +397,9 @@
         <span class="n">player</span><span class="p">,</span> <span class="n">comp_players</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">human_player</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">computer_players</span>
         <span class="n">local_random</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">random</span>
         <span class="n">game</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">game</span>
+        <span class="n">human_prog</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">human_prog</span>
 
-        <span class="n">player</span><span class="o">.</span><span class="n">prog</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">move</span>
+        <span class="n">human_prog</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">move</span>
         <span class="n">player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">local_random</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">comp_player</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">computer_players</span><span class="p">:</span>
             <span class="n">comp_player</span><span class="o">.</span><span class="n">run_turn</span><span class="p">(</span><span class="n">local_random</span><span class="p">)</span>

@@ -54,7 +54,7 @@
 <span class="kn">from</span> <span class="nn">.Database</span> <span class="kn">import</span> <span class="n">GameDB</span>
 <span class="kn">from</span> <span class="nn">.Game</span> <span class="kn">import</span> <span class="n">GameLanguage</span><span class="p">,</span> <span class="n">GameRunner</span><span class="p">,</span> <span class="n">GridGame</span><span class="p">,</span> <span class="n">average</span>
 <span class="kn">from</span> <span class="nn">.Log</span> <span class="kn">import</span> <span class="n">setup_logging</span>
-<span class="kn">from</span> <span class="nn">.Player</span> <span class="kn">import</span> <span class="n">Room</span>
+<span class="kn">from</span> <span class="nn">.Player</span> <span class="kn">import</span> <span class="n">LittlePythonProg</span><span class="p">,</span> <span class="n">Prog</span><span class="p">,</span> <span class="n">Room</span>
 <span class="kn">from</span> <span class="nn">.Utils</span> <span class="kn">import</span> <span class="n">int2base</span>
 
 <span class="n">ANONYMOUS_COMP</span> <span class="o">=</span> <span class="s2">&quot;P00000000&quot;</span>
@@ -130,6 +130,13 @@
         <span class="n">new_charset_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fonts_dir</span><span class="p">,</span> <span class="n">charset_name</span><span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">charset</span><span class="p">,</span> <span class="n">new_charset_path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">charset_name</span>
+
+    <span class="k">def</span> <span class="nf">_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">code_hash</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Prog</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">language</span> <span class="o">==</span> <span class="n">GameLanguage</span><span class="o">.</span><span class="n">LITTLEPY</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">LittlePythonProg</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">code</span><span class="p">),</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">code_hash</span><span class="o">=</span><span class="n">code_hash</span>
+            <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No compiler found for language </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="GameServer.before_request"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.before_request">[docs]</a>    <span class="k">def</span> <span class="nf">before_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwarg</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">has_request_context</span><span class="p">():</span>
@@ -241,11 +248,11 @@
         <span class="c1"># TODO: create this to run the game 100 times returning the average score to the user.</span>
         <span class="n">code</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">token</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-        <span class="n">options</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;options&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">flask</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span><span class="n">silent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;options&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Token&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+            <span class="n">prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">code</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Code did not compile&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">:</span>
@@ -288,11 +295,7 @@
             <span class="k">except</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Invalid Seed&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
-            <span class="n">prog</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
-            <span class="n">prog</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">ANONYMOUS_USER</span>  <span class="c1"># anonymous user</span>
-            <span class="n">prog</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Your bot&quot;</span>
-            <span class="n">prog</span><span class="o">.</span><span class="n">code_hash</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
+            <span class="n">prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">code</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">ANONYMOUS_USER</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Your bot&quot;</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Code did not compile&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gamedb</span><span class="o">.</span><span class="n">is_user_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
@@ -307,9 +310,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">opponent</span> <span class="ow">in</span> <span class="n">opponents</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">opponent</span> <span class="o">==</span> <span class="n">ANONYMOUS_USER</span><span class="p">:</span>
-                        <span class="n">opponent_prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
-                        <span class="n">opponent_prog</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
-                        <span class="n">opponent_prog</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Your other bot&quot;</span>
+                        <span class="n">opponent_prog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compile</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">code</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Your other bot&quot;</span><span class="p">)</span>
                         <span class="n">players</span> <span class="o">+=</span> <span class="p">[</span><span class="n">opponent_prog</span><span class="p">]</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="s2">&quot;Not implemented yet :(&quot;</span><span class="p">)</span>
@@ -498,13 +499,13 @@
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting server at </span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
 
+        <span class="n">scoring_process</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span> <span class="ow">and</span> <span class="n">multiplayer_scoring_interval</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting scoring process...&quot;</span><span class="p">)</span>
             <span class="n">scoring_process</span> <span class="o">=</span> <span class="n">RollingMultiplayerCompRunner</span><span class="p">(</span>
                 <span class="n">multiplayer_scoring_interval</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">gamedb</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">compiler</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span>
             <span class="p">)</span>
-            <span class="c1"># scoring_process = MultiplayerCompRunner(multiplayer_scoring_interval, cls.gamedb, cls.game, cls.compiler, debug=debug)</span>
             <span class="n">scoring_process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
@@ -531,7 +532,7 @@
             <span class="n">serve_forever</span><span class="p">(</span><span class="n">listener</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dying...&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">MULTIPLAYER</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">scoring_process</span><span class="p">:</span>
             <span class="n">scoring_process</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All good :)&quot;</span><span class="p">)</span></div></div>
 
