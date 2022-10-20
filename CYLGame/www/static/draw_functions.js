@@ -19,12 +19,12 @@ var draw_char = function(canvas, ctx, args){
 
     if (window.charSetLayout == "col") {
         var sourceY = (char%rows)*char_width;
-        var sourceX = Math.floor(char/rows)*char_width;
+        var sourceX = Math.floor(char/rows)*char_height;
         var sourceWidth = char_width;
         var sourceHeight = char_height;
     } else if (window.charSetLayout == "row") {
         var sourceX = (char%cols)*char_width;
-        var sourceY = Math.floor(char/cols)*char_width;
+        var sourceY = Math.floor(char/cols)*char_height;
         var sourceWidth = char_width;
         var sourceHeight = char_height;
     }

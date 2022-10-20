@@ -197,7 +197,7 @@ class GameServer(flask_classful.FlaskView):
 
     @flask_classful.route("/player")
     def get_player(self):
-        if isinstance(self.game, GridGame):
+        if issubclass(self.game, GridGame):
             sprite_set = self.game.get_sprite_set()
             return flask.render_template(
                 "grid_player.html",
@@ -351,7 +351,7 @@ class GameServer(flask_classful.FlaskView):
 
     def index(self):
         intro = self.game.get_intro() + GameLanguage.get_language_description(self.language)
-        if isinstance(self.game, GridGame):
+        if issubclass(self.game, GridGame):
             sprite_set = self.game.get_sprite_set()
             return flask.render_template(
                 "grid.html",
