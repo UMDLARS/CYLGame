@@ -11,7 +11,7 @@ class CustomCharSize(GridGame):
     SCREEN_HEIGHT = 8
     CHAR_WIDTH = 56
     CHAR_HEIGHT = 88
-    CHAR_SET = "resources/terminal7x11_gs_ro.png"
+    CHAR_SET = "resources/terminal56x88_gs_ro.png"
 
     @staticmethod
     def get_intro():
