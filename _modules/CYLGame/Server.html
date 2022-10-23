@@ -230,7 +230,7 @@
 
 <div class="viewcode-block" id="GameServer.get_player"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.get_player">[docs]</a>    <span class="nd">@flask_classful</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/player&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_player</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="p">,</span> <span class="n">GridGame</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="p">,</span> <span class="n">GridGame</span><span class="p">):</span>
             <span class="n">sprite_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">get_sprite_set</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span>
                 <span class="s2">&quot;grid_player.html&quot;</span><span class="p">,</span>
@@ -384,7 +384,7 @@
 
 <div class="viewcode-block" id="GameServer.index"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Server.GameServer.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">intro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">get_intro</span><span class="p">()</span> <span class="o">+</span> <span class="n">GameLanguage</span><span class="o">.</span><span class="n">get_language_description</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="p">,</span> <span class="n">GridGame</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="p">,</span> <span class="n">GridGame</span><span class="p">):</span>
             <span class="n">sprite_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">get_sprite_set</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">flask</span><span class="o">.</span><span class="n">render_template</span><span class="p">(</span>
                 <span class="s2">&quot;grid.html&quot;</span><span class="p">,</span>
