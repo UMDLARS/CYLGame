@@ -93,3 +93,5 @@ CYLGame/static/fonts/
 \.idea/
 .pytest_cache/
 .vscode/
+generated_*
+temp_game

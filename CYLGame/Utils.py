@@ -6,6 +6,7 @@ import io
 import math
 import string
 import warnings
+from pathlib import Path
 
 from Crypto.Cipher import AES
 
@@ -145,3 +146,7 @@ def hash_stream(fp):
             break
         sha.update(data)
     return sha.hexdigest()
+
+
+def prefix_filename(p: Path, prefix: str):
+    return p.with_name(f"{prefix}{p.name}")

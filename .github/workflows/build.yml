@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         poetry config virtualenvs.in-project true
-        poetry install
+        poetry install -E sprite-editing
 
     - name: Run style checks
       run: |
