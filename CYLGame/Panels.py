@@ -331,31 +331,53 @@ class Panel(Map):
         try:
             if PanelBorder.TOP in self.border:
                 for i in range(self.real_w):
-                    frame_buffer.set(self.real_x + i, self.real_y, self.border[PanelBorder.TOP])
+                    self.draw_char(
+                        pos=(self.real_x + i, self.real_y), char=self.border[PanelBorder.TOP], frame_buffer=frame_buffer
+                    )
             if PanelBorder.LEFT in self.border:
                 for i in range(self.real_h):
-                    frame_buffer.set(self.real_x, self.real_y + i, self.border[PanelBorder.LEFT])
+                    self.draw_char(
+                        pos=(self.real_x, self.real_y + i),
+                        char=self.border[PanelBorder.LEFT],
+                        frame_buffer=frame_buffer,
+                    )
             if PanelBorder.BOTTOM in self.border:
                 for i in range(self.real_w):
-                    frame_buffer.set(self.real_x + i, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM])
+                    self.draw_char(
+                        pos=(self.real_x + i, self.real_y + self.real_h - 1),
+                        char=self.border[PanelBorder.BOTTOM],
+                        frame_buffer=frame_buffer,
+                    )
             if PanelBorder.RIGHT in self.border:
                 for i in range(self.real_h):
-                    frame_buffer.set(self.real_x + self.real_w - 1, self.real_y + i, self.border[PanelBorder.RIGHT])
+                    self.draw_char(
+                        pos=(self.real_x + self.real_w - 1, self.real_y + i),
+                        char=self.border[PanelBorder.RIGHT],
+                        frame_buffer=frame_buffer,
+                    )
             if PanelBorder.TOP in self.border and PanelBorder.LEFT in self.border:
-                frame_buffer.set(self.real_x, self.real_y, self.border[PanelBorder.TOP | PanelBorder.LEFT])
+                self.draw_char(
+                    pos=(self.real_x, self.real_y),
+                    char=self.border[PanelBorder.TOP | PanelBorder.LEFT],
+                    frame_buffer=frame_buffer,
+                )
             if PanelBorder.BOTTOM in self.border and PanelBorder.LEFT in self.border:
-                frame_buffer.set(
-                    self.real_x, self.real_y + self.real_h - 1, self.border[PanelBorder.BOTTOM | PanelBorder.LEFT]
+                self.draw_char(
+                    pos=(self.real_x, self.real_y + self.real_h - 1),
+                    char=self.border[PanelBorder.BOTTOM | PanelBorder.LEFT],
+                    frame_buffer=frame_buffer,
                 )
             if PanelBorder.TOP in self.border and PanelBorder.RIGHT in self.border:
-                frame_buffer.set(
-                    self.real_x + self.real_w - 1, self.real_y, self.border[PanelBorder.TOP | PanelBorder.RIGHT]
+                self.draw_char(
+                    pos=(self.real_x + self.real_w - 1, self.real_y),
+                    char=self.border[PanelBorder.TOP | PanelBorder.RIGHT],
+                    frame_buffer=frame_buffer,
                 )
             if PanelBorder.BOTTOM in self.border and PanelBorder.RIGHT in self.border:
-                frame_buffer.set(
-                    self.real_x + self.real_w - 1,
-                    self.real_y + self.real_h - 1,
-                    self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
+                self.draw_char(
+                    pos=(self.real_x + self.real_w - 1, self.real_y + self.real_h - 1),
+                    char=self.border[PanelBorder.BOTTOM | PanelBorder.RIGHT],
+                    frame_buffer=frame_buffer,
                 )
         except IndexError:
             raise IndexError(
@@ -482,14 +504,14 @@ class MessagePanel(Panel):
             # TODO: optimize this by only clearing what should be changed.
             # Clear msg row
             for i in range(self.max_len):
-                frame_buffer.set(self.x + i, self.y + j, self.default_char)
+                self.draw_char(pos=(self.x + i, self.y + j), char=self.default_char, frame_buffer=frame_buffer)
 
         # Write the message we have to the panel
         for j in range(len(msgs_to_display)):
             msg = msgs_to_display[j]
             # Print msg
             for i in range(min(len(msg), self.max_len)):
-                frame_buffer.set(self.x + i, self.y + j, msg[i])
+                self.draw_char(pos=(self.x + i, self.y + j), char=msg[i], frame_buffer=frame_buffer)
 
 
 class StatusPanel(MessagePanel):
