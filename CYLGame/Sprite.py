@@ -16,9 +16,7 @@ class SpriteSet:
     char_rows: int
     char_columns: int
 
-    def is_char_valid(self, char: Union[str, int]):
-        if isinstance(char, str):
-            char = ord(char)
+    def is_char_valid(self, char: int):
         return 0 <= char < self.char_rows * self.char_columns
 
 

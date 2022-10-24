@@ -1,4 +1,20 @@
+from typing import Union
+
 from copy import copy, deepcopy
+
+from CYLGame.Sprite import Char
+
+GRID_CHAR_TYPE = Union[int, str, Char]
+
+
+def grid_char_to_int(c: GRID_CHAR_TYPE) -> int:
+    if isinstance(c, int):
+        return c
+    if isinstance(c, str) and len(c) == 1:
+        return ord(c)
+    if isinstance(c, Char):
+        return c.value
+    raise ValueError(f"{c} isn't a char")
 
 
 class FrameBuffer(object):
@@ -56,9 +72,7 @@ class GridFrameBuffer(FrameBuffer):
             y(int):
             char(int): The id of the char.
         """
-        if isinstance(char, str):
-            assert len(char) == 1
-            char = ord(char)
+        char = grid_char_to_int(char)
         if not (0 <= x < self.x):
             raise IndexError("Trying to draw out of bounds at ({}, {})".format(x, y))
         if not (0 <= y < self.y):
