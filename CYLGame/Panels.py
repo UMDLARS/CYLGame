@@ -1,19 +1,37 @@
+from typing import List, Tuple, Union
+
 import traceback
 from collections import defaultdict
 from copy import copy
 from functools import reduce
 
+from CYLGame.Sprite import Char
 from CYLGame.Utils import deprecated
 
 DEFAULT_CHAR = " "
 
 
-def is_char(c):
-    return type(c) == str and len(c) == 1
+CHAR_TYPE = Union[str, int, Char]
+COORD_TYPE = Union[Tuple[int, int], List[int]]
 
 
-def is_coord(p):
-    return type(p) == tuple and len(p) == 2 and type(p[0]) == int and type(p[1]) == int
+def to_char(c: CHAR_TYPE) -> str:
+    if isinstance(c, str) and len(c) == 1:
+        return c
+    elif isinstance(c, int):
+        return chr(c)
+    elif isinstance(c, Char):
+        return str(c)
+    raise ValueError(f"{c} isn't a char")
+
+
+def to_coord(p: COORD_TYPE) -> Tuple[int, int]:
+    if type(p) == list:
+        # per https://github.com/python/mypy/issues/7509 ignore type
+        p = tuple(p)  # type: ignore
+    if type(p) == tuple and len(p) == 2 and type(p[0]) == int and type(p[1]) == int:
+        return p
+    raise ValueError(f"{p} isn't a coord")
 
 
 class Map(object):
@@ -27,22 +45,20 @@ class Map(object):
     def __init__(self, width, height, default_char=DEFAULT_CHAR):
         self.w = width
         self.h = height
-        self.default_char = default_char
+        self.default_char = to_char(default_char)
         self.char_to_ps = defaultdict(set)
         self.p_to_char = defaultdict(lambda: self.default_char)
         self.changes = {}
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: COORD_TYPE, value: CHAR_TYPE):
         self.add(value, key)
 
     def __getitem__(self, item):
         return self.get_char_at(item)
 
     def get_x_y_dist_to_foo(self, pos, foo, wrapping=False, diagonal_moving=False, default=None):
-        if type(pos) == list:
-            pos = tuple(pos)
-        assert is_coord(pos), "pos is not a coord: %r" % pos
-        assert is_char(foo), "foo is not a char: %r" % foo
+        pos = to_coord(pos)
+        foo = to_char(foo)
 
         dists = []
         x, y = pos
@@ -63,8 +79,7 @@ class Map(object):
 
     # checks if pos is in bound of the map
     def in_bounds(self, pos):
-        assert is_coord(pos), "pos: '{}', isn't a coord".format(pos)
-        x, y = pos
+        x, y = to_coord(pos)
         return 0 <= x < self.w and 0 <= y < self.h
 
     def wrap(self, pos, wrap_x=False, wrap_y=False):
@@ -84,9 +99,9 @@ class Map(object):
         return changes
 
     # pos must be tuple
-    def add(self, char, pos):
-        assert is_char(char), "'{}' isn't a char".format(char)
+    def add(self, char: CHAR_TYPE, pos):
         assert self.in_bounds(pos), "'{}' isn't in bounds".format(pos)
+        char = to_char(char)
 
         if pos in self.p_to_char.keys():
             self.rm_char(pos)
@@ -105,7 +120,7 @@ class Map(object):
 
     # returns a set of pos
     def get_all_pos(self, char):
-        assert is_char(char)
+        char = to_char(char)
         return copy(self.char_to_ps[char])
 
     # will return default_char if the position is not set
@@ -324,7 +339,7 @@ class Panel(Map):
     def draw_char(self, char, pos, frame_buffer):
         # TODO: add asserts for these
         x, y = pos
-        assert is_char(char)
+        char = to_char(char)
         frame_buffer.set(x, y, char)
 
     def redraw(self, frame_buffer):
