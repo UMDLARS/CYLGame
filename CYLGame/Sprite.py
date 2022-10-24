@@ -140,3 +140,35 @@ class TwoDimensionalSpriteColoring:
     def get_background_value(self, key: Any):
         assert self._coloring is not None
         return self._coloring.get_mapping_value(1, key=key)
+
+
+@dataclass
+class Char:
+    value: int
+
+    @classmethod
+    def from_str(cls, c):
+        return cls(ord(c))
+
+    def __str__(self):
+        return chr(self.value)
+
+    def __add__(self, other):
+        if isinstance(other, str):
+            other = Char.from_str(other)
+        if isinstance(other, int):
+            other = Char(other)
+        if isinstance(other, Char):
+            return Char(self.value + other.value)
+
+    def __radd__(self, other):
+        return self + other
+
+    def __eq__(self, other):
+        if isinstance(other, Char):
+            return self.value == other.value
+        elif isinstance(other, str):
+            return str(self) == other
+        elif isinstance(other, int):
+            return self.value == other
+        raise TypeError(f"Can not compare types `{type(self)}` and `{type(other)}`")
