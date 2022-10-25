@@ -419,7 +419,7 @@ class GameServer(flask_classful.FlaskView):
         cls.gamedb.www_cache.safe_replace_cache(os.path.join(os.path.split(__file__)[0], "www"))
 
         if issubclass(game, GridGame):
-            cls.charset = cls.__copy_in_charset(game.CHAR_SET)
+            cls.charset = cls.__copy_in_charset(game.get_sprite_set().image_filepath)
 
         setup_logging(
             debug_file=debug_log_file.replace("{dbfile}", game_data_path),

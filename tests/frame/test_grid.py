@@ -1,7 +1,17 @@
 import pytest
 
 from CYLGame.Frame import GridFrameBuffer
-from CYLGame.Sprite import SpriteSet
+from CYLGame.Sprite import Char, SpriteSet
+
+
+def test_different_types():
+    frame = GridFrameBuffer(1, 1)
+    frame.set(0, 0, "a")
+    assert str(frame) == "a"
+    frame.set(0, 0, 97)
+    assert str(frame) == "a"
+    frame.set(0, 0, Char(97))
+    assert str(frame) == "a"
 
 
 def test_str_1x1():

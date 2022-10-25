@@ -1,5 +1,6 @@
 from CYLGame import MapPanel
 from CYLGame.Frame import GridFrameBuffer
+from CYLGame.Sprite import Char
 
 
 def test_edges():
@@ -13,3 +14,13 @@ def test_edges():
     exp = ["     ", " 12  ", " 34  ", "     ", "     "]
     exp_frame = GridFrameBuffer.from_string_array(exp)
     assert frame == exp_frame
+
+
+def test_different_types():
+    panel = MapPanel(0, 0, 1, 3)
+    frame = GridFrameBuffer(1, 3)
+    panel.add("a", (0, 0))
+    panel.add(97, (0, 1))
+    panel.add(Char(97), (0, 2))
+    panel.redraw(frame)
+    assert frame == GridFrameBuffer.from_string_array("aaa")
