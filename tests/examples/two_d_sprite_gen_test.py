@@ -3,7 +3,7 @@ from pathlib import Path
 from CYLGame.Frame import GridFrameBuffer
 from CYLGame.Game import ConstMapping, GridGame
 from CYLGame.Player import DefaultGridPlayer
-from CYLGame.Sprite import SpriteSet, TwoDimensionalSpriteColoring
+from CYLGame.Sprite import Char, SpriteSet, TwoDimensionalSpriteColoring
 
 
 def replace(i, old_color, new_color):
@@ -66,10 +66,10 @@ class TwoDCustomCharSize(GridGame):
 
     def draw_screen(self, frame_buffer: GridFrameBuffer):
         frame_buffer.set(2, 1, 0)
-        frame_buffer.set(3, 1, 1)
+        frame_buffer.set(3, 1, Char(1))
         frame_buffer.set(4, 1, 2)
         frame_buffer.set(2, 2, 3)
-        frame_buffer.set(3, 2, 4)
+        frame_buffer.set(3, 2, "a" + self.GREEN)
         frame_buffer.set(4, 2, 5)
         frame_buffer.set(2, 3, ord("A") + self.GREEN)
         frame_buffer.set(2, 4, ord("A") + self.WATER)

@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import itertools
-from dataclasses import InitVar, dataclass
+from dataclasses import InitVar, dataclass, field
 from functools import reduce
 from pathlib import Path
 
@@ -18,6 +18,75 @@ class SpriteSet:
 
     def is_char_valid(self, char: int):
         return 0 <= char < self.char_rows * self.char_columns
+
+
+@dataclass(frozen=True)
+class Char:
+    value: int
+    modifiers: Tuple["CharModifier", ...] = field(default_factory=tuple)
+
+    @classmethod
+    def from_str(cls, c):
+        return cls(ord(c))
+
+    def __str__(self):
+        return chr(self.value)
+
+    def __add__(self, other):
+        # if isinstance(other, str):
+        #     other = Char.from_str(other)
+        # if isinstance(other, int):
+        #     other = Char(other)
+        # if isinstance(other, Char):
+        #     return Char(self.value + other.value)
+        if isinstance(other, CharModifier):
+            return other + self
+        raise TypeError(f"Can not add types `{type(self)}` and `{type(other)}`")
+
+    def __radd__(self, other):
+        return self + other
+
+    def __eq__(self, other):
+        if isinstance(other, Char):
+            return self.value == other.value
+        elif isinstance(other, str):
+            return str(self) == other
+        elif isinstance(other, int):
+            return self.value == other
+        raise TypeError(f"Can not compare types `{type(self)}` and `{type(other)}`")
+
+
+@dataclass(frozen=True)
+class CharModifier:
+    key: Any
+    value: int
+    layer: int
+    sub_modifiers: List["CharModifier"] = field(default_factory=list)
+
+    def __add__(self, other):
+        if isinstance(other, str):
+            other = Char.from_str(other)
+        if isinstance(other, int):
+            other = Char(other)
+        if isinstance(other, Char):
+            for modifier in other.modifiers:
+                if modifier.layer == self.layer:
+                    raise ValueError(
+                        f"Can not add two modifiers from the same layer! Already added `{modifier}`. Trying to add `{self}`"
+                    )
+            for sub_modifier in self.sub_modifiers:
+                other += sub_modifier
+            return Char(self.value + other.value, modifiers=other.modifiers + (self,))
+        if isinstance(other, CharModifier):
+            if self.layer == other.layer:
+                raise ValueError(f"Can not add two modifiers from the same layer! Adding `{other}` to add `{self}`")
+            return CharModifier(
+                key=self.key, value=self.value, layer=self.layer, sub_modifiers=self.sub_modifiers + [other]
+            )
+        raise TypeError(f"Can not add types `{type(self)}` and `{type(other)}`")
+
+    def __radd__(self, other):
+        return self + other
 
 
 @dataclass
@@ -104,9 +173,9 @@ class MultiDimensionalSpriteColoring:
                 if img_data[x, y] == old_color:
                     img_data[x, y] = new_color
 
-    def get_mapping_value(self, index: int, key: Any):
+    def get_mapping_value(self, index: int, key: Any) -> CharModifier:
         assert self._mapping_keys_to_index is not None
-        return self._mapping_keys_to_index[index][key] * self._orig_size
+        return CharModifier(key=key, value=self._mapping_keys_to_index[index][key] * self._orig_size, layer=index)
 
 
 @dataclass
@@ -131,42 +200,10 @@ class TwoDimensionalSpriteColoring:
         self._coloring = MultiDimensionalSpriteColoring(base_sprite_set=base_sprite_set, mappings=mappings)
         self.sprite_set = self._coloring.sprite_set
 
-    def get_foreground_value(self, key: Any):
+    def get_foreground_value(self, key: Any) -> CharModifier:
         assert self._coloring is not None
         return self._coloring.get_mapping_value(0, key=key)
 
-    def get_background_value(self, key: Any):
+    def get_background_value(self, key: Any) -> CharModifier:
         assert self._coloring is not None
         return self._coloring.get_mapping_value(1, key=key)
-
-
-@dataclass
-class Char:
-    value: int
-
-    @classmethod
-    def from_str(cls, c):
-        return cls(ord(c))
-
-    def __str__(self):
-        return chr(self.value)
-
-    def __add__(self, other):
-        if isinstance(other, str):
-            other = Char.from_str(other)
-        if isinstance(other, int):
-            other = Char(other)
-        if isinstance(other, Char):
-            return Char(self.value + other.value)
-
-    def __radd__(self, other):
-        return self + other
-
-    def __eq__(self, other):
-        if isinstance(other, Char):
-            return self.value == other.value
-        elif isinstance(other, str):
-            return str(self) == other
-        elif isinstance(other, int):
-            return self.value == other
-        raise TypeError(f"Can not compare types `{type(self)}` and `{type(other)}`")
