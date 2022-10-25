@@ -31,7 +31,23 @@
           <div class="body" role="main">
             
   <h1>Source code for CYLGame.Frame</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+
+<span class="kn">from</span> <span class="nn">CYLGame.Sprite</span> <span class="kn">import</span> <span class="n">Char</span>
+
+<span class="n">GRID_CHAR_TYPE</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Char</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="grid_char_to_int"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Frame.grid_char_to_int">[docs]</a><span class="k">def</span> <span class="nf">grid_char_to_int</span><span class="p">(</span><span class="n">c</span><span class="p">:</span> <span class="n">GRID_CHAR_TYPE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">c</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Char</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> isn&#39;t a char&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FrameBuffer"><a class="viewcode-back" href="../../CYLGame.html#CYLGame.Frame.FrameBuffer">[docs]</a><span class="k">class</span> <span class="nc">FrameBuffer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -89,9 +105,7 @@
 <span class="sd">            y(int):</span>
 <span class="sd">            char(int): The id of the char.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">char</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-            <span class="n">char</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+        <span class="n">char</span> <span class="o">=</span> <span class="n">grid_char_to_int</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Trying to draw out of bounds at (</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">):</span>
